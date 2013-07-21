@@ -11,16 +11,18 @@
 #define TYPE_PROC            4
 #define TYPE_CLOSURE         5
 #define TYPE_ARRAY           6
+#define TYPE_HASH_TABLE      7
 
 typedef struct {
 	void *data;
-	unsigned char type;
+	unsigned int type;
 
 	/* data marks the start of a block of size bytes of data */
-	unsigned int size;
+	size_t size;
 	
 	/* gc tags. broken heart indicates that this has already been moved
-	 forwarding_p points back to the old memory location */
+	 * forw is the forwarding address into the new memory to use to resolve further references
+	 */
 	bool bh;
 	void *forw;
 

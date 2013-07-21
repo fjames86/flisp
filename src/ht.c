@@ -2,8 +2,8 @@
 #include "ht.h"
 
 value *gethash (hash_table *ht, symbol key) {
-	unsigned int i;
-	hash_table_entry *entry;
+	size_t i;
+
 	
 	i = hash_string(key) % ht->size;
 	entry = ht->entries[i];

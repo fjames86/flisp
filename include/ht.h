@@ -6,17 +6,7 @@
 #include "gc.h"
 #include "symbol.h"
 
-typedef struct hash_table_entry_ {
-	symbol key;
-	value *val;
-	struct hash_table_entry_ * next;
-} hash_table_entry;
-
-typedef struct {
-	value **entries;
-	unsigned int size;
-	unsigned int fill;
-} hash_table;
+/* hash tables are arrays of values. each value is an assoc list */
 
 value *gethash (hash_table *ht, symbol key);
 void sethash (hash_table *ht, symbol key, void *val);

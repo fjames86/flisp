@@ -95,19 +95,19 @@ value *gc_new_array (size_t size) {
 	return v;
 }
 
-/*
 value *gc_new_ht (size_t ht_size) {
 	value *v = gc_new();
-	hash_table *ht;
+	size_t i;
+	v->type = TYPE_HASH_TABLE;
+	v->data = gc_new_array(ht_size);
 	
-	v->data = gc_malloc(sizeof(hash_table));
-	ht = (hash_table *)v->data;
+	for(i=0; i < ht_size; i++) {
+		((value *)(v->data))[i].type = TYPE_CELL;
+		((value *)(v->data))[i].data = NULL;		
+	}
 	
-	ht->data = gc_malloc(sizeof(void *)*ht_size);
-	ht->size = ht_size;
 	return v;
 }
-*/
 
 /*
  * relocate an object from old memory to new memory
@@ -117,7 +117,7 @@ void gc_relocate (value *new, value *old) {
 	value *v;
 	cell *c;
 	size_t i;
-
+	
 	if (new == NULL) {
 		/* make the new object */
 		new = gc_new();
@@ -175,6 +175,13 @@ void gc_relocate (value *new, value *old) {
 				gc_relocate(NULL, v);
 			}
 		}
+		break;	
+	case TYPE_HASH_TABLE:
+		/* hash table. need to iterate through the entries */
+		for(i=0; i < new->size; i++) {
+			gc_relocate(NULL, &((value *)(new->data))[i]);
+		}
+		
 		break;
 	}
 }

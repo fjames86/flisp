@@ -82,6 +82,6 @@ int main (int argc, char **argv) {
 	print_heap();
 
 	printf ("%p type: %d\n", x, x->type);
-	
+
 	free(h);
 }
