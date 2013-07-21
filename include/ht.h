@@ -5,12 +5,14 @@
 #include "sys.h"
 #include "gc.h"
 #include "symbol.h"
+#include "list.h"
 
 /* hash tables are arrays of values. each value is an assoc list */
 
-value *gethash (hash_table *ht, symbol key);
-void sethash (hash_table *ht, symbol key, void *val);
-void remhash (hash_table *ht, symbol key);
+value *gethash (value *ht, symbol key);
+void sethash (value *ht, symbol key, void *val);
+void remhash (value *ht, symbol key);
+void clearhash (value *ht);
 
 unsigned int hash_string (char *str);
 

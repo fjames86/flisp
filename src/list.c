@@ -93,7 +93,7 @@ value *assoc (symbol key, value *alist) {
 		}
 		b = car((cell *)(a->data));
 		if (b->type == TYPE_SYMBOL && b->data == key) {
-			return cdr((cell *)(a->data));
+			return a; /*cdr((cell *)(a->data));*/
 		} else {
 			alist = cdr(c);
 		}

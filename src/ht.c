@@ -1,74 +1,56 @@
 
 #include "ht.h"
 
-value *gethash (hash_table *ht, symbol key) {
+value *gethash (value *ht, symbol key) {
 	size_t i;
-
+	value *alist, *entry;
 	
 	i = hash_string(key) % ht->size;
-	entry = ht->entries[i];
-	while (entry != NULL) {
-		if (entry->key == key) {
-			return entry->val;
-		}
-		entry = entry->next;
-	}
-	
-	return NULL;
+	alist = &((value *)(ht->data))[i];
+	return assoc(key, alist);
 }
 
-value *make_hash_table_entry (symbol key, void *val) {
-	value *v;
-	hash_table_entry *entry;
-	
-	v = gc_new_block(sizeof(hash_table_entry));
-	entry = (hash_table_entry *)v->data;
-	entry->key = key;
-	entry->val = val;
-	entry->next = NULL;
-
-	return v;
-}
-	
-void sethash (hash_table *ht, symbol key, void *val) {
-	unsigned int i;
-	hash_table_entry *entry;
+void sethash (value *ht, symbol key, void *val) {
+	size_t i; 
+	value *entry, *alist;
 	
 	i = hash_string (key) % ht->size;
-	entry = ht->entries[i];
-	while (entry->next != NULL) {
-		if (entry->key == key) {
-			entry->val = val;
-			return;
-		} 
-		entry = entry->next;
+	alist = &((value *)(ht->data))[i];
+	entry = assoc(key, alist);
+	if (entry != NULL) {
+		((cell *)(entry->data))->cdr = val;
+	} else {
+		((value **)(ht->data))[i] = acons(key, val, ((value **)(ht->data))[i]);
 	}
-
-	entry->next = gc_malloc(sizeof(hash_table_entry));
-	entry->key = key;
-	entry->val = val;
-
-	ht->fill += 1;
 }
 
-void remhash (hash_table *ht, symbol key) {
-	unsigned int i;
-	hash_table_entry *entry, *e;
+void remhash (value *ht, symbol key) {
+	size_t i;
+	value *entry, *e;
+	cell *alist;
 	
 	i = hash_string (key) % ht->size;
-	entry = ht->entries[i];
+	alist = (cell *)(((value **)(ht->data))[i]->data);
+
 	e = NULL;
-	while (entry != NULL) {
-		if (entry->key != key) {
+	while (alist != NULL) {
+		entry = car(alist);
+		if (car(entry->data)->data != key) {
 			/* keep it */
-			e = entry;
-			e->next = NULL;
+			e = cons(entry, e);
 		}
-		entry = entry->next;
+		alist = cdr(alist)->data;
 	}
-	ht->entries[i] = e;
+	((value **)(ht->data))[i] = e;
 }
 
+void clearhash(value *ht) {
+	size_t i;
+
+	for(i=0; i < ht->size; i++) {
+		((value **)(ht->data))[i] = gc_new_cell();
+	}
+}
 
 // Use folding on a string, summed 4 bytes at a time
 unsigned int hash_string (char *s) {
