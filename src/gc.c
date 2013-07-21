@@ -113,23 +113,25 @@ value *gc_new_ht (size_t ht_size) {
  * relocate an object from old memory to new memory
  * and recursively call on any child objects
  */
-void gc_relocate (value *old) {
-	value *new, *v;
+void gc_relocate (value *new, value *old) {
+	value *v;
 	cell *c;
 	size_t i;
-	
-	/* make the new object */
-	new = gc_new();
-	
-	/* set the old objects broken heart and forwarding tags */
-	old->bh = TRUE;
-	old->forw = new;
 
-	new->type = old->type;
-	new->data = old->data;
-	new->size = old->size;
-	new->bh = FALSE;
-	new->forw = NULL;
+	if (new == NULL) {
+		/* make the new object */
+		new = gc_new();
+	
+		/* set the old objects broken heart and forwarding tags */
+		old->bh = TRUE;
+		old->forw = new;
+
+		new->type = old->type;
+		new->data = old->data;
+		new->size = old->size;
+		new->bh = FALSE;
+		new->forw = NULL;
+	}
 	
 	/* if this is not an atom then it may reference child objects. need to ensure these are updated too */
 	switch (new->type) {
@@ -150,13 +152,13 @@ void gc_relocate (value *old) {
 			if (c->car->bh == TRUE) {
 				c->car = c->car->forw;
 			} else {
-				gc_relocate(c->car);
+				gc_relocate(NULL, c->car);
 			}
 
 			if (c->cdr->bh == TRUE) {
 				c->cdr = c->cdr->forw;
 			} else {
-				gc_relocate(c->cdr);
+				gc_relocate(NULL, c->cdr);
 			}
 		}
 		break;
@@ -170,11 +172,34 @@ void gc_relocate (value *old) {
 				((value **)(new->data))[i] = v->forw;
 			} else {
 				/* relocate it */
-				gc_relocate(v);
+				gc_relocate(NULL, v);
 			}
 		}
 		break;
 	}
+}
+
+void gc_collect (value **root) {
+	value *new, *old;
+
+	old = *root;
+	
+	/* make the new object */
+	new = gc_new();
+	
+	/* set the old objects broken heart and forwarding tags */
+	old->bh = TRUE;
+	old->forw = new;
+
+	new->type = old->type;
+	new->data = old->data;
+	new->size = old->size;
+	new->bh = FALSE;
+	new->forw = NULL;
+
+	*root = new;
+
+	gc_relocate(new, old);
 }
 
 void gc_collect_init () {

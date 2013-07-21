@@ -73,14 +73,15 @@ int main (int argc, char **argv) {
 	
 	v = gc_new_array(5);
 	print_heap();
-	
+
+	printf ("%p type: %d\n", x, x->type);
+		
 	gc_collect_init();
-	gc_relocate(x);
+	gc_collect(&x);
 	
 	print_heap();
 
-	gc_collect_init();
-	print_heap();
+	printf ("%p type: %d\n", x, x->type);
 	
 	free(h);
 }

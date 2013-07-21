@@ -22,7 +22,8 @@ value *gc_new_array (size_t size);
 value *gc_new_symbol(symbol s);
 
 
-void gc_relocate (value *old);
+void gc_relocate (value *new, value *old);
+void gc_collect (value **root);
 void gc_collect_init ();
 
 #endif 
