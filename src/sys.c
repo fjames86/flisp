@@ -50,11 +50,36 @@ char *strncpy (char *dest, char *source, size_t num) {
 }
 
 int strcmp(char *str1, char *str2) {
-	while (str1 != '\0' && str2 != '\0') {
-		if (*str1 == *str2) {
-			str1++;
-			str2++;
-		}
+	int ret = 0;
+	while (!(ret = (*str1 - *str2)) && (*str2 != '\0')) {
+		str1++;
+		str2++;
 	}
-	return (str2 - str1);
+	
+	if (ret < 0) {
+		ret = -1;
+	} else if (ret > 0) {
+		ret = 1;
+	}
+	
+	return ret;
 }
+
+int strncmp(char *str1, char *str2, size_t num) {
+	int ret = 0;
+	size_t i = 0;
+	while (!(ret = (*str1 - *str2)) && (*str2 != '\0') && (i < num)) {
+		str1++;
+		str2++;
+		i++;
+	}
+	
+	if (ret < 0) {
+		ret = -1;
+	} else if (ret > 0) {
+		ret = 1;
+	}
+	
+	return ret;
+}
+

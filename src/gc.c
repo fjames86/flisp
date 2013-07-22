@@ -1,8 +1,14 @@
 
 #include "gc.h"
 
-
-void gc_init (void *total_heap, unsigned int size) {
+/*
+ * gc_init
+ * void *total_heap        pointer to start of the chunk of memory to use as the gc heap
+ * size_t size             total size of the chunk of memory
+ *
+ * sets up the pointers to initialise the heap
+ */
+void gc_init (void *total_heap, size_t size) {
 	gc_heap_size = size / 2;
 	gc_working = total_heap;
 	gc_free = total_heap + gc_heap_size;
@@ -10,6 +16,15 @@ void gc_init (void *total_heap, unsigned int size) {
 	free_p = gc_working;
 }
 
+/*
+ * gc_malloc
+ * size_t size             number of bytes to return
+ *
+ * returns: pointer to start of block of memory
+ *
+ * returns the current top of the heap and advances the pointers or NULL if no heap space
+ * remains
+ */
 void *gc_malloc (size_t size) {
 	void *p;
 
@@ -22,188 +37,155 @@ void *gc_malloc (size_t size) {
 	return p;
 }
 
-value *gc_new () {
-	value *v = gc_malloc (sizeof(value));
 
-	if (v == NULL) {
-		return NULL;
-	} else {
-		v->data = NULL;
-		v->type = TYPE_INT;
-		v->size = 0;
-		v->bh = FALSE;
-		v->forw = NULL;
-	}
-	return v;
+/* ---------------- constructors ----------------- */
+
+/* for each type define here a constructor to return a new object
+   on the heap
+*/
+
+type_int *gc_new_int (int i) {
+	type_int *ret = (type_int *)gc_malloc(sizeof(type_int));
+	ret->tag.type = TYPE_INT;
+	ret->tag.bh = FALSE;
+	ret->tag.forw = NULL;
+
+	ret->i = i;
+
+	return ret;
 }
 
-value *gc_new_int (int val) {
-	value *v = gc_new();
-	v->data = (void *)val;
-	return v;
+type_string *gc_new_string (char *str) {
+	size_t len = strlen(str) + 1;
+	type_string *ret = (type_string *)gc_malloc(sizeof(type_string));
+	ret->tag.type = TYPE_STRING;
+	ret->tag.bh = FALSE;
+	ret->tag.forw = NULL;
+
+	ret->str = (char *)gc_malloc(sizeof(char)*len);
+	strcpy(ret->str, str);
+	ret->len = len;
+
+	return ret;
 }
 
-value *gc_new_string (char *str) {
-	unsigned int strl = strlen(str) + 1;
-	value *v = gc_new();
+type_cell *gc_new_cell () {
+	type_cell *ret = gc_malloc(sizeof(type_cell));
+	ret->tag.type = TYPE_CELL;
+	ret->tag.bh = FALSE;
+	ret->tag.forw = NULL;
 
-	if (v == NULL) {
-		return NULL;
-	} else {
-		v->data = gc_malloc(sizeof(char)*strl);
-		v->size = strl;
-		v->type = TYPE_STRING;
-		if (v->data) {
-			strcpy(v->data, str);
-		}
-	}
+	ret->car = NULL;
+	ret->cdr = NULL;
+
+	return ret;
+}
+
+
+/* make a new object based on its type */
+void *gc_new_copy (void *object) {
+	gc_type type;
+	void *ret = NULL;
 	
-	return v;
-}
+	type = ((gc_tag *)object)->type;
 
-value *gc_new_symbol (symbol s) {
-	value *v = gc_new();
-	if (v != NULL) {
-		v->type = TYPE_SYMBOL;
-		v->data = s;
-	}
-	return v;
-}
-	   
-value *gc_new_cell () {
-	value *v = gc_new();
-	if (v == NULL) {
-	} else {
-		v->type = TYPE_CELL;
-	}
-	return v;
-}
-
-/* return an array of values */
-value *gc_new_array (size_t size) {
-	value *v = gc_new();
-	size_t i;
-	if (v != NULL) {
-		v->data = gc_malloc(sizeof(value *)*size);
-		v->type = TYPE_ARRAY;
-		v->size = sizeof(value)*size;
-
-		for (i = 0; i < size; i++) {
-			((value **)(v->data))[i] = gc_new();
-		}
-	}
-	return v;
-}
-
-value *gc_new_ht (size_t ht_size) {
-	value *v = gc_new();
-	size_t i;
-	v->type = TYPE_HASH_TABLE;
-	v->data = gc_new_array(ht_size);
-	
-	for(i=0; i < ht_size; i++) {
-		((value *)(v->data))[i].type = TYPE_CELL;
-		((value *)(v->data))[i].data = NULL;		
-	}
-	
-	return v;
-}
-
-/*
- * relocate an object from old memory to new memory
- * and recursively call on any child objects
- */
-void gc_relocate (value *new, value *old) {
-	value *v;
-	cell *c;
-	size_t i;
-	
-	if (new == NULL) {
-		/* make the new object */
-		new = gc_new();
-	
-		/* set the old objects broken heart and forwarding tags */
-		old->bh = TRUE;
-		old->forw = new;
-
-		new->type = old->type;
-		new->data = old->data;
-		new->size = old->size;
-		new->bh = FALSE;
-		new->forw = NULL;
-	}
-	
-	/* if this is not an atom then it may reference child objects. need to ensure these are updated too */
-	switch (new->type) {
+	switch (type) {
+	case TYPE_INT:
+		ret = gc_new_int (((type_int *)object)->i);
+		break;
 	case TYPE_STRING:
-		/* copy the string/block of data across */
-		new->data = gc_malloc(sizeof(char)*new->size);
-		memcpy(new->data, old->data, new->size);
+		ret = gc_new_string (((type_string *)object)->str);
 		break;
 	case TYPE_CELL:
-		/* cons cell, need to check the car and cdr */
-		c = (cell *)new->data;
-		
-		/* only need to do something if not the empty list */
-		if (c != NULL) {
-			/* if the bh flag is set then this object has already been copied over,
-			 *  so simply replace with the forwarding address, otherwise relocate it
-			 */
-			if (c->car->bh == TRUE) {
-				c->car = c->car->forw;
-			} else {
-				gc_relocate(NULL, c->car);
-			}
-
-			if (c->cdr->bh == TRUE) {
-				c->cdr = c->cdr->forw;
-			} else {
-				gc_relocate(NULL, c->cdr);
-			}
-		}
+		ret = gc_new_cell ();
 		break;
-	case TYPE_ARRAY:
-		/* a flat array of values. need to check each of them */
+	}
+	return ret;
+}
 
-		for (i=0; i < new->size; i++) {
-			v = ((value **)(new->data))[i];			
-			if (v->bh == TRUE) {
-				/* this has already been relocated, just update the reference */
-				((value **)(new->data))[i] = v->forw;
-			} else {
-				/* relocate it */
-				gc_relocate(NULL, v);
-			}
+
+/* ------------- destructors for each type follow ------------------------------------- */
+
+/* each type needs to know how to move its contents around */
+
+/* ints don't store any references so don't need to do anything
+ * this is the simplest base case
+ */
+void gc_relocate_int (type_int *new, type_int *old) {
+	old->tag.bh = TRUE;
+	old->tag.forw = new;
+}
+
+/* strings are also pretty simple. they only store a reference to a passive
+ * block of data (the characters) and this gets copied automatically by the
+ * constructor
+ */
+void gc_relocate_string (type_string *new, type_string *old) {
+	old->tag.bh = TRUE;
+	old->tag.forw = new;
+}
+
+/* list cells are more complicated. both the car and cdr may reference
+ * other objects. if this has already been moved, as indicated by the broken
+ * heart flag, then just use the forwarding address. Otherwise, it's not
+ * been moved so call the relocate function on it
+ */
+void gc_relocate_cell (type_cell *new, type_cell *old) {
+	gc_tag *tag;
+	
+	old->tag.bh = TRUE;
+	old->tag.forw = (void *)new;
+
+	if (old->car != NULL) {
+		tag = ((gc_tag *)(old->car));
+		if (tag->bh == TRUE) {
+			new->car = tag->forw;
+		} else {
+			gc_relocate(NULL, old->car);
 		}
-		break;	
-	case TYPE_HASH_TABLE:
-		/* hash table. need to iterate through the entries */
-		for(i=0; i < new->size; i++) {
-			gc_relocate(NULL, &((value *)(new->data))[i]);
+	}
+
+	if (old->cdr != NULL) {
+		tag = ((gc_tag *)(old->cdr));
+		if (tag->bh == TRUE) {
+			new->car = tag->forw;
+		} else {
+			gc_relocate(NULL, old->cdr);
 		}
-		
+	}
+}
+
+
+/* --------- top level relocate function -------- */
+
+void gc_relocate (void *new, void *old) {
+	gc_type type;
+
+	if (new == NULL) {
+		new = gc_new_copy (old);
+	}
+	
+	type = ((gc_tag *)old)->type;
+	switch (type) {
+	case TYPE_INT:
+		gc_relocate_int (new, (type_int *)old);
+		break;
+	case TYPE_STRING:
+		gc_relocate_string (new, (type_string *)old);
+		break;
+	case TYPE_CELL:
+		gc_relocate_cell (new, (type_cell *)old);
 		break;
 	}
 }
 
-void gc_collect (value **root) {
-	value *new, *old;
+void gc_collect (void **root) {
+	void *new, *old;
 
 	old = *root;
 	
 	/* make the new object */
-	new = gc_new();
-	
-	/* set the old objects broken heart and forwarding tags */
-	old->bh = TRUE;
-	old->forw = new;
-
-	new->type = old->type;
-	new->data = old->data;
-	new->size = old->size;
-	new->bh = FALSE;
-	new->forw = NULL;
-
+	new = gc_new_copy(old);
 	*root = new;
 
 	gc_relocate(new, old);

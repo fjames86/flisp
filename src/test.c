@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "sys.h"
-#include "value.h"
 #include "gc.h"
 
 void print_heap () {
@@ -40,7 +39,7 @@ void print_heap () {
 				if (c >= ' ' && c <= '~') {
 					printf ("%c", c);
 				} else {
-					printf (".");
+					printf (" .");
 				}
 			} else {
 				break;
@@ -51,37 +50,246 @@ void print_heap () {
 	printf ("%08x\n", (unsigned int)free_p);
 }
 
+void print_val (void *val) {
+	gc_type type;
+	type_cell *c;
+	bool printed;
+	
+	if (val == NULL) {
+		printf ("NIL");
+		return;
+	}
+	
+	type = ((gc_tag *)val)->type;
+
+	switch (type) {
+	case TYPE_INT:
+		printf("%d", ((type_int *)val)->i);
+		break;
+	case TYPE_STRING:
+		printf("\"%s\"", ((type_string *)val)->str);
+		break;
+	case TYPE_CELL:
+		c = (type_cell *)val;
+		printf ("(");
+		printed = FALSE;
+		/* a NULL car means end of the list, regardless of the cdr (this should be NULL also) */
+		while (c != NULL && c->car != NULL) {
+			if (printed) {
+				printf (" ");
+			} else {
+				printed = TRUE;
+			}
+			print_val (c->car);
+			
+			c = c->cdr;
+			if ((c != NULL) && (((gc_tag *)c)->type != TYPE_CELL)) {
+				printf (". ");
+				print_val (c);
+				break;
+			}			
+		}
+
+		printf (")");
+		break;
+	}
+}
+
+bool whitespace(char c) {
+	switch (c) {
+	case ' ':
+	case '\t':
+	case '\f':
+	case '\n':
+	case '\v':
+	case '\0':
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+bool digitp (char c) {
+	if (c >= '0' && c <= '9') {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+	
+bool integerp (char *str) {
+	char *c = str;
+	int d = 0;
+
+	/* first char may be a +, - or of course a digit */
+	if(!(*c == '+' || *c == '-' || digitp(*c))) return 0;
+
+	if (isdigit(*c)) d = 1;
+	
+	c++;
+	while(*c != '\0') {
+		if(!isdigit(*c)) return 0;
+		else d = 1;
+		c++;
+	}
+
+	return d;
+}
+
+int parse_integer (char *str) {
+	char *c;
+	int ret, factor;
+
+	c = str;
+	while (*c != '\0') c++;
+	c--;
+
+	factor = 1;
+	ret = 0;
+	while (c >= str) {
+		if (*c == '-') {
+			ret = -ret;
+			break;
+		} else if (*c == '+') {
+			break;
+		}
+		
+		ret += (*c - '0')*factor;
+		factor *= 10;
+		c--;
+	}
+
+	return ret;
+}
+
+#define MAX_LINE 100
+char buffer[MAX_LINE];
+char *bufferp;
+
+void next_word (char *dest) {
+	bool done;
+	
+	/* refresh the buffer if needed */
+	if (*bufferp == '\0') {
+		printf ("> ");
+		gets(buffer);
+		bufferp = buffer;
+	}
+
+	while (whitespace(*bufferp)) {
+		bufferp++;
+	}
+
+	done = FALSE;
+	while (TRUE) {
+		if (whitespace(*bufferp) || *bufferp == '\0') {
+			break;
+		} else if (*bufferp == '(' || *bufferp == ')') {
+			if (!done) {
+				*dest = *bufferp;
+				dest++;
+				bufferp++;
+			}
+			break;
+		}
+
+		*dest = *bufferp;
+		done = TRUE;
+		dest++;
+		bufferp++;
+	}
+	*dest = '\0';
+}
+
+void *next_expr(bool recursive) {
+	char word[MAX_LINE];
+	void *ret, *builder;
+	void *next;
+	
+	next_word(word);
+	/*	printf ("\n\"%s\" == ( : %d\n", word, strcmp(word, "("));*/
+	
+	if (strcmp(word, "(") == 0) {
+		/* start of a list */
+		ret = (void *)gc_new_cell();
+		builder = ret;
+		do {
+			if (ret == NULL) {
+				ret = (void *)gc_new_cell();
+			}
+
+			next = next_expr(FALSE);
+			if (next == NULL) {
+				break;
+			} else {
+				((type_cell *)ret)->car = next;
+			}
+			
+			ret = ((type_cell *)ret)->cdr;
+		} while (TRUE);
+		ret = builder;
+	} else if (strcmp (word, ")") == 0) {
+		/* end of a list */
+		if (recursive == TRUE) {
+			ret = NULL;
+		} else {
+			/* error: unmatched closing paren */
+			ret = NULL;
+		}
+	} else if (integerp (word) == TRUE) {
+		/* integer */
+		ret = (void *)gc_new_int (parse_integer (word));
+	} else {
+		/* string */
+		ret = (void *)gc_new_string (word);
+	}
+	
+	return ret;
+}
+
 #define HEAP_SIZE (1024*1024)
 
 int main (int argc, char **argv) {
-	void *h;
-	value *v, *w, *x;
-	void *tmp;
-	
-	h = calloc (HEAP_SIZE, sizeof(char));
+	void *heap;
+	type_int *i;
+	type_cell *c;
+	type_string *s;
+	char word[MAX_LINE];
+	void *expr;
 
-	gc_init(h, HEAP_SIZE);
-	
-	v = gc_new ();
-	v->data = (void *)(0x12345678);
+	/* create the heap */
+	heap = calloc (HEAP_SIZE, sizeof(char));
+	gc_init(heap, HEAP_SIZE);
 
-	w = gc_new_string("abcde");	
+	bufferp = "";
 
-	x = gc_new_cell();
-	x = cons(v, w);
-	x = acons("foo", w, x);
+	while (TRUE) {
+		expr = next_expr(FALSE);
+		print_val(expr);
+		printf ("\n");
+	}
+
 	
-	v = gc_new_array(5);
+#if 0
+	i = gc_new_int (123);
+	s = gc_new_string("hello");
+	c = gc_new_cell();
+	c->car = i;
+	c->cdr = gc_new_cell();
+	((type_cell *)c->cdr)->car = s;
+	((type_cell *)c->cdr)->cdr = s;
+
+	print_heap();
+	
+	print_val (c);
+	printf ("\n");
+	
 	print_heap();
 
-	printf ("%p type: %d\n", x, x->type);
-		
 	gc_collect_init();
-	gc_collect(&x);
-	
+	gc_collect ((void *)&c);
 	print_heap();
-
-	printf ("%p type: %d\n", x, x->type);
-
-	free(h);
+#endif
+	
+	free(heap);
 }

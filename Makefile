@@ -6,10 +6,10 @@ CFLAGS=-I$(IDIR) -c -fno-builtin -nostdinc -g
 ODIR=obj
 SDIR=src
 
-_DEPS = gc.h list.h symbol.h sys.h value.h ht.h env.h
+_DEPS = gc.h sys.h 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = gc.o list.o sys.o value.o test.o ht.o
+_OBJ = gc.o sys.o test.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 test: $(OBJ)

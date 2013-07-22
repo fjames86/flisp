@@ -22,6 +22,7 @@ void *memset (void *dest, int val, size_t num);
 char *strcpy (char *dest, char *source);
 char *strncpy (char *dest, char *source, size_t num);
 int strcmp(char *str1, char *str2);
+int strncmp(char *str1, char *str2, size_t num);
 
 #endif
 
