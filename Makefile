@@ -16,7 +16,7 @@ test: $(OBJ)
 	gcc -o $@ $^
 
 ${ODIR}/test.o: ${SDIR}/test.c ${DEPS}
-	${CC} -c -o ${ODIR}/test.o ${SDIR}/test.c -I${IDIR}
+	${CC} -c -g -o ${ODIR}/test.o ${SDIR}/test.c -I${IDIR}
 
 $(ODIR)/%.o: ${SDIR}/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

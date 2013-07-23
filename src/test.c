@@ -5,6 +5,213 @@
 #include "sys.h"
 #include "gc.h"
 
+void print_heap();
+void print_val(void *val);
+bool whitespace(char c);
+bool digitp (char c);
+bool integerp (char *str);
+int parse_integer (char *str);
+void refresh_buffer();
+void next_word (char *dest);
+type_cell *read_list ();
+void *next_expr();
+
+
+#define MAX_LINE 100
+char buffer[MAX_LINE];
+char *bufferp;
+
+void refresh_buffer() {
+	gets(buffer);
+	bufferp = buffer;
+}
+
+void next_word (char *dest) {
+	bool done;
+	
+	/* refresh the buffer if needed */
+	while (*bufferp == '\0') {
+		refresh_buffer();
+	}
+
+	while (whitespace(*bufferp)) {
+		bufferp++;
+	}
+
+	if (*bufferp == '\0') {
+		return next_word(dest);
+	}
+	
+	done = FALSE;
+	while (TRUE) {
+		if (whitespace(*bufferp) || *bufferp == '\0') {
+			break;
+		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '.') {
+			if (!done) {
+				*dest = *bufferp;
+				dest++;
+				bufferp++;
+			}
+			break;
+		}
+
+		*dest = *bufferp;
+		done = TRUE;
+		dest++;
+		bufferp++;
+	}
+	*dest = '\0';
+}
+
+type_cell *read_list () {
+	char word[MAX_LINE];
+	type_cell **builder;
+	bool first = TRUE;
+	type_cell *top;
+	
+	top = NULL;
+	builder = &top;
+	while (TRUE) {
+		next_word(word);
+
+		if (strcmp (word, "(") == 0) {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+			
+			(*builder)->car = read_list();
+			builder = (type_cell **)(&((*builder)->cdr));
+		} else if (strcmp (word, ")") == 0) {
+			*builder = NULL;
+			break;
+		} else if (strcmp (word, ".") == 0) {
+			/* dotted list */
+			if (first == TRUE) {
+				/* error, dotted list not at end of list */
+				printf ("Error: dotted list not at end of list.\n");
+				top = NULL;
+				break;
+			} else {
+				*builder = next_expr();
+				next_word(word);
+				if (strcmp(word, ")") != 0) {
+					printf("Error: dotted list not at end of list\n");
+					top = NULL;
+				}
+				break;
+			}
+		} else if (integerp (word) == TRUE) {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+			(*builder)->car = gc_new_int (parse_integer (word));
+			builder = (type_cell **)(&((*builder)->cdr));
+		} else {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+			(*builder)->car = gc_new_string (word);
+			builder = (type_cell **)(&((*builder)->cdr));
+		}
+	}
+	
+	return top;
+}
+
+void *next_expr() {
+	char word[MAX_LINE];
+	void *ret;
+	type_cell *builder;
+	void *next;
+	
+	next_word(word);
+	
+	if (strcmp(word, "(") == 0) {
+		/* start of a list */
+		ret = read_list();
+	} else if (strcmp (word, ")") == 0) {
+		/* end of a list. shoulnd't happen here */
+		printf ("Error: unmatched closing paren\n");
+		ret = NULL;
+	} else if (strcmp (word, ".") == 0) {
+		/* dotted end of list. shouldn't happen here */
+		printf ("Error: dotted list not in list \n");
+		return NULL;
+	} else if (integerp (word) == TRUE) {
+		/* integer */
+		ret = (void *)gc_new_int (parse_integer (word));
+	} else {
+		/* string */
+		ret = (void *)gc_new_string (word);
+	}
+	
+	return ret;
+}
+
+#define HEAP_SIZE (1024*1024)
+
+int main (int argc, char **argv) {
+	void *heap;
+	type_int *i;
+	type_cell *c;
+	type_string *s;
+	char word[MAX_LINE];
+	void *expr;
+
+	/* create the heap */
+	heap = calloc (HEAP_SIZE, sizeof(char));
+	gc_init(heap, HEAP_SIZE);
+
+	bufferp = "";
+
+	while (TRUE) {		
+		printf ("> ");
+		expr = next_expr();
+		print_val(expr);
+		printf ("\n");
+	}
+
+	
+#if 0
+	i = gc_new_int (123);
+	s = gc_new_string("hello");
+	c = gc_new_cell();
+	c->car = i;
+	c->cdr = gc_new_cell();
+	((type_cell *)c->cdr)->car = s;
+	((type_cell *)c->cdr)->cdr = s;
+
+	print_heap();
+	
+	print_val (c);
+	printf ("\n");
+	
+	print_heap();
+
+	gc_collect_init();
+	gc_collect ((void *)&c);
+	print_heap();
+#endif
+	
+	free(heap);
+}
+
+
+
+
+
 void print_heap () {
 	void *p;
 	void *q;
@@ -73,8 +280,8 @@ void print_val (void *val) {
 		c = (type_cell *)val;
 		printf ("(");
 		printed = FALSE;
-		/* a NULL car means end of the list, regardless of the cdr (this should be NULL also) */
-		while (c != NULL && c->car != NULL) {
+		
+		while (c != NULL) {
 			if (printed) {
 				printf (" ");
 			} else {
@@ -83,8 +290,9 @@ void print_val (void *val) {
 			print_val (c->car);
 			
 			c = c->cdr;
+			/* check for dotted list */
 			if ((c != NULL) && (((gc_tag *)c)->type != TYPE_CELL)) {
-				printf (". ");
+				printf (" . ");
 				print_val (c);
 				break;
 			}			
@@ -102,7 +310,6 @@ bool whitespace(char c) {
 	case '\f':
 	case '\n':
 	case '\v':
-	case '\0':
 		return TRUE;
 	default:
 		return FALSE;
@@ -160,142 +367,4 @@ int parse_integer (char *str) {
 	}
 
 	return ret;
-}
-
-#define MAX_LINE 100
-char buffer[MAX_LINE];
-char *bufferp;
-
-void next_word (char *dest) {
-	bool done;
-	
-	/* refresh the buffer if needed */
-	if (*bufferp == '\0') {
-		gets(buffer);
-		bufferp = buffer;
-	}
-
-	while (whitespace(*bufferp)) {
-		bufferp++;
-	}
-
-	done = FALSE;
-	while (TRUE) {
-		if (whitespace(*bufferp) || *bufferp == '\0') {
-			break;
-		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '.') {
-			if (!done) {
-				*dest = *bufferp;
-				dest++;
-				bufferp++;
-			}
-			break;
-		}
-
-		*dest = *bufferp;
-		done = TRUE;
-		dest++;
-		bufferp++;
-	}
-	*dest = '\0';
-}
-
-void *next_expr(bool recursive) {
-	char word[MAX_LINE];
-	void *ret;
-	type_cell *builder;
-	void *next;
-	
-	next_word(word);
-	/*	printf ("\n\"%s\" == ( : %d\n", word, strcmp(word, "("));*/
-	
-	if (strcmp(word, "(") == 0) {
-		/* start of a list */
-		ret = builder = (void *)gc_new_cell();
-		next = next_expr(FALSE);
-		while (next != NULL) {
-			builder->car = next;
-			builder->cdr = (void *)gc_new_cell();
-			
-			builder = builder->cdr;
-			next = next_expr(FALSE);
-		}			
-	} else if (strcmp (word, ")") == 0) {
-		/* end of a list */
-		if (recursive == TRUE) {
-			ret = NULL;
-		} else {
-			/* error: unmatched closing paren */
-			ret = NULL;
-		}
-	} else if (strcmp (word, ".") == 0) {
-		/* dotted end of list */
-		if (recursive == TRUE) {
-			ret = next_expr(FALSE);
-			next_word(word);
-			if (strcmp (word, ")") != 0) {
-				/* error: dotted list not end of list? */
-				return NULL;
-			}
-		} else {
-			/* error: dot not allowed if not in list */
-			return NULL;
-		}
-	} else if (integerp (word) == TRUE) {
-		/* integer */
-		ret = (void *)gc_new_int (parse_integer (word));
-	} else {
-		/* string */
-		ret = (void *)gc_new_string (word);
-	}
-	
-	return ret;
-}
-
-#define HEAP_SIZE (1024*1024)
-
-int main (int argc, char **argv) {
-	void *heap;
-	type_int *i;
-	type_cell *c;
-	type_string *s;
-	char word[MAX_LINE];
-	void *expr;
-
-	/* create the heap */
-	heap = calloc (HEAP_SIZE, sizeof(char));
-	gc_init(heap, HEAP_SIZE);
-
-	bufferp = "";
-
-	while (TRUE) {
-		printf ("> ");
-		expr = next_expr(FALSE);
-		print_val(expr);
-		printf ("\n");
-	}
-
-	
-#if 0
-	i = gc_new_int (123);
-	s = gc_new_string("hello");
-	c = gc_new_cell();
-	c->car = i;
-	c->cdr = gc_new_cell();
-	((type_cell *)c->cdr)->car = s;
-	((type_cell *)c->cdr)->cdr = s;
-
-	print_heap();
-	
-	print_val (c);
-	printf ("\n");
-	
-	print_heap();
-
-	gc_collect_init();
-	gc_collect ((void *)&c);
-	print_heap();
-#endif
-	
-	free(heap);
 }
