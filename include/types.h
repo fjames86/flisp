@@ -4,7 +4,6 @@
 #define TYPES_H
 
 #include "sys.h"
-#include "symbol.h"
 
 #define TYPE_INT 0
 #define TYPE_STRING 1
@@ -44,7 +43,7 @@ typedef struct {
 
 typedef struct {
 	gc_tag tag;
-	symbol sym;
+	char *sym;
 } type_symbol;
 
 typedef struct {

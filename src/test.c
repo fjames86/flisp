@@ -146,7 +146,7 @@ type_cell *read_list () {
 				*builder = gc_new_cell();
 			}
 			string_upcase(word);
-			(*builder)->car = gc_new_symbol (intern (word));
+			(*builder)->car = intern (word);
 			builder = (type_cell **)(&((*builder)->cdr));
 		}
 	}
@@ -278,7 +278,7 @@ void *next_expr() {
 	} else {
 		/* if all else fails, intern a ssyobl */
 		string_upcase(word);		
-		ret = (void *)gc_new_symbol (intern (word));
+		ret = (void *)intern(word);
 	}
 	
 	return ret;
@@ -324,8 +324,6 @@ int main (int argc, char **argv) {
 	char word[MAX_LINE];
 	void *expr;
 	char *strtab;
-	symbol *symtab;
-	symbol quit;
 	
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
@@ -333,22 +331,24 @@ int main (int argc, char **argv) {
 	
 	bufferp = "";
 
-	strtab = calloc(1024, sizeof(char));
-	symtab = calloc(100, sizeof(symbol *));
-	symbol_init (strtab, 1024, symtab, 100);
-
-	quit = intern("QUIT");
+	symbol_init ();
 	
 	while (TRUE) {
+		print_val (symbol_list); printf("\n");
+		print_heap();
+		
 		printf ("> ");
 		expr = next_expr();
-		if (eq(expr, gc_new_symbol (quit)) == TRUE) {
+		if (eq(expr, intern("QUIT")) == TRUE) {
 			printf ("Bye\n");
 			break;
 		} 
 		print_val(expr);
 		printf ("\n");
+		
 		gc_collect_init();
+		gc_collect ((void **)&symbol_list);
+
 	}
 
 	
@@ -374,12 +374,7 @@ int main (int argc, char **argv) {
 #endif
 	
 	free(heap);
-	free(strtab);
-	free(symtab);
 }
-
-
-
 
 
 void print_heap () {
