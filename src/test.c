@@ -286,6 +286,36 @@ void *next_expr() {
 
 #define HEAP_SIZE (1024*1024)
 
+bool eq (void *val1, void *val2) {
+	gc_type t1, t2;
+	bool ret = FALSE;
+	
+	t1 = ((gc_tag *)val1)->type;
+	t2 = ((gc_tag *)val2)->type;
+
+	if (t1 == t2) {
+		switch (t1) {
+		case TYPE_INT:
+			ret = (((type_int *)val1)->i == ((type_int *)val2)->i);
+			break;
+		case TYPE_DOUBLE:
+			ret = (((type_double *)val1)->d == ((type_double *)val2)->d);
+			break;
+		case TYPE_STRING:
+			ret = (strcmp(((type_string *)val1)->str, ((type_string *)val2)->str) == 0 ? TRUE : FALSE);
+			break;
+		case TYPE_CELL:
+			ret = (val1 == val2);
+			break;
+		case TYPE_SYMBOL:
+			ret = (((type_symbol *)val1)->sym == ((type_symbol *)val2)->sym);
+			break;
+		}
+	}
+
+	return ret;
+}
+
 int main (int argc, char **argv) {
 	void *heap;
 	type_int *i;
@@ -295,6 +325,7 @@ int main (int argc, char **argv) {
 	void *expr;
 	char *strtab;
 	symbol *symtab;
+	symbol quit;
 	
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
@@ -305,10 +336,16 @@ int main (int argc, char **argv) {
 	strtab = calloc(1024, sizeof(char));
 	symtab = calloc(100, sizeof(symbol *));
 	symbol_init (strtab, 1024, symtab, 100);
+
+	quit = intern("QUIT");
 	
-	while (TRUE) {		
+	while (TRUE) {
 		printf ("> ");
 		expr = next_expr();
+		if (eq(expr, gc_new_symbol (quit)) == TRUE) {
+			printf ("Bye\n");
+			break;
+		} 
 		print_val(expr);
 		printf ("\n");
 		gc_collect_init();
