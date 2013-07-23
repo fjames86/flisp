@@ -5,7 +5,7 @@
 #include "sys.h"
 #include "gc.h"
 
-void print_heap();
+void print_heap(size_t topbytes);
 void print_val(void *val);
 bool whitespace(char c);
 bool digitp (char c);
@@ -334,14 +334,15 @@ int main (int argc, char **argv) {
 	symbol_init ();
 	
 	while (TRUE) {
-		printf ("symbol-list: "); print_val (symbol_list); printf("\n");
-		
 		printf ("> ");
 		expr = next_expr();
 		if (eq(expr, intern("QUIT")) == TRUE) {
 			printf ("Bye\n");
 			break;
-		} 
+		} else if (eq(expr, intern("HEAP")) == TRUE) {
+			print_heap(128);
+		}
+		
 		print_val(expr);
 		printf ("\n");
 		
@@ -376,16 +377,15 @@ int main (int argc, char **argv) {
 }
 
 
-void print_heap () {
-	void *p;
-	void *q;
+void print_heap (size_t topbytes) {
+	void *p, *q;
 	char c;
 	printf ("heap: %d of %d (%d%%)\n",
 			(int)(free_p - gc_working),
 			gc_heap_size,
 			(100*(int)(free_p - gc_working) / gc_heap_size));
 
-	for (q = gc_working; q < free_p; q += 16) {
+	for (q = max(free_p - topbytes, gc_working); q < free_p; q += 16) {
 		printf ("%08x  ", (unsigned int)q);
 
 		for (p = q; (p < q + 8); p++) {
@@ -410,7 +410,7 @@ void print_heap () {
 				if (c >= ' ' && c <= '~') {
 					printf ("%c", c);
 				} else {
-					printf (" .");
+					printf (".");
 				}
 			} else {
 				break;
