@@ -171,7 +171,6 @@ void next_word (char *dest) {
 	
 	/* refresh the buffer if needed */
 	if (*bufferp == '\0') {
-		printf ("> ");
 		gets(buffer);
 		bufferp = buffer;
 	}
@@ -184,7 +183,7 @@ void next_word (char *dest) {
 	while (TRUE) {
 		if (whitespace(*bufferp) || *bufferp == '\0') {
 			break;
-		} else if (*bufferp == '(' || *bufferp == ')') {
+		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '.') {
 			if (!done) {
 				*dest = *bufferp;
 				dest++;
@@ -203,7 +202,8 @@ void next_word (char *dest) {
 
 void *next_expr(bool recursive) {
 	char word[MAX_LINE];
-	void *ret, *builder;
+	void *ret;
+	type_cell *builder;
 	void *next;
 	
 	next_word(word);
@@ -211,23 +211,15 @@ void *next_expr(bool recursive) {
 	
 	if (strcmp(word, "(") == 0) {
 		/* start of a list */
-		ret = (void *)gc_new_cell();
-		builder = ret;
-		do {
-			if (ret == NULL) {
-				ret = (void *)gc_new_cell();
-			}
-
-			next = next_expr(FALSE);
-			if (next == NULL) {
-				break;
-			} else {
-				((type_cell *)ret)->car = next;
-			}
+		ret = builder = (void *)gc_new_cell();
+		next = next_expr(FALSE);
+		while (next != NULL) {
+			builder->car = next;
+			builder->cdr = (void *)gc_new_cell();
 			
-			ret = ((type_cell *)ret)->cdr;
-		} while (TRUE);
-		ret = builder;
+			builder = builder->cdr;
+			next = next_expr(FALSE);
+		}			
 	} else if (strcmp (word, ")") == 0) {
 		/* end of a list */
 		if (recursive == TRUE) {
@@ -235,6 +227,19 @@ void *next_expr(bool recursive) {
 		} else {
 			/* error: unmatched closing paren */
 			ret = NULL;
+		}
+	} else if (strcmp (word, ".") == 0) {
+		/* dotted end of list */
+		if (recursive == TRUE) {
+			ret = next_expr(FALSE);
+			next_word(word);
+			if (strcmp (word, ")") != 0) {
+				/* error: dotted list not end of list? */
+				return NULL;
+			}
+		} else {
+			/* error: dot not allowed if not in list */
+			return NULL;
 		}
 	} else if (integerp (word) == TRUE) {
 		/* integer */
@@ -264,6 +269,7 @@ int main (int argc, char **argv) {
 	bufferp = "";
 
 	while (TRUE) {
+		printf ("> ");
 		expr = next_expr(FALSE);
 		print_val(expr);
 		printf ("\n");
