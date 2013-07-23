@@ -170,7 +170,6 @@ void gc_relocate_cell (type_cell **new, type_cell *old) {
 		if (tag->bh == TRUE) {
 			(*new)->car = tag->forw;
 		} else {
-			printf ("relocating car\n");
 			gc_relocate(&((*new)->car), old->car);
 		}
 	}
@@ -180,7 +179,6 @@ void gc_relocate_cell (type_cell **new, type_cell *old) {
 		if (tag->bh == TRUE) {
 			(*new)->car = tag->forw;
 		} else {
-			printf ("relocating cdr\n");
 			gc_relocate(&((*new)->cdr), old->cdr);
 		}
 	}

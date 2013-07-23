@@ -334,8 +334,7 @@ int main (int argc, char **argv) {
 	symbol_init ();
 	
 	while (TRUE) {
-		print_val (symbol_list); printf("\n");
-		print_heap();
+		printf ("symbol-list: "); print_val (symbol_list); printf("\n");
 		
 		printf ("> ");
 		expr = next_expr();
