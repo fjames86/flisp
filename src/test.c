@@ -10,11 +10,14 @@ void print_val(void *val);
 bool whitespace(char c);
 bool digitp (char c);
 bool integerp (char *str);
+bool doublep (char *str);
 int parse_integer (char *str);
+double parse_double (char *str);
 void refresh_buffer();
 void next_word (char *dest);
 type_cell *read_list ();
 void *next_expr();
+type_string *read_string();
 
 
 #define MAX_LINE 100
@@ -46,7 +49,7 @@ void next_word (char *dest) {
 	while (TRUE) {
 		if (whitespace(*bufferp) || *bufferp == '\0') {
 			break;
-		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '.') {
+		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"') {
 			if (!done) {
 				*dest = *bufferp;
 				dest++;
@@ -104,6 +107,16 @@ type_cell *read_list () {
 				}
 				break;
 			}
+		} else if (strcmp (word, "\"") == 0) {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+			(*builder)->car = read_string();
+			builder = (type_cell **)(&((*builder)->cdr));
 		} else if (integerp (word) == TRUE) {
 			if (first == TRUE) {
 				top = gc_new_cell();
@@ -114,6 +127,16 @@ type_cell *read_list () {
 			}
 			(*builder)->car = gc_new_int (parse_integer (word));
 			builder = (type_cell **)(&((*builder)->cdr));
+		} else if (doublep (word) == TRUE) {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+			(*builder)->car = gc_new_double (parse_double (word));
+			builder = (type_cell **)(&((*builder)->cdr));
 		} else {
 			if (first == TRUE) {
 				top = gc_new_cell();
@@ -122,12 +145,106 @@ type_cell *read_list () {
 			} else {
 				*builder = gc_new_cell();
 			}
-			(*builder)->car = gc_new_string (word);
+			string_upcase(word);
+			(*builder)->car = gc_new_symbol (intern (word));
 			builder = (type_cell **)(&((*builder)->cdr));
 		}
 	}
 	
 	return top;
+}
+
+/* read until an unescaped " char is encountered. */
+type_string *read_string () {
+	char *strbuff1, *strbuff2;
+	size_t i;
+	size_t buffsize = MAX_LINE;
+	type_string *ret;
+	bool escape;
+	
+	strbuff1 = gc_malloc(buffsize);
+	i = 0;
+	escape = FALSE;
+	while (TRUE) {
+		if (escape == TRUE) {
+			switch (*bufferp) {
+			case '\0':
+				strbuff1[i] = '\n';
+				/* this is the end of line, so refresh */
+				refresh_buffer();
+			    break;
+			case 'n':
+				strbuff1[i] = '\n';
+				bufferp++;
+				break;
+			case 't':
+				strbuff1[i] = '\t';
+				bufferp++;
+				break;
+			case 'f':
+				strbuff1[i] = '\f';
+				bufferp++;
+				break;
+			case 'r':
+				strbuff1[i] = '\r';
+				bufferp++;
+				break;
+			case 'v':
+				strbuff1[i] = '\v';
+				bufferp++;
+				break;
+			case 'b':
+				strbuff1[i] = '\b';
+				bufferp++;
+				break;
+			case '\\':
+				strbuff1[i] = '\\';
+				bufferp++;
+				break;
+			case '"':
+				strbuff1[i] = '"';
+				bufferp++;
+				break;
+			default:
+				/* not an official escape char, so just ignore it */
+				strbuff1[i] = *bufferp;
+				bufferp++;
+			}
+			i++;
+			escape = FALSE;
+		} else if (*bufferp == '\0') {
+			/* end of line without an escape, error */
+			ret = NULL;
+			printf("Error: unterminated string detected.\n");
+			bufferp++;
+			break;
+		} else if (*bufferp == '"') {
+			strbuff1[i] = '\0';
+			bufferp++;			
+			break;
+		} else if (*bufferp == '\\') {
+			escape = TRUE;
+			bufferp++;
+		} else {
+			/* put the char into the buffer */
+			strbuff1[i] = *bufferp;
+			bufferp++;
+			i++;
+
+			escape = FALSE;
+		}
+						
+		/* need to increase the buffer and copy across */
+		if (i >= buffsize) {
+			buffsize += MAX_LINE;
+			strbuff2 = gc_malloc(buffsize);
+			strcpy(strbuff2, strbuff1);
+			strbuff1 = strbuff2;
+		}
+	}
+
+	ret = gc_new_string(strbuff1);
+	return ret;
 }
 
 void *next_expr() {
@@ -149,12 +266,19 @@ void *next_expr() {
 		/* dotted end of list. shouldn't happen here */
 		printf ("Error: dotted list not in list \n");
 		return NULL;
+	} else if (strcmp (word, "\"") == 0) {
+		/* quote, read string */
+		ret = read_string();
 	} else if (integerp (word) == TRUE) {
 		/* integer */
 		ret = (void *)gc_new_int (parse_integer (word));
+	} else if (doublep (word) == TRUE) {
+		/* double */
+		ret = (void *)gc_new_double (parse_double (word));
 	} else {
-		/* string */
-		ret = (void *)gc_new_string (word);
+		/* if all else fails, intern a ssyobl */
+		string_upcase(word);		
+		ret = (void *)gc_new_symbol (intern (word));
 	}
 	
 	return ret;
@@ -169,18 +293,25 @@ int main (int argc, char **argv) {
 	type_string *s;
 	char word[MAX_LINE];
 	void *expr;
-
+	char *strtab;
+	symbol *symtab;
+	
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
 	gc_init(heap, HEAP_SIZE);
-
+	
 	bufferp = "";
 
+	strtab = calloc(1024, sizeof(char));
+	symtab = calloc(100, sizeof(symbol *));
+	symbol_init (strtab, 1024, symtab, 100);
+	
 	while (TRUE) {		
 		printf ("> ");
 		expr = next_expr();
 		print_val(expr);
 		printf ("\n");
+		gc_collect_init();
 	}
 
 	
@@ -206,6 +337,8 @@ int main (int argc, char **argv) {
 #endif
 	
 	free(heap);
+	free(strtab);
+	free(symtab);
 }
 
 
@@ -300,6 +433,12 @@ void print_val (void *val) {
 
 		printf (")");
 		break;
+	case TYPE_SYMBOL:
+		printf ("%s", ((type_symbol *)val)->sym);
+		break;
+	case TYPE_DOUBLE:
+		printf ("%lf", ((type_double *)val)->d);
+		break;
 	}
 }
 
@@ -367,4 +506,79 @@ int parse_integer (char *str) {
 	}
 
 	return ret;
+}
+
+double parse_double (char* str){
+	double res = 0.0, factor = 1.0;
+	int point_seen, d, exp;
+	
+ 	if (*str == '-') {
+		str++;
+		factor = -1.0;
+	}
+	
+	for (point_seen = 0; *str; str++) {
+		if (*str == '.') {
+			point_seen = 1;
+			continue;
+		} else if (*str == 'e' || *str == 'E') {
+			str++;
+			exp = parse_integer(str);
+			if (exp > 0) {
+				for(d = 0; d < exp; d++) {
+					factor *= 10.0;
+				}				
+			} else {
+				for (d=0; d < -exp; d++) {
+					factor /= 10.0;
+				}
+			}
+			break;
+		}
+		
+		d = *str - '0';
+		if (d >= 0 && d <= 9){
+			if (point_seen) {
+				factor /= 10.0;
+			}
+			res = res * 10.0 + (double)d;
+		}
+	}
+	
+	return res * factor;
+}
+
+bool doublep (char *str) {
+	char *c = str;
+	bool point = FALSE;
+	bool exp = FALSE;
+	
+	while (*c == ' ') c++;
+
+	if(!(*c == '+' || *c == '-' || *c == '.' || digitp(*c))) return FALSE;
+
+	if(*c == '.') point = TRUE;
+	
+	c++;
+	while(*c != '\0') {
+		/* point must occur before exp */
+		if(*c == '.') {
+			if(exp == 0) point = TRUE;
+			else return FALSE;
+		} else if(*c == 'e' || *c == 'E') {
+			if(exp == FALSE) {
+				c++;
+				return integerp (c);
+			} else {
+				return FALSE;
+			}
+		} else if (!digitp(*c)) {
+			return FALSE;
+		} 
+		c++;
+	}
+	if(point == TRUE)
+		return TRUE;
+	else
+		return FALSE;
 }

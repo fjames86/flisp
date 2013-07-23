@@ -81,6 +81,25 @@ type_cell *gc_new_cell () {
 	return ret;
 }
 
+type_symbol *gc_new_symbol (symbol s) {
+	type_symbol *ret = gc_malloc(sizeof(type_symbol));
+	ret->tag.type = TYPE_SYMBOL;
+	ret->tag.bh = FALSE;
+	ret->tag.forw = NULL;
+
+	ret->sym = s;
+	return ret;
+}
+
+type_double *gc_new_double (double d) {
+	type_double *ret = gc_malloc(sizeof(type_double));
+	ret->tag.type = TYPE_DOUBLE;
+	ret->tag.bh = FALSE;
+	ret->tag.forw = NULL;
+
+	ret->d = d;
+	return ret;
+}
 
 /* make a new object based on its type */
 void *gc_new_copy (void *object) {
@@ -98,6 +117,12 @@ void *gc_new_copy (void *object) {
 		break;
 	case TYPE_CELL:
 		ret = gc_new_cell ();
+		break;
+	case TYPE_SYMBOL:
+		ret = gc_new_symbol(((type_symbol *)object)->sym);
+		break;
+	case TYPE_DOUBLE:
+		ret = gc_new_double(((type_double *)object)->d);
 		break;
 	}
 	return ret;
@@ -155,6 +180,18 @@ void gc_relocate_cell (type_cell *new, type_cell *old) {
 	}
 }
 
+/* relocate a symbol. this is as easy as relocating an int because symbols aren't collected */
+void gc_relocate_symbol (type_symbol *new, type_symbol *old) {
+	old->tag.bh = TRUE;
+	old->tag.forw = new;
+}
+
+/* relocating a double is also easy */
+void gc_relocate_double (type_double *new, type_double *old) {
+	old->tag.bh = TRUE;
+	old->tag.forw = new;
+}
+
 
 /* --------- top level relocate function -------- */
 
@@ -175,6 +212,12 @@ void gc_relocate (void *new, void *old) {
 		break;
 	case TYPE_CELL:
 		gc_relocate_cell (new, (type_cell *)old);
+		break;
+	case TYPE_SYMBOL:
+		gc_relocate_symbol (new, (type_symbol *)old);
+		break;
+	case TYPE_DOUBLE:
+		gc_relocate_double (new, (type_double *)old);
 		break;
 	}
 }

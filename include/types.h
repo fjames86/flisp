@@ -4,10 +4,13 @@
 #define TYPES_H
 
 #include "sys.h"
+#include "symbol.h"
 
 #define TYPE_INT 0
 #define TYPE_STRING 1
 #define TYPE_CELL 2
+#define TYPE_SYMBOL 3
+#define TYPE_DOUBLE 4
 
 typedef unsigned int gc_type;
 
@@ -39,7 +42,15 @@ typedef struct {
 	void *cdr;
 } type_cell;
 
+typedef struct {
+	gc_tag tag;
+	symbol sym;
+} type_symbol;
 
+typedef struct {
+	gc_tag tag;
+	double d;
+} type_double;
 
 
 #endif

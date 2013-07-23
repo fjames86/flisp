@@ -83,3 +83,13 @@ int strncmp(char *str1, char *str2, size_t num) {
 	return ret;
 }
 
+char *string_upcase(char *string) {
+	char *str = string;
+	while (*str != '\0') {
+		if (*str >= 'a' && *str <= 'z') {
+			*str = *str - 'a' + 'A';
+		}
+		str++;
+	}
+	return string;
+}
