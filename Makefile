@@ -1,7 +1,7 @@
 
 IDIR=include
 CC=gcc
-CFLAGS=-I$(IDIR) -c -fno-builtin -nostdinc -g
+CFLAGS=-I$(IDIR) -fno-builtin -nostdinc -g
 
 ODIR=obj
 SDIR=src
@@ -19,9 +19,9 @@ $(ODIR)/%.o: ${SDIR}/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 ${ODIR}/test.o: ${SDIR}/test.c ${DEPS}
-	${CC} -c -g -o ${ODIR}/test.o ${SDIR}/test.c -I${IDIR}
+	${CC} -c -o ${ODIR}/test.o ${SDIR}/test.c -I${IDIR} -g
 
 .PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+	rm -f $(ODIR)/*.o *~ core $(IDIR)/*~ 

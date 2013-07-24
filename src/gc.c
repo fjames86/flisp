@@ -32,6 +32,13 @@ void *gc_malloc (size_t size) {
 		p = free_p;
 		free_p += size;
 	} else {
+		/*
+		 * need to trigger a garbage collection here. can't because we don't know the root points
+		 * however, returning a NULL signals we're out of memory.
+		 * probably should be checking the current state of the heap somewhere higher up and
+		 * trigger a collection before it gets to this stage, because the results of returning NULL
+		 * here is almost universally bad 
+		 */
 		p = NULL;
 	}
 	return p;
@@ -40,9 +47,10 @@ void *gc_malloc (size_t size) {
 
 /* ---------------- constructors ----------------- */
 
-/* for each type define here a constructor to return a new object
-   on the heap
-*/
+/*
+ * for each type define here a constructor to return a new object
+ *  on the heap
+ */
 
 type_int *gc_new_int (int i) {
 	type_int *ret = (type_int *)gc_malloc(sizeof(type_int));
@@ -78,7 +86,7 @@ type_cell *gc_new_cell () {
 	return ret;
 }
 
-/* symbols are essentiall the same as strings */
+/* symbols are essentially the same as strings */
 type_symbol *gc_new_symbol (char *str) {
 	type_symbol *ret = gc_malloc(sizeof(type_symbol));
 	size_t len = strlen(str) + 1;	
@@ -100,19 +108,34 @@ type_double *gc_new_double (double d) {
 }
 
 type_ht *gc_new_ht(size_t size) {
-  type_ht *ret = gc_malloc(sizeof(type_ht));
-  size_t i;
-  ret->tag.type = TYPE_HT;
-  ret->tag.forw = NULL;
+	type_ht *ret = gc_malloc(sizeof(type_ht));
+	size_t i;
+	ret->tag.type = TYPE_HT;
+	ret->tag.forw = NULL;
 
-  ret->buckets = gc_malloc(sizeof(type_cell *)*size);
-  for(i=0; i < size; i++) {
-    ret->buckets[i] = NULL;
-  }
+	ret->buckets = gc_malloc(sizeof(type_cell *)*size);
+	for(i=0; i < size; i++) {
+		ret->buckets[i] = NULL;
+	}
 
-  ret->size = size;
-  ret->fill = 0;
-  return ret;
+	ret->size = size;
+	ret->fill = 0;
+	return ret;
+}
+
+type_array *gc_new_array (size_t size) {
+	type_array *ret = gc_malloc(sizeof(type_array));
+	size_t i;
+	ret->tag.type = TYPE_ARRAY;
+	ret->tag.forw = NULL;
+
+	ret->data = gc_malloc(sizeof(void *)*size);
+	for(i=0; i < size; i++) {
+		ret->data[i] = NULL;
+	}
+
+	ret->size = size;
+	return ret;	
 }
 
 /* make a new object based on its type */
@@ -139,7 +162,11 @@ void *gc_new_copy (void *object) {
 		ret = gc_new_double(((type_double *)object)->d);
 		break;
     case TYPE_HT:
-      ret = gc_new_ht(((type_ht *)object)->size);
+		ret = gc_new_ht(((type_ht *)object)->size);
+		break;
+	case TYPE_ARRAY:
+		ret = gc_new_array(((type_array *)object)->size);
+		break;
 	}
 	return ret;
 }
@@ -206,18 +233,35 @@ void gc_relocate_double (type_double **new, type_double *old) {
 
 /* hash tables are harder to deal with than lists, but thankfully are composed of lists */
 void gc_relocate_ht (type_ht **new, type_ht *old) {
-  size_t i;
-  type_cell *c;
+	size_t i;
+	type_cell *c;
 
-  old->tag.forw = new;
-  for(i=0; i < old->size; i++) {
-    c = old->buckets[i];
-    gc_relocate((void **)&((*new)->buckets[i]), c);
-  }  
+	old->tag.forw = new;
+	for(i=0; i < old->size; i++) {
+		c = old->buckets[i];
+		gc_relocate((void **)&((*new)->buckets[i]), c);
+	}  
 }
+
+/* arrays are similar to hash tables */
+void gc_relocate_array (type_array **new, type_array *old) {
+	size_t i;
+	void *c;
+
+	old->tag.forw = new;
+	for(i=0; i < old->size; i++) {
+		c = old->data[i];
+		gc_relocate((void **)&((*new)->data[i]), c);
+	}
+}
+
+
+
+
 
 /* --------- top level relocate function -------- */
 
+/* relocate an object from the old heap to the new one */
 void gc_relocate (void **new, void *old) {
 	gc_type type;
 
@@ -243,11 +287,15 @@ void gc_relocate (void **new, void *old) {
 		gc_relocate_double ((type_double **)new, (type_double *)old);
 		break;
     case TYPE_HT:
-      gc_relocate_ht((type_ht **)new, (type_ht *)old);
-      break;
+		gc_relocate_ht ((type_ht **)new, (type_ht *)old);
+		break;
+	case TYPE_ARRAY:
+		gc_relocate_array ((type_array **)new, (type_array *)old);
+		break;
 	}
 }
 
+/* copy the root variable and all of its references to the new heap */
 void gc_collect (void **root) {
 	void *new, *old;
 
@@ -261,6 +309,10 @@ void gc_collect (void **root) {
 	}
 }
 
+/*
+ * call this to signal the start of a gc cycle. then call gc_collect() on all
+ * root variables
+ */
 void gc_collect_init () {
 	void *tmp;
 	

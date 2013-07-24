@@ -63,7 +63,7 @@ type_cell *acons (void *key, void *val, type_cell **alist) {
 	d->car = c;
 	d->cdr = *alist;
 	*alist = d;
-	*alist;
+	return *alist;
 }
 
 void *assoc (void *key, type_cell *alist) {

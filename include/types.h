@@ -5,14 +5,16 @@
 
 #include "sys.h"
 
-#define TYPE_INT 0
-#define TYPE_STRING 1
-#define TYPE_CELL 2
-#define TYPE_SYMBOL 3
-#define TYPE_DOUBLE 4
-#define TYPE_HT 5
+#define TYPE_INT                0
+#define TYPE_STRING             1
+#define TYPE_CELL               2
+#define TYPE_SYMBOL             3
+#define TYPE_DOUBLE             4
+#define TYPE_HT                 5
+#define TYPE_ARRAY              6
 
 typedef unsigned int gc_type;
+
 
 
 /* garbage collector tag that all types must contain */
@@ -58,6 +60,20 @@ typedef struct {
   size_t fill;
 } type_ht;
 
+typedef struct {
+	gc_tag tag;
+	void **data;
+	size_t size;
+} type_array;
+
+
+static size_t type_size[] = {sizeof(type_int),
+							 sizeof(type_string),
+							 sizeof(type_cell),
+							 sizeof(type_symbol),
+							 sizeof(type_double),
+							 sizeof(type_ht),
+							 sizeof(type_array) };
 
 #endif
 

@@ -20,11 +20,330 @@ void next_word (char *dest);
 type_cell *read_list ();
 void *next_expr();
 type_string *read_string();
-
+bool eq(void *val1, void *val2);
+bool eql(void *val1, void *val2);
 
 #define MAX_LINE 100
 char buffer[MAX_LINE];
 char *bufferp;
+
+#define HEAP_SIZE (1024*1024)
+
+
+int main (int argc, char **argv) {
+	void *heap;
+	type_int *i;
+	type_cell *c;
+	type_string *s;
+	char word[MAX_LINE];
+	void *expr;
+	char *strtab;
+	type_ht *ht;
+
+	/* create the heap */
+	heap = calloc (HEAP_SIZE, sizeof(char));
+	gc_init(heap, HEAP_SIZE);
+	
+	bufferp = "";
+
+	symbol_init ();
+    
+    ht = gc_new_ht(20);
+    print_val(ht); printf("\n");
+    printf ("sethash %s %d\n", "FOO", 123);
+	sethash(&ht, intern("FOO"), gc_new_int(123));
+	ht_resize(&ht);
+    print_val(ht); printf("\n");
+    printf("gethash: FOO ", gethash(ht, (void *)intern("FOO"), &expr)); print_val(expr); printf("\n");
+
+    print_heap(128);
+	
+
+	while (TRUE) {
+		printf ("> ");
+		expr = next_expr();
+		if (eq(expr, intern("QUIT")) == TRUE) {
+			printf ("Bye\n");
+			break;
+		} else if (eq(expr, intern("HEAP")) == TRUE) {
+			print_heap(128);
+		}
+		
+		print_val(expr);
+		printf ("\n");
+		
+		gc_collect_init();
+		gc_collect ((void **)&symbol_list);
+
+	}
+
+	
+#if 0
+	i = gc_new_int (123);
+	s = gc_new_string("hello");
+	c = gc_new_cell();
+	c->car = i;
+	c->cdr = gc_new_cell();
+	((type_cell *)c->cdr)->car = s;
+	((type_cell *)c->cdr)->cdr = s;
+
+	print_heap();
+	
+	print_val (c);
+	printf ("\n");
+	
+	print_heap();
+
+	gc_collect_init();
+	gc_collect ((void *)&c);
+	print_heap();
+#endif
+	
+	free(heap);
+}
+
+
+void print_heap (size_t topbytes) {
+	void *p, *q;
+	char c;
+	printf ("heap: %d of %d (%d%%)\n",
+			(int)(free_p - gc_working),
+			gc_heap_size,
+			(100*(int)(free_p - gc_working) / gc_heap_size));
+
+	for (q = max(free_p - topbytes, gc_working); q < free_p; q += 16) {
+		printf ("%08x  ", (unsigned int)q);
+
+		for (p = q; (p < q + 8); p++) {
+			if (p < free_p) {
+				printf ("%02x ", (unsigned char)(*(unsigned char *)p));
+			} else {
+				printf ("   ");
+			}
+		}
+		printf (" ");
+		for (p = q + 8; (p < q + 16); p++) {
+			if (p < free_p) {
+				printf ("%02x ", (unsigned char)(*(unsigned char *)p));
+			} else {
+				printf ("   ");
+			}
+		}
+		printf (" |");
+		for (p = q; (p < q + 16); p++) {
+			if (p < free_p) {
+				c = (char)(*(char *)p);
+				if (c >= ' ' && c <= '~') {
+					printf ("%c", c);
+				} else {
+					printf (".");
+				}
+			} else {
+				break;
+			}
+		}
+		printf ("|\n");		
+	}
+	printf ("%08x\n", (unsigned int)free_p);
+}
+
+void print_val (void *val) {
+	gc_type type;
+	type_cell *c;
+	bool printed;
+
+
+	if (val == NULL) {
+		printf ("NIL");
+		return;
+	}
+	
+	type = ((gc_tag *)val)->type;
+
+	switch (type) {
+	case TYPE_INT:
+		printf("%d", ((type_int *)val)->i);
+		break;
+	case TYPE_STRING:
+		printf("\"%s\"", ((type_string *)val)->str);
+		break;
+	case TYPE_CELL:
+		c = (type_cell *)val;
+		printf ("(");
+		printed = FALSE;
+		
+		while (c != NULL) {
+			if (printed) {
+				printf (" ");
+			} else {
+				printed = TRUE;
+			}
+			print_val (c->car);
+			
+			c = c->cdr;
+			/* check for dotted list */
+			if ((c != NULL) && (((gc_tag *)c)->type != TYPE_CELL)) {
+				printf (" . ");
+				print_val (c);
+				break;
+			}			
+		}
+
+		printf (")");
+		break;
+	case TYPE_SYMBOL:
+		printf ("%s", ((type_symbol *)val)->sym);
+		break;
+	case TYPE_DOUBLE:
+		printf ("%lf", ((type_double *)val)->d);
+		break;
+    case TYPE_HT:
+      printf("#<HT %p :FILL %d>", val, ((type_ht *)val)->fill);
+      break;
+	}
+}
+
+bool whitespace(char c) {
+	switch (c) {
+	case ' ':
+	case '\t':
+	case '\f':
+	case '\n':
+	case '\v':
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+bool digitp (char c) {
+	if (c >= '0' && c <= '9') {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+	
+bool integerp (char *str) {
+	char *c = str;
+	int d = 0;
+
+	/* first char may be a +, - or of course a digit */
+	if(!(*c == '+' || *c == '-' || digitp(*c))) return 0;
+
+	if (isdigit(*c)) d = 1;
+	
+	c++;
+	while(*c != '\0') {
+		if(!isdigit(*c)) return 0;
+		else d = 1;
+		c++;
+	}
+
+	return d;
+}
+
+int parse_integer (char *str) {
+	char *c;
+	int ret, factor;
+
+	c = str;
+	while (*c != '\0') c++;
+	c--;
+
+	factor = 1;
+	ret = 0;
+	while (c >= str) {
+		if (*c == '-') {
+			ret = -ret;
+			break;
+		} else if (*c == '+') {
+			break;
+		}
+		
+		ret += (*c - '0')*factor;
+		factor *= 10;
+		c--;
+	}
+
+	return ret;
+}
+
+double parse_double (char* str){
+	double res = 0.0, factor = 1.0;
+	int point_seen, d, exp;
+	
+ 	if (*str == '-') {
+		str++;
+		factor = -1.0;
+	}
+	
+	for (point_seen = 0; *str; str++) {
+		if (*str == '.') {
+			point_seen = 1;
+			continue;
+		} else if (*str == 'e' || *str == 'E') {
+			str++;
+			exp = parse_integer(str);
+			if (exp > 0) {
+				for(d = 0; d < exp; d++) {
+					factor *= 10.0;
+				}				
+			} else {
+				for (d=0; d < -exp; d++) {
+					factor /= 10.0;
+				}
+			}
+			break;
+		}
+		
+		d = *str - '0';
+		if (d >= 0 && d <= 9){
+			if (point_seen) {
+				factor /= 10.0;
+			}
+			res = res * 10.0 + (double)d;
+		}
+	}
+	
+	return res * factor;
+}
+
+bool doublep (char *str) {
+	char *c = str;
+	bool point = FALSE;
+	bool exp = FALSE;
+	
+	while (*c == ' ') c++;
+
+	if(!(*c == '+' || *c == '-' || *c == '.' || digitp(*c))) return FALSE;
+
+	if(*c == '.') point = TRUE;
+	
+	c++;
+	while(*c != '\0') {
+		/* point must occur before exp */
+		if(*c == '.') {
+			if(exp == 0) point = TRUE;
+			else return FALSE;
+		} else if(*c == 'e' || *c == 'E') {
+			if(exp == FALSE) {
+				c++;
+				return integerp (c);
+			} else {
+				return FALSE;
+			}
+		} else if (!digitp(*c)) {
+			return FALSE;
+		} 
+		c++;
+	}
+	if(point == TRUE)
+		return TRUE;
+	else
+		return FALSE;
+}
+
 
 void refresh_buffer() {
 	gets(buffer);
@@ -286,7 +605,6 @@ void *next_expr() {
 	return ret;
 }
 
-#define HEAP_SIZE (1024*1024)
 
 bool eq (void *val1, void *val2) {
 	gc_type t1, t2;
@@ -336,315 +654,4 @@ bool eql(void *val1, void *val2) {
 	}
 
 	return ret;
-}
-
-int main (int argc, char **argv) {
-	void *heap;
-	type_int *i;
-	type_cell *c;
-	type_string *s;
-	char word[MAX_LINE];
-	void *expr;
-	char *strtab;
-	type_ht *ht;
-
-	/* create the heap */
-	heap = calloc (HEAP_SIZE, sizeof(char));
-	gc_init(heap, HEAP_SIZE);
-	
-	bufferp = "";
-
-	symbol_init ();
-    
-    ht = gc_new_ht(20);
-    print_val(ht); printf("\n");
-    sethash(ht, intern("FOO"), gc_new_int(123));
-    print_val(ht); printf("\n");
-    printf("gethash: %d ", gethash(ht, (void *)intern("FOO"), &expr)); print_val(expr); printf("\n");
-    
-    print_heap(128);
-	
-
-	while (TRUE) {
-		printf ("> ");
-		expr = next_expr();
-		if (eq(expr, intern("QUIT")) == TRUE) {
-			printf ("Bye\n");
-			break;
-		} else if (eq(expr, intern("HEAP")) == TRUE) {
-			print_heap(128);
-		}
-		
-		print_val(expr);
-		printf ("\n");
-		
-		gc_collect_init();
-		gc_collect ((void **)&symbol_list);
-
-	}
-
-	
-#if 0
-	i = gc_new_int (123);
-	s = gc_new_string("hello");
-	c = gc_new_cell();
-	c->car = i;
-	c->cdr = gc_new_cell();
-	((type_cell *)c->cdr)->car = s;
-	((type_cell *)c->cdr)->cdr = s;
-
-	print_heap();
-	
-	print_val (c);
-	printf ("\n");
-	
-	print_heap();
-
-	gc_collect_init();
-	gc_collect ((void *)&c);
-	print_heap();
-#endif
-	
-	free(heap);
-}
-
-
-void print_heap (size_t topbytes) {
-	void *p, *q;
-	char c;
-	printf ("heap: %d of %d (%d%%)\n",
-			(int)(free_p - gc_working),
-			gc_heap_size,
-			(100*(int)(free_p - gc_working) / gc_heap_size));
-
-	for (q = max(free_p - topbytes, gc_working); q < free_p; q += 16) {
-		printf ("%08x  ", (unsigned int)q);
-
-		for (p = q; (p < q + 8); p++) {
-			if (p < free_p) {
-				printf ("%02x ", (unsigned char)(*(unsigned char *)p));
-			} else {
-				printf ("   ");
-			}
-		}
-		printf (" ");
-		for (p = q + 8; (p < q + 16); p++) {
-			if (p < free_p) {
-				printf ("%02x ", (unsigned char)(*(unsigned char *)p));
-			} else {
-				printf ("   ");
-			}
-		}
-		printf (" |");
-		for (p = q; (p < q + 16); p++) {
-			if (p < free_p) {
-				c = (char)(*(char *)p);
-				if (c >= ' ' && c <= '~') {
-					printf ("%c", c);
-				} else {
-					printf (".");
-				}
-			} else {
-				break;
-			}
-		}
-		printf ("|\n");		
-	}
-	printf ("%08x\n", (unsigned int)free_p);
-}
-
-void print_val (void *val) {
-	gc_type type;
-	type_cell *c;
-	bool printed;
-	
-	if (val == NULL) {
-		printf ("NIL");
-		return;
-	}
-	
-	type = ((gc_tag *)val)->type;
-
-	switch (type) {
-	case TYPE_INT:
-		printf("%d", ((type_int *)val)->i);
-		break;
-	case TYPE_STRING:
-		printf("\"%s\"", ((type_string *)val)->str);
-		break;
-	case TYPE_CELL:
-		c = (type_cell *)val;
-		printf ("(");
-		printed = FALSE;
-		
-		while (c != NULL) {
-			if (printed) {
-				printf (" ");
-			} else {
-				printed = TRUE;
-			}
-			print_val (c->car);
-			
-			c = c->cdr;
-			/* check for dotted list */
-			if ((c != NULL) && (((gc_tag *)c)->type != TYPE_CELL)) {
-				printf (" . ");
-				print_val (c);
-				break;
-			}			
-		}
-
-		printf (")");
-		break;
-	case TYPE_SYMBOL:
-		printf ("%s", ((type_symbol *)val)->sym);
-		break;
-	case TYPE_DOUBLE:
-		printf ("%lf", ((type_double *)val)->d);
-		break;
-    case TYPE_HT:
-      printf("#<HT %p :FILL %d>", val, ((type_ht *)val)->fill);
-      break;
-	}
-}
-
-bool whitespace(char c) {
-	switch (c) {
-	case ' ':
-	case '\t':
-	case '\f':
-	case '\n':
-	case '\v':
-		return TRUE;
-	default:
-		return FALSE;
-	}
-}
-
-bool digitp (char c) {
-	if (c >= '0' && c <= '9') {
-		return TRUE;
-	} else {
-		return FALSE;
-	}
-}
-	
-bool integerp (char *str) {
-	char *c = str;
-	int d = 0;
-
-	/* first char may be a +, - or of course a digit */
-	if(!(*c == '+' || *c == '-' || digitp(*c))) return 0;
-
-	if (isdigit(*c)) d = 1;
-	
-	c++;
-	while(*c != '\0') {
-		if(!isdigit(*c)) return 0;
-		else d = 1;
-		c++;
-	}
-
-	return d;
-}
-
-int parse_integer (char *str) {
-	char *c;
-	int ret, factor;
-
-	c = str;
-	while (*c != '\0') c++;
-	c--;
-
-	factor = 1;
-	ret = 0;
-	while (c >= str) {
-		if (*c == '-') {
-			ret = -ret;
-			break;
-		} else if (*c == '+') {
-			break;
-		}
-		
-		ret += (*c - '0')*factor;
-		factor *= 10;
-		c--;
-	}
-
-	return ret;
-}
-
-double parse_double (char* str){
-	double res = 0.0, factor = 1.0;
-	int point_seen, d, exp;
-	
- 	if (*str == '-') {
-		str++;
-		factor = -1.0;
-	}
-	
-	for (point_seen = 0; *str; str++) {
-		if (*str == '.') {
-			point_seen = 1;
-			continue;
-		} else if (*str == 'e' || *str == 'E') {
-			str++;
-			exp = parse_integer(str);
-			if (exp > 0) {
-				for(d = 0; d < exp; d++) {
-					factor *= 10.0;
-				}				
-			} else {
-				for (d=0; d < -exp; d++) {
-					factor /= 10.0;
-				}
-			}
-			break;
-		}
-		
-		d = *str - '0';
-		if (d >= 0 && d <= 9){
-			if (point_seen) {
-				factor /= 10.0;
-			}
-			res = res * 10.0 + (double)d;
-		}
-	}
-	
-	return res * factor;
-}
-
-bool doublep (char *str) {
-	char *c = str;
-	bool point = FALSE;
-	bool exp = FALSE;
-	
-	while (*c == ' ') c++;
-
-	if(!(*c == '+' || *c == '-' || *c == '.' || digitp(*c))) return FALSE;
-
-	if(*c == '.') point = TRUE;
-	
-	c++;
-	while(*c != '\0') {
-		/* point must occur before exp */
-		if(*c == '.') {
-			if(exp == 0) point = TRUE;
-			else return FALSE;
-		} else if(*c == 'e' || *c == 'E') {
-			if(exp == FALSE) {
-				c++;
-				return integerp (c);
-			} else {
-				return FALSE;
-			}
-		} else if (!digitp(*c)) {
-			return FALSE;
-		} 
-		c++;
-	}
-	if(point == TRUE)
-		return TRUE;
-	else
-		return FALSE;
 }
