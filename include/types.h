@@ -3,8 +3,6 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "sys.h"
-
 #define TYPE_INT                0
 #define TYPE_STRING             1
 #define TYPE_CELL               2
@@ -14,8 +12,6 @@
 #define TYPE_ARRAY              6
 
 typedef unsigned int gc_type;
-
-
 
 /* garbage collector tag that all types must contain */
 typedef struct {
@@ -54,10 +50,10 @@ typedef struct {
 } type_double;
 
 typedef struct {
-  gc_tag tag;
-  type_cell **buckets;
-  size_t size;
-  size_t fill;
+	gc_tag tag;
+	type_cell **buckets;
+	size_t size;
+	size_t fill;
 } type_ht;
 
 typedef struct {

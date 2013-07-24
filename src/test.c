@@ -39,7 +39,8 @@ int main (int argc, char **argv) {
 	void *expr;
 	char *strtab;
 	type_ht *ht;
-
+	type_array *arr;
+	
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
 	gc_init(heap, HEAP_SIZE);
@@ -74,7 +75,6 @@ int main (int argc, char **argv) {
 		
 		gc_collect_init();
 		gc_collect ((void **)&symbol_list);
-
 	}
 
 	
@@ -151,7 +151,7 @@ void print_val (void *val) {
 	gc_type type;
 	type_cell *c;
 	bool printed;
-
+	size_t i;
 
 	if (val == NULL) {
 		printf ("NIL");
@@ -198,8 +198,16 @@ void print_val (void *val) {
 		printf ("%lf", ((type_double *)val)->d);
 		break;
     case TYPE_HT:
-      printf("#<HT %p :FILL %d>", val, ((type_ht *)val)->fill);
-      break;
+		printf("#<HT %p :FILL %d>", val, ((type_ht *)val)->fill);
+		break;
+	case TYPE_ARRAY:
+		printf ("#(");
+		for(i=0; i < ((type_array *)val)->size; i++) {
+			if (i > 0) printf (" ");
+			print_val(((type_array *)val)->data[i]);
+		}
+		printf (")");		
+		break;
 	}
 }
 
