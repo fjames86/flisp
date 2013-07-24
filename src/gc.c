@@ -47,7 +47,6 @@ void *gc_malloc (size_t size) {
 type_int *gc_new_int (int i) {
 	type_int *ret = (type_int *)gc_malloc(sizeof(type_int));
 	ret->tag.type = TYPE_INT;
-	ret->tag.bh = FALSE;
 	ret->tag.forw = NULL;
 
 	ret->i = i;
@@ -59,7 +58,6 @@ type_string *gc_new_string (char *str) {
 	size_t len = strlen(str) + 1;
 	type_string *ret = (type_string *)gc_malloc(sizeof(type_string));
 	ret->tag.type = TYPE_STRING;
-	ret->tag.bh = FALSE;
 	ret->tag.forw = NULL;
 
 	ret->str = (char *)gc_malloc(sizeof(char)*len);
@@ -72,7 +70,6 @@ type_string *gc_new_string (char *str) {
 type_cell *gc_new_cell () {
 	type_cell *ret = gc_malloc(sizeof(type_cell));
 	ret->tag.type = TYPE_CELL;
-	ret->tag.bh = FALSE;
 	ret->tag.forw = NULL;
 
 	ret->car = NULL;
@@ -86,7 +83,6 @@ type_symbol *gc_new_symbol (char *str) {
 	type_symbol *ret = gc_malloc(sizeof(type_symbol));
 	size_t len = strlen(str) + 1;	
 	ret->tag.type = TYPE_SYMBOL;
-	ret->tag.bh = FALSE;
 	ret->tag.forw = NULL;
 
 	ret->sym = (char *)gc_malloc(sizeof(char)*len);
@@ -97,11 +93,26 @@ type_symbol *gc_new_symbol (char *str) {
 type_double *gc_new_double (double d) {
 	type_double *ret = gc_malloc(sizeof(type_double));
 	ret->tag.type = TYPE_DOUBLE;
-	ret->tag.bh = FALSE;
 	ret->tag.forw = NULL;
 
 	ret->d = d;
 	return ret;
+}
+
+type_ht *gc_new_ht(size_t size) {
+  type_ht *ret = gc_malloc(sizeof(type_ht));
+  size_t i;
+  ret->tag.type = TYPE_HT;
+  ret->tag.forw = NULL;
+
+  ret->buckets = gc_malloc(sizeof(type_cell *)*size);
+  for(i=0; i < size; i++) {
+    ret->buckets[i] = NULL;
+  }
+
+  ret->size = size;
+  ret->fill = 0;
+  return ret;
 }
 
 /* make a new object based on its type */
@@ -127,6 +138,8 @@ void *gc_new_copy (void *object) {
 	case TYPE_DOUBLE:
 		ret = gc_new_double(((type_double *)object)->d);
 		break;
+    case TYPE_HT:
+      ret = gc_new_ht(((type_ht *)object)->size);
 	}
 	return ret;
 }
@@ -140,7 +153,6 @@ void *gc_new_copy (void *object) {
  * this is the simplest base case
  */
 void gc_relocate_int (type_int **new, type_int *old) {
-	old->tag.bh = TRUE;
 	old->tag.forw = new;
 }
 
@@ -149,7 +161,6 @@ void gc_relocate_int (type_int **new, type_int *old) {
  * constructor
  */
 void gc_relocate_string (type_string **new, type_string *old) {
-	old->tag.bh = TRUE;
 	old->tag.forw = new;
 }
 
@@ -162,12 +173,11 @@ void gc_relocate_cell (type_cell **new, type_cell *old) {
 	gc_tag *tag;
 	void **d;
 
-	old->tag.bh = TRUE;
 	old->tag.forw = (void *)new;
 
 	if (old->car != NULL) {
 		tag = ((gc_tag *)(old->car));
-		if (tag->bh == TRUE) {
+		if (tag->forw != NULL) {
 			(*new)->car = tag->forw;
 		} else {
 			gc_relocate(&((*new)->car), old->car);
@@ -176,7 +186,7 @@ void gc_relocate_cell (type_cell **new, type_cell *old) {
 
 	if (old->cdr != NULL) {
 		tag = ((gc_tag *)(old->cdr));
-		if (tag->bh == TRUE) {
+		if (tag->forw != NULL) {
 			(*new)->car = tag->forw;
 		} else {
 			gc_relocate(&((*new)->cdr), old->cdr);
@@ -186,16 +196,25 @@ void gc_relocate_cell (type_cell **new, type_cell *old) {
 
 /* relocate a symbol. this is as easy as relocating an int because symbols aren't collected */
 void gc_relocate_symbol (type_symbol **new, type_symbol *old) {
-	old->tag.bh = TRUE;
 	old->tag.forw = new;
 }
 
 /* relocating a double is also easy */
 void gc_relocate_double (type_double **new, type_double *old) {
-	old->tag.bh = TRUE;
 	old->tag.forw = new;
 }
 
+/* hash tables are harder to deal with than lists, but thankfully are composed of lists */
+void gc_relocate_ht (type_ht **new, type_ht *old) {
+  size_t i;
+  type_cell *c;
+
+  old->tag.forw = new;
+  for(i=0; i < old->size; i++) {
+    c = old->buckets[i];
+    gc_relocate((void **)&((*new)->buckets[i]), c);
+  }  
+}
 
 /* --------- top level relocate function -------- */
 
@@ -205,7 +224,7 @@ void gc_relocate (void **new, void *old) {
 	if (*new == NULL) {
 		*new = gc_new_copy (old);
 	}
-	
+
 	type = ((gc_tag *)old)->type;
 	switch (type) {
 	case TYPE_INT:
@@ -223,6 +242,9 @@ void gc_relocate (void **new, void *old) {
 	case TYPE_DOUBLE:
 		gc_relocate_double ((type_double **)new, (type_double *)old);
 		break;
+    case TYPE_HT:
+      gc_relocate_ht((type_ht **)new, (type_ht *)old);
+      break;
 	}
 }
 

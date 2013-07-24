@@ -4,6 +4,8 @@
 
 #include "sys.h"
 #include "gc.h"
+#include "lists.h"
+#include "ht.h"
 
 void print_heap(size_t topbytes);
 void print_val(void *val);
@@ -301,15 +303,35 @@ bool eq (void *val1, void *val2) {
 		case TYPE_DOUBLE:
 			ret = (((type_double *)val1)->d == ((type_double *)val2)->d);
 			break;
+        default:
+          ret = (val1 == val2);
+        }
+    }
+    return ret;
+}
+
+bool eql(void *val1, void *val2) {
+  gc_type t1, t2;
+  bool ret;
+  t1 = ((gc_tag *)val1)->type;
+  t2 = ((gc_tag *)val2)->type;
+  if (t1 == t2) {
+    switch (t1) {
+        case TYPE_INT:
+			ret = (((type_int *)val1)->i == ((type_int *)val2)->i);
+			break;
+		case TYPE_DOUBLE:
+			ret = (((type_double *)val1)->d == ((type_double *)val2)->d);
+            break;
 		case TYPE_STRING:
 			ret = (strcmp(((type_string *)val1)->str, ((type_string *)val2)->str) == 0 ? TRUE : FALSE);
 			break;
 		case TYPE_CELL:
 			ret = (val1 == val2);
 			break;
-		case TYPE_SYMBOL:
-			ret = (((type_symbol *)val1)->sym == ((type_symbol *)val2)->sym);
-			break;
+ 		case TYPE_SYMBOL:
+            ret = (val1 == val2);
+ 			break;
 		}
 	}
 
@@ -324,7 +346,8 @@ int main (int argc, char **argv) {
 	char word[MAX_LINE];
 	void *expr;
 	char *strtab;
-	
+	type_ht *ht;
+
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
 	gc_init(heap, HEAP_SIZE);
@@ -332,7 +355,16 @@ int main (int argc, char **argv) {
 	bufferp = "";
 
 	symbol_init ();
+    
+    ht = gc_new_ht(20);
+    print_val(ht); printf("\n");
+    sethash(ht, intern("FOO"), gc_new_int(123));
+    print_val(ht); printf("\n");
+    printf("gethash: %d ", gethash(ht, (void *)intern("FOO"), &expr)); print_val(expr); printf("\n");
+    
+    print_heap(128);
 	
+
 	while (TRUE) {
 		printf ("> ");
 		expr = next_expr();
@@ -470,6 +502,9 @@ void print_val (void *val) {
 	case TYPE_DOUBLE:
 		printf ("%lf", ((type_double *)val)->d);
 		break;
+    case TYPE_HT:
+      printf("#<HT %p :FILL %d>", val, ((type_ht *)val)->fill);
+      break;
 	}
 }
 

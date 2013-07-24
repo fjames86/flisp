@@ -25,8 +25,35 @@ void *cell_cdr(type_cell *cell) {
 	}
 }
 
+void *cell_caar(type_cell *cell) {
+  return cell_car(cell_car(cell));
+}
 
-type_cell *acons (void *key, void *val, void **alist) {
+void *cell_cddr(type_cell *cell) {
+  return cell_cdr(cell_cdr(cell));
+}
+
+void *cell_cdar(type_cell *cell) {
+  return cell_cdr(cell_car(cell));
+}
+
+void *cell_cadr(type_cell *cell) {
+  return cell_car(cell_cdr(cell));
+}
+
+void set_car(type_cell **cell, void *val) {
+  (*cell)->car = val;
+}
+
+void set_cdr(type_cell **cell, void *val) {
+  (*cell)->cdr = val;
+}
+
+void cell_push(type_cell **place, void *val) {
+  (*place) = cons(val, *place);
+}
+
+type_cell *acons (void *key, void *val, type_cell **alist) {
 	type_cell *c = gc_new_cell();
 	type_cell *d = gc_new_cell();
 	
@@ -43,7 +70,10 @@ void *assoc (void *key, type_cell *alist) {
 	type_cell *c;
 	
 	while (alist != NULL) {
-		c = (type_cell *)(alist->car);
+      c = cell_car(alist);
+      if (c == NULL) {
+        break;
+      }
 		if (eq(key, c->car)) {
 			return c;
 		}

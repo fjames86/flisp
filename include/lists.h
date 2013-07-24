@@ -9,8 +9,15 @@
 type_cell *cons (void *car, void *cdr);
 void *cell_car (type_cell *cell);
 void *cell_cdr (type_cell *cell);
+void *cell_caar (type_cell *cell);
+void *cell_cdar (type_cell *cell);
+void *cell_cddr (type_cell *cell);
+void *cell_cadr (type_cell *cell);
 
-type_cell *acons (void *key, void *val, void **alist);
+void set_car(type_cell **cell, void *val);
+void set_cdr(type_cell **cell, void *val);
+
+type_cell *acons (void *key, void *val, type_cell **alist);
 void *assoc (void *key, type_cell *alist);
 
 

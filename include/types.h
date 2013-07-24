@@ -10,6 +10,7 @@
 #define TYPE_CELL 2
 #define TYPE_SYMBOL 3
 #define TYPE_DOUBLE 4
+#define TYPE_HT 5
 
 typedef unsigned int gc_type;
 
@@ -17,7 +18,6 @@ typedef unsigned int gc_type;
 /* garbage collector tag that all types must contain */
 typedef struct {
 	gc_type type;
-	bool bh;
 	void *forw;
 } gc_tag;
 
@@ -50,6 +50,13 @@ typedef struct {
 	gc_tag tag;
 	double d;
 } type_double;
+
+typedef struct {
+  gc_tag tag;
+  type_cell **buckets;
+  size_t size;
+  size_t fill;
+} type_ht;
 
 
 #endif
