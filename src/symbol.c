@@ -1,44 +1,50 @@
 
 #include "symbol.h"
 
-void symbol_init () {
-	type_cell *c, **d;
+void symbol_init (char *table, size_t size) {
+	symbol_table = table + size;
+	symbol_p = (char **)(table + size);
+	string_table_p = table;
+	symbol_table_size = size;
 
-	d = &symbol_list;
-	
+ 	/* intern some symbols to get things going */
     intern("NIL");
     intern("T");
     intern("QUIT");
     intern("HEAP");
 }
 
+char *intern_new_symbol (char *str) {
+	char *ret;
+	size_t len = strlen(str) + 1;
 
-type_symbol *make_symbol (char *str) {
-	return gc_new_symbol (str);
+	if ((void *)symbol_p > (void *)(string_table_p + len)) {
+		ret = string_table_p;
+		*symbol_p = string_table_p;
+		symbol_p--;
+		strcpy(string_table_p, str);
+		string_table_p += len;
+	} else {
+		/* out of memory */
+		ret = NULL;
+	}
+	
+	return ret;
 }
 
-type_symbol *intern (char *str) {
-	size_t i;
+char *intern (char *str) {
 	type_cell *c;
-	type_symbol *s;
+	char *s;
+	char **p;
 	
 	/* first look up in the symbol table */
-	c = symbol_list;
-	while (c != NULL) {
-      s = cell_car(c);
-      if (get_type(s) == TYPE_SYMBOL) {
-        if (strcmp(s->sym, str) == 0) {
-          return c->car;
-        }
-      } else {
-        printf("non symbol %d\n", *s);
-      }
-        c = cell_cdr(c);      
+	for(p = (char **)symbol_p + 1; (void *)p <= (void *)symbol_table; p++) {
+		if (strcmp(*p, str) == 0) {
+			return *p;
+		}
 	}
 
 	/* not found in the table of interned symbols, so add it */
-    s = make_symbol(str);
-    symbol_list = cons((void *)s, (void *)symbol_list);
-	return s;
+	return intern_new_symbol (str);
 }
 

@@ -14,3 +14,4 @@ bool cell_equal(void *val1, void *val2);
 bool array_equal(void *val1, void *val2);
 
 #endif
+

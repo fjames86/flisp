@@ -28,7 +28,7 @@ char buffer[MAX_LINE];
 char *bufferp;
 
 #define HEAP_SIZE (1024*1024)
-
+#define SYMTAB_SIZE (1024)
 
 int main (int argc, char **argv) {
 	void *heap;
@@ -41,20 +41,20 @@ int main (int argc, char **argv) {
 	type_ht *ht;
 	type_array *arr;
 	environment toplevel;
-
+	char *symt;
+	
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
 	gc_init(heap, HEAP_SIZE);
 	
 	bufferp = "";
 
-	symbol_init ();
+	symt = calloc (SYMTAB_SIZE, sizeof(char));
+	symbol_init (symt, SYMTAB_SIZE);
 
     env_init(&toplevel);
 
 	while (TRUE) {
-        print_val(symbol_list); printf("\n");
-
 		printf ("> ");
 		expr = next_expr();
 		if (eq(expr, intern("QUIT")) == TRUE) {
@@ -67,7 +67,6 @@ int main (int argc, char **argv) {
           printf ("\n");
 		}
 		gc_collect_init();
-        /*        gc_collect ((void **)&symbol_list);*/
         gc_collect ((void **)&(toplevel.special));
         gc_collect ((void **)&(toplevel.lexical));
 	}

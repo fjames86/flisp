@@ -87,14 +87,14 @@ type_cell *gc_new_cell () {
 }
 
 /* symbols are essentially the same as strings */
-type_symbol *gc_new_symbol (char *str) {
+type_symbol *gc_new_symbol (char *sym) {
 	type_symbol *ret = gc_malloc(sizeof(type_symbol));
-	size_t len = strlen(str) + 1;	
+	/*	char *sym = intern(str);*/
+
 	ret->tag.type = TYPE_SYMBOL;
 	ret->tag.forw = NULL;
 
-	ret->sym = (char *)gc_malloc(sizeof(char)*len);
-	strcpy(ret->sym, str);
+	ret->sym = sym;
 	return ret;
 }
 
