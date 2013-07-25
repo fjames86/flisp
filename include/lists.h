@@ -17,7 +17,7 @@ void *cell_cadr (type_cell *cell);
 void set_car(type_cell **cell, void *val);
 void set_cdr(type_cell **cell, void *val);
 
-type_cell *acons (void *key, void *val, type_cell **alist);
+type_cell *acons (void *key, void *val, type_cell *alist);
 void *assoc (void *key, type_cell *alist);
 
 

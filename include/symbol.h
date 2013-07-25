@@ -5,6 +5,7 @@
 #include "sys.h"
 #include "types.h"
 #include "gc.h"
+#include "lists.h"
 
 type_cell *symbol_list;
 

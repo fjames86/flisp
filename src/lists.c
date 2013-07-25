@@ -53,7 +53,8 @@ void cell_push(type_cell **place, void *val) {
   (*place) = cons(val, *place);
 }
 
-type_cell *acons (void *key, void *val, type_cell **alist) {
+/* this does essentially cons(cons(key, val), alist) */
+type_cell *acons (void *key, void *val, type_cell *alist) {
 	type_cell *c = gc_new_cell();
 	type_cell *d = gc_new_cell();
 	
@@ -61,9 +62,9 @@ type_cell *acons (void *key, void *val, type_cell **alist) {
 	c->cdr = val;
 
 	d->car = c;
-	d->cdr = *alist;
-	*alist = d;
-	return *alist;
+	d->cdr = alist;
+
+	return d;
 }
 
 void *assoc (void *key, type_cell *alist) {
@@ -74,7 +75,7 @@ void *assoc (void *key, type_cell *alist) {
       if (c == NULL) {
         break;
       }
-		if (eq(key, c->car)) {
+		if (eql(key, c->car)) {
 			return c;
 		}
 		

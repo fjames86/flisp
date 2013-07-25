@@ -26,7 +26,7 @@ void sethash(type_ht **htb, void *key, void *val) {
 	i = sxhash(key) % ht->size;
 	c = &(ht->buckets[i]);
 	while (*c != NULL) {
-		if (eq(cell_car(*c), key)) {
+		if (eql(cell_car(*c), key)) {
 			set_cdr(c, val);
 			break;
 		} 
@@ -40,7 +40,7 @@ void sethash(type_ht **htb, void *key, void *val) {
 	}
 	
 	/* not found so need to add a new entry */
-	ht->buckets[i] = acons(key, val, &(ht->buckets[i]));
+	ht->buckets[i] = acons(key, val, ht->buckets[i]);
 	(ht->fill)++;
 }
 
@@ -52,7 +52,7 @@ void remhash(type_ht *ht, void *key) {
 	c = &(ht->buckets[i]);
 
 	while (*c != NULL) {
-		if (eq((*c)->car, key)) {
+		if (eql((*c)->car, key)) {
 			*c = (*c)->cdr;
 			break;
 		}
@@ -88,7 +88,7 @@ void ht_resize(type_ht **ht) {
 }
 
 size_t sxhash(void *val) {
-	gc_type type = ((gc_tag *)val)->type;
+  gc_type type = get_type(val);
 	size_t ret = 42;
 	
 	switch (type) {

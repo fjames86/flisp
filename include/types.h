@@ -3,6 +3,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "sys.h"
+
 #define TYPE_INT                0
 #define TYPE_STRING             1
 #define TYPE_CELL               2
@@ -10,6 +12,11 @@
 #define TYPE_DOUBLE             4
 #define TYPE_HT                 5
 #define TYPE_ARRAY              6
+#define TYPE_NULL               7
+#define TYPE_PROC               8
+
+#define CAST(type, x)           ((type)(x))
+
 
 typedef unsigned int gc_type;
 
@@ -63,13 +70,25 @@ typedef struct {
 } type_array;
 
 
+typedef void *(*flisp_proc_t)(type_cell *);
+
+typedef struct {
+  gc_tag tag;
+  flisp_proc_t proc;
+  size_t nargs;
+} type_proc;
+
 static size_t type_size[] = {sizeof(type_int),
 							 sizeof(type_string),
 							 sizeof(type_cell),
 							 sizeof(type_symbol),
 							 sizeof(type_double),
 							 sizeof(type_ht),
-							 sizeof(type_array) };
+							 sizeof(type_array),
+                             sizeof(void *),
+                             sizeof(type_proc) };
+
+gc_type get_type (void *val);
 
 #endif
 

@@ -143,9 +143,11 @@ void *gc_new_copy (void *object) {
 	gc_type type;
 	void *ret = NULL;
 	
-	type = ((gc_tag *)object)->type;
-
+	type = get_type(object);
 	switch (type) {
+    case TYPE_NULL:
+        ret = NULL;
+        break;
 	case TYPE_INT:
 		ret = gc_new_int (((type_int *)object)->i);
 		break;
@@ -196,32 +198,32 @@ void gc_relocate_string (type_string **new, type_string *old) {
  * heart flag, then just use the forwarding address. Otherwise, it's not
  * been moved so call the relocate function on it
  */
-void gc_relocate_cell (type_cell **new, type_cell *old) {
-	gc_tag *tag;
+void gc_relocate_cell (type_cell **new, type_cell *old) {	
 	void **d;
+    void *forw;
 
-	old->tag.forw = (void *)new;
+	old->tag.forw = new;
 
 	if (old->car != NULL) {
-		tag = ((gc_tag *)(old->car));
-		if (tag->forw != NULL) {
-			(*new)->car = tag->forw;
+        forw = CAST(gc_tag *, cell_car(old))->forw;
+		if (forw != NULL) {
+			(*new)->car = forw;
 		} else {
 			gc_relocate(&((*new)->car), old->car);
 		}
 	}
 
 	if (old->cdr != NULL) {
-		tag = ((gc_tag *)(old->cdr));
-		if (tag->forw != NULL) {
-			(*new)->car = tag->forw;
+        forw = CAST(gc_tag *, cell_cdr(old))->forw;
+		if (forw != NULL) {
+			(*new)->cdr = forw;
 		} else {
 			gc_relocate(&((*new)->cdr), old->cdr);
 		}
 	}
 }
 
-/* relocate a symbol. this is as easy as relocating an int because symbols aren't collected */
+/* relocatign a string is the smae as relocating a stirng */
 void gc_relocate_symbol (type_symbol **new, type_symbol *old) {
 	old->tag.forw = new;
 }
@@ -269,8 +271,10 @@ void gc_relocate (void **new, void *old) {
 		*new = gc_new_copy (old);
 	}
 
-	type = ((gc_tag *)old)->type;
+	type = get_type(old);
 	switch (type) {
+    case TYPE_NULL:
+        break;
 	case TYPE_INT:
 		gc_relocate_int ((type_int **)new, (type_int *)old);
 		break;

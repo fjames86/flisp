@@ -6,6 +6,8 @@
 #include "gc.h"
 #include "lists.h"
 #include "ht.h"
+#include "env.h"
+#include "eval.h"
 
 void print_heap(size_t topbytes);
 void print_val(void *val);
@@ -20,8 +22,6 @@ void next_word (char *dest);
 type_cell *read_list ();
 void *next_expr();
 type_string *read_string();
-bool eq(void *val1, void *val2);
-bool eql(void *val1, void *val2);
 
 #define MAX_LINE 100
 char buffer[MAX_LINE];
@@ -40,7 +40,8 @@ int main (int argc, char **argv) {
 	char *strtab;
 	type_ht *ht;
 	type_array *arr;
-	
+	environment toplevel;
+
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
 	gc_init(heap, HEAP_SIZE);
@@ -48,19 +49,12 @@ int main (int argc, char **argv) {
 	bufferp = "";
 
 	symbol_init ();
-    
-    ht = gc_new_ht(20);
-    print_val(ht); printf("\n");
-    printf ("sethash %s %d\n", "FOO", 123);
-	sethash(&ht, intern("FOO"), gc_new_int(123));
-	ht_resize(&ht);
-    print_val(ht); printf("\n");
-    printf("gethash: FOO ", gethash(ht, (void *)intern("FOO"), &expr)); print_val(expr); printf("\n");
 
-    print_heap(128);
-	
+    env_init(&toplevel);
 
 	while (TRUE) {
+        print_val(symbol_list); printf("\n");
+
 		printf ("> ");
 		expr = next_expr();
 		if (eq(expr, intern("QUIT")) == TRUE) {
@@ -68,37 +62,16 @@ int main (int argc, char **argv) {
 			break;
 		} else if (eq(expr, intern("HEAP")) == TRUE) {
 			print_heap(128);
+		} else {          
+          print_val(eval(expr, &toplevel));
+          printf ("\n");
 		}
-		
-		print_val(expr);
-		printf ("\n");
-		
 		gc_collect_init();
-		gc_collect ((void **)&symbol_list);
+        /*        gc_collect ((void **)&symbol_list);*/
+        gc_collect ((void **)&(toplevel.special));
+        gc_collect ((void **)&(toplevel.lexical));
 	}
 
-	
-#if 0
-	i = gc_new_int (123);
-	s = gc_new_string("hello");
-	c = gc_new_cell();
-	c->car = i;
-	c->cdr = gc_new_cell();
-	((type_cell *)c->cdr)->car = s;
-	((type_cell *)c->cdr)->cdr = s;
-
-	print_heap();
-	
-	print_val (c);
-	printf ("\n");
-	
-	print_heap();
-
-	gc_collect_init();
-	gc_collect ((void *)&c);
-	print_heap();
-#endif
-	
 	free(heap);
 }
 
@@ -169,6 +142,14 @@ void print_val (void *val) {
 		break;
 	case TYPE_CELL:
 		c = (type_cell *)val;
+
+        /* first check it's a quote, if not then print a list */
+        if (eq (cell_car(c), intern("QUOTE"))) {
+            printf("'"); 
+            print_val(cell_cadr(c));
+            break;
+        }
+
 		printf ("(");
 		printed = FALSE;
 		
@@ -378,7 +359,7 @@ void next_word (char *dest) {
 	while (TRUE) {
 		if (whitespace(*bufferp) || *bufferp == '\0') {
 			break;
-		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"') {
+		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"' || *bufferp == '\'') {
 			if (!done) {
 				*dest = *bufferp;
 				dest++;
@@ -399,13 +380,13 @@ type_cell *read_list () {
 	char word[MAX_LINE];
 	type_cell **builder;
 	bool first = TRUE;
-	type_cell *top;
+	type_cell *top, *cell;
 	
 	top = NULL;
 	builder = &top;
 	while (TRUE) {
 		next_word(word);
-
+        
 		if (strcmp (word, "(") == 0) {
 			if (first == TRUE) {
 				top = gc_new_cell();
@@ -436,6 +417,17 @@ type_cell *read_list () {
 				}
 				break;
 			}
+        } else if (strcmp (word, "'") == 0) {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+            cell = cons(next_expr(), NULL);
+            (*builder)->car = cons(intern("QUOTE"), cell);
+			builder = (type_cell **)(&((*builder)->cdr));
 		} else if (strcmp (word, "\"") == 0) {
 			if (first == TRUE) {
 				top = gc_new_cell();
@@ -595,6 +587,11 @@ void *next_expr() {
 		/* dotted end of list. shouldn't happen here */
 		printf ("Error: dotted list not in list \n");
 		return NULL;
+    } else if (strcmp (word, "'") == 0) {
+        /* quote read macro */
+        builder = cons(next_expr(), NULL);
+        builder = cons(intern("QUOTE"), builder);
+        ret = builder;
 	} else if (strcmp (word, "\"") == 0) {
 		/* quote, read string */
 		ret = read_string();
@@ -613,53 +610,3 @@ void *next_expr() {
 	return ret;
 }
 
-
-bool eq (void *val1, void *val2) {
-	gc_type t1, t2;
-	bool ret = FALSE;
-	
-	t1 = ((gc_tag *)val1)->type;
-	t2 = ((gc_tag *)val2)->type;
-
-	if (t1 == t2) {
-		switch (t1) {
-		case TYPE_INT:
-			ret = (((type_int *)val1)->i == ((type_int *)val2)->i);
-			break;
-		case TYPE_DOUBLE:
-			ret = (((type_double *)val1)->d == ((type_double *)val2)->d);
-			break;
-        default:
-          ret = (val1 == val2);
-        }
-    }
-    return ret;
-}
-
-bool eql(void *val1, void *val2) {
-  gc_type t1, t2;
-  bool ret;
-  t1 = ((gc_tag *)val1)->type;
-  t2 = ((gc_tag *)val2)->type;
-  if (t1 == t2) {
-    switch (t1) {
-        case TYPE_INT:
-			ret = (((type_int *)val1)->i == ((type_int *)val2)->i);
-			break;
-		case TYPE_DOUBLE:
-			ret = (((type_double *)val1)->d == ((type_double *)val2)->d);
-            break;
-		case TYPE_STRING:
-			ret = (strcmp(((type_string *)val1)->str, ((type_string *)val2)->str) == 0 ? TRUE : FALSE);
-			break;
-		case TYPE_CELL:
-			ret = (val1 == val2);
-			break;
- 		case TYPE_SYMBOL:
-            ret = (val1 == val2);
- 			break;
-		}
-	}
-
-	return ret;
-}
