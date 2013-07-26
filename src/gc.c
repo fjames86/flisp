@@ -140,6 +140,14 @@ type_array *gc_new_array (size_t size) {
 	return ret;	
 }
 
+type_proc *gc_new_proc (flisp_proc_t proc) {
+  type_proc *ret = gc_malloc(sizeof(type_proc));
+  ret->tag.type = TYPE_PROC;
+  ret->tag.forw = NULL;
+  ret->proc = proc;
+  return ret;
+}
+
 /* make a new object based on its type */
 void *gc_new_copy (void *object) {
 	gc_type type;
@@ -171,6 +179,9 @@ void *gc_new_copy (void *object) {
 	case TYPE_ARRAY:
 		ret = gc_new_array(((type_array *)object)->size);
 		break;
+    case TYPE_PROC:
+        ret = gc_new_proc(((type_proc *)object)->proc);
+        break;
 	}
 	return ret;
 }
@@ -259,7 +270,9 @@ void gc_relocate_array (type_array **new, type_array *old) {
 	}
 }
 
-
+void gc_relocate_proc (type_proc **new, type_proc *old) {
+    old->tag.forw = new;
+}
 
 
 
@@ -298,6 +311,9 @@ void gc_relocate (void **new, void *old) {
 	case TYPE_ARRAY:
 		gc_relocate_array ((type_array **)new, (type_array *)old);
 		break;
+    case TYPE_PROC:
+      gc_relocate_proc ((type_proc **)new, (type_proc *)old);
+      break;
 	}
 }
 

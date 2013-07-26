@@ -182,6 +182,9 @@ void print_val (void *val) {
 		}
 		printf (")");		
 		break;
+    case TYPE_PROC:
+        printf("#<PROC %p>", CAST(type_proc *, val)->proc);
+        break;
 	}
 }
 

@@ -9,10 +9,13 @@
 #include "flisp.h"
 #include "ht.h"
 
-void *eval(void *expr, environment *env);
-void *eval_expr(type_cell *expr, environment *env);
-void *eval_exprs(type_cell *exprs, environment *env);
-void *apply(void *proc, type_cell *args);
+void *eval (void *expr, environment *env);
+void *eval_expr (type_cell *expr, environment *env);
+void *eval_exprs (type_cell *exprs, environment *env);
+void *apply (void *proc, type_cell *args);
+void *apply_proc (flisp_proc_t proc, type_cell *args);
+
+
 
 #endif 
 

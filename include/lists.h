@@ -5,6 +5,7 @@
 #include "sys.h"
 #include "types.h"
 #include "gc.h"
+#include "env.h"
 
 type_cell *cons (void *car, void *cdr);
 void *cell_car (type_cell *cell);
@@ -21,7 +22,7 @@ void set_cdr(type_cell *cell, void *val);
 
 type_cell *acons (void *key, void *val, type_cell *alist);
 void *assoc (void *key, type_cell *alist);
-
+type_cell *mapcar (void *(*proc)(void *), type_cell *args);
 
 #endif
 

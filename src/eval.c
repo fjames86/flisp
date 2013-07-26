@@ -10,12 +10,11 @@ void *eval(void *expr, environment *env) {
   type = get_type(expr);
   switch (type) {
   case TYPE_NULL:
-    ret = NULL;
-    break;
   case TYPE_INT:
   case TYPE_DOUBLE:
   case TYPE_STRING:
   case TYPE_ARRAY:
+  case TYPE_HT:
     ret = expr;
     break;
   case TYPE_SYMBOL:
@@ -28,6 +27,9 @@ void *eval(void *expr, environment *env) {
   case TYPE_CELL:
     ret = eval_expr(CAST(type_cell *, expr), env);
     break;
+  default:
+    /* unknown type ? */
+    ret = expr;
   }
   return ret;    
 }
@@ -35,9 +37,9 @@ void *eval(void *expr, environment *env) {
 
 void *eval_expr(type_cell *expr, environment *env) {
   void *proc, *ret;
-  void *name, *val;
+  void *name, *val, *args;
 
-  proc = (type_cell *)cell_car((void *)expr);
+  proc = cell_car((void *)expr);
   expr = (type_cell *)cell_cdr((void *)expr);
 
   /* go through the special operators */
@@ -50,8 +52,24 @@ void *eval_expr(type_cell *expr, environment *env) {
     val = eval(expr, env);
     sethash(&(env->special), name, val);
     ret = name;
-  } else {
-      ret = NULL;
+  } else if (eq(proc, intern("IF"))) {
+    /* (if test then else) */
+    name = eval(cell_car(expr), env);
+    if (name != NULL) {
+      expr = cell_cdr(expr);
+      ret = eval(cell_car(expr), env);
+    } else {
+      expr = cell_cddr(expr);
+      ret = eval(cell_car(expr), env);
+    }
+  } else {    
+    args = NULL;
+    while (expr != NULL) {
+      args = cons (eval(expr->car, env), args);
+      expr = expr->cdr;
+    }
+
+    ret = apply (eval(proc, env), args); 
   }
   return ret;
 }
@@ -71,16 +89,27 @@ void *eval_exprs(type_cell *exprs, environment *env) {
 }
 
 void *apply (void *proc, type_cell *args) {
-  return NULL;
+  void *ret;
+  gc_type t = get_type (proc);
+
+  switch (t) {
+  case TYPE_PROC:
+    ret = apply_proc(CAST(type_proc *, proc)->proc, args);
+    break;
+  case TYPE_CELL:        
+    /* closure */
+    ret = NULL;
+    break;
+  default :
+    /* error */
+    ret = NULL;
+  }
+
+  return ret;
 }
 
-#if 0
-void *apply_proc (type_proc *proc, type_cell *args) {
-  while (args != NULL) {
-    /* push args->car onto stack */
-  }
-  call proc->proc;
-  return top of stack
+void *apply_proc (flisp_proc_t proc, type_cell *args) {
+  return (proc)(args);
 }
-#endif
+
 

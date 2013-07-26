@@ -14,6 +14,7 @@
 #define TYPE_ARRAY              6
 #define TYPE_NULL               7
 #define TYPE_PROC               8
+#define TYPE_CLOSURE            9
 
 #define CAST(type, x)           ((type)(x))
 
@@ -70,13 +71,22 @@ typedef struct {
 } type_array;
 
 
-typedef void *(*flisp_proc_t)(type_cell *);
+typedef void * (*flisp_proc_t)(type_cell *);
 
 typedef struct {
   gc_tag tag;
   flisp_proc_t proc;
-  size_t nargs;
 } type_proc;
+
+struct environment_;
+
+typedef struct {
+  gc_tag tag;
+  type_cell *params;
+  type_cell *body;
+  struct environment_ *env;
+} type_closure;
+
 
 #if 0
 static size_t type_size[] = {sizeof(type_int),

@@ -94,3 +94,15 @@ void *assoc (void *key, type_cell *alist) {
     
 	return NULL;
 }
+
+type_cell *mapcar (void *(*proc)(void *), type_cell *args) {
+  type_cell *ret = NULL;
+  
+  while (args != NULL) {
+    cell_push (&ret, (proc)(args->car));
+    args = args->cdr;
+  }
+
+  return ret;
+}
+

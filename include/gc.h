@@ -5,6 +5,7 @@
 #include "sys.h"
 #include "types.h"
 #include "symbol.h"
+#include "procs.h"
 
 /* globals used to keep track of the heap */
 void *gc_working;
@@ -24,6 +25,8 @@ type_symbol *gc_new_symbol (char *str);
 type_double *gc_new_double (double d);
 type_ht *gc_new_ht (size_t size);
 type_array *gc_new_array (size_t size);
+type_proc *gc_new_proc (flisp_proc_t proc);
+
 
 void *gc_new_copy (void *object);
 
@@ -35,6 +38,7 @@ void gc_relocate_symbol (type_symbol **new, type_symbol *old);
 void gc_relocate_double (type_double **new, type_double *old);
 void gc_relocate_ht (type_ht **new, type_ht *old);
 void gc_relocate_array (type_array **new, type_array *old);
+void gc_relocate_proc (type_proc **new, type_proc *old);
 
 void gc_relocate (void **new, void *old);
 
