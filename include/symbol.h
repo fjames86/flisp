@@ -14,6 +14,7 @@ char **symbol_table;
 char **symbol_p;
 
 /* store the strings from the bottom */
+char *string_table;
 char *string_table_p;
 size_t symbol_table_size;
 

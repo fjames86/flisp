@@ -25,6 +25,8 @@ void next_word (char *dest);
 type_cell *read_list ();
 void *next_expr();
 type_string *read_string();
+void save_image (char *fname);
+void load_image (char *fname);
 
 #define MAX_LINE 100
 char buffer[MAX_LINE];
@@ -59,6 +61,8 @@ int main (int argc, char **argv) {
 
     env_init(&toplevel);
 
+	save_image ("flisp.core.bin");
+	
 	while (TRUE) {
 		printf ("\n> ");
 		expr = next_expr();
@@ -609,5 +613,55 @@ void *next_expr() {
 	}
 	
 	return ret;
+}
+
+/*
+ * write all information to a file
+ * first write the symbol table and then the contents of the heap
+ */
+void save_image (char *fname) {
+	FILE *f;
+	size_t size, i;
+	char *p;
+	
+	f = fopen(fname, "wb");
+	if (f != NULL) {
+		if (fseek(f, 0, SEEK_SET) == 0) {
+
+			/* write the number of strings */
+			i = symbol_table - symbol_p;
+			fwrite (&i, sizeof(size_t), 1, f);
+			
+			/* first write the strings */
+			fwrite ((void *)string_table, sizeof(char), (string_table_p - string_table), f);
+
+			/* now print the heap */
+			fwrite ((void *)gc_working, sizeof(char), gc_heap_size / 2, f);
+		}
+		
+		fclose(f);
+	}
+}
+
+
+void load_image (char *fname) {
+	size_t n, i;
+	FILE *f;
+	char buffer[MAX_LINE];
+	
+	f = fopen (fname, "rb");
+	if (f != NULL) {
+
+		/* first intern the symbols. get the number of strings and then read them */		
+		fread (&n, sizeof(size_t), 1, f);
+		for(i = 0; i < n; i++) {
+			fscanf(f, "%s", buffer);
+			intern(buffer);
+		}
+
+		/* now load the heap */
+		
+		fclose(f);
+	}
 }
 

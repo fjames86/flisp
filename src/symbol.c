@@ -6,9 +6,10 @@ void symbol_init (char *table, size_t size) {
     symbol_table =  (char **)(table + size - 1);
 
     /* symbol_p is the current top of the symbol table, where pointers to all interned symbols are stored */
-	symbol_p = (char **)(table + size - 1);
+	symbol_p = symbol_table; 
 
     /* string_table_p is where we can store the strings */
+	string_table = table;
 	string_table_p = table;
 
     /* total size of table */
