@@ -6,6 +6,8 @@
 #include "types.h"
 #include "gc.h"
 #include "env.h"
+#include "flisp.h"
+#include "ht.h"
 
 void *eval(void *expr, environment *env);
 void *eval_expr(type_cell *expr, environment *env);

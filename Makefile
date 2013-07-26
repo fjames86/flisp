@@ -1,7 +1,10 @@
 
 IDIR=include
 CC=gcc
-CFLAGS=-I$(IDIR) -fno-builtin -nostdinc -g
+WARN=
+NOBUILTIN=-fno-builtin -nostdinc 
+CFLAGS=-I$(IDIR) -g $(WARN)
+
 
 ODIR=obj
 SDIR=src
@@ -16,10 +19,10 @@ test: $(OBJ)
 	gcc -o $@ $^
 
 $(ODIR)/%.o: ${SDIR}/%.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(NOBUILTIN)
 
 ${ODIR}/test.o: ${SDIR}/test.c ${DEPS}
-	${CC} -c -o ${ODIR}/test.o ${SDIR}/test.c -I${IDIR} -g
+	${CC} -c -o ${ODIR}/test.o ${SDIR}/test.c $(CFLAGS)
 
 .PHONY: clean
 

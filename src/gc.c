@@ -86,10 +86,12 @@ type_cell *gc_new_cell () {
 	return ret;
 }
 
-/* symbols are essentially the same as strings */
+/* symbols are simpler than strings. they just store a static reference to the 
+ * string stored in the symbol table, which never gets garbage collected so we can just copy the 
+ * pointer. 
+ */
 type_symbol *gc_new_symbol (char *sym) {
 	type_symbol *ret = gc_malloc(sizeof(type_symbol));
-	/*	char *sym = intern(str);*/
 
 	ret->tag.type = TYPE_SYMBOL;
 	ret->tag.forw = NULL;

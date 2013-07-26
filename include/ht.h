@@ -5,6 +5,7 @@
 #include "sys.h"
 #include "gc.h"
 #include "lists.h"
+#include "flisp.h"
 
 #define HT_RESIZE    1.5
 #define HT_THRESHOLD 0.75

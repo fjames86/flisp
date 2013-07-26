@@ -78,6 +78,7 @@ typedef struct {
   size_t nargs;
 } type_proc;
 
+#if 0
 static size_t type_size[] = {sizeof(type_int),
 							 sizeof(type_string),
 							 sizeof(type_cell),
@@ -87,6 +88,7 @@ static size_t type_size[] = {sizeof(type_int),
 							 sizeof(type_array),
                              sizeof(void *),
                              sizeof(type_proc) };
+#endif 
 
 gc_type get_type (void *val);
 

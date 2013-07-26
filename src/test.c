@@ -55,23 +55,17 @@ int main (int argc, char **argv) {
     env_init(&toplevel);
 
 	while (TRUE) {
-		printf ("> ");
+		printf ("\n> ");
 		expr = next_expr();
-		if (eq(expr, intern("QUIT")) == TRUE) {
-			printf ("Bye\n");
-			break;
-		} else if (eq(expr, intern("HEAP")) == TRUE) {
-			print_heap(128);
-		} else {          
-          print_val(eval(expr, &toplevel));
-          printf ("\n");
-		}
+        print_val(eval(expr, &toplevel)); 
+
 		gc_collect_init();
         gc_collect ((void **)&(toplevel.special));
         gc_collect ((void **)&(toplevel.lexical));
 	}
 
 	free(heap);
+    return 0;
 }
 
 

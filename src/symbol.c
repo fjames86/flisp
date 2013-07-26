@@ -2,18 +2,26 @@
 #include "symbol.h"
 
 void symbol_init (char *table, size_t size) {
-	symbol_table = table + size;
-	symbol_p = (char **)(table + size);
+    /* symbol_table is the start of the symbol table, where the strings are actually stored */
+    symbol_table =  (char **)(table + size - 1);
+
+    /* symbol_p is the current top of the symbol table, where pointers to all interned symbols are stored */
+	symbol_p = (char **)(table + size - 1);
+
+    /* string_table_p is where we can store the strings */
 	string_table_p = table;
+
+    /* total size of table */
 	symbol_table_size = size;
 
  	/* intern some symbols to get things going */
-    intern("NIL");
-    intern("T");
-    intern("QUIT");
-    intern("HEAP");
+    intern_new_symbol("NIL");
+    intern_new_symbol("T");
+    intern_new_symbol("QUIT");
+    intern_new_symbol("HEAP");
 }
 
+/* copy the string onto the string_table_p and increment, add a reference at symbol_p */
 char *intern_new_symbol (char *str) {
 	char *ret;
 	size_t len = strlen(str) + 1;
@@ -32,19 +40,26 @@ char *intern_new_symbol (char *str) {
 	return ret;
 }
 
-char *intern (char *str) {
-	type_cell *c;
-	char *s;
+char *lookup_symbol (char *str) {
 	char **p;
 	
 	/* first look up in the symbol table */
-	for(p = (char **)symbol_p + 1; (void *)p <= (void *)symbol_table; p++) {
+	for(p = symbol_table; p > symbol_p; p--) {
 		if (strcmp(*p, str) == 0) {
 			return *p;
 		}
 	}
-
-	/* not found in the table of interned symbols, so add it */
-	return intern_new_symbol (str);
+    return NULL;
 }
 
+
+type_symbol *intern (char *str) {
+    char *sym;
+
+    sym = lookup_symbol(str);
+    if (sym == NULL) {
+        sym = intern_new_symbol (str);
+    }
+    
+    return gc_new_symbol(sym);
+}

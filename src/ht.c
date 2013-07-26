@@ -18,20 +18,23 @@ bool gethash (type_ht *ht, void *key, void **val) {
 
 void sethash(type_ht **htb, void *key, void *val) {
 	size_t i;
-	type_cell **c;
+	type_cell *c, *e;
 	type_ht *ht;
 
 	ht = *htb;
 	
 	i = sxhash(key) % ht->size;
-	c = &(ht->buckets[i]);
-	while (*c != NULL) {
-		if (eql(cell_car(*c), key)) {
-			set_cdr(c, val);
-			break;
-		} 
-		c = (type_cell **)&((*c)->cdr);
-	}
+    c = ht->buckets[i];
+    while (c != NULL) {
+      /* c = ((key . val) ....) */
+      e = cell_car(c);
+      if (eql(cell_car(e), key)) {
+        e->cdr = val;
+        /*        set_cdr(c, val);*/
+        return;
+      }
+      c = c->cdr; /*cell_cdr(c);*/
+    }
 
 	/* if fill level larger than the threshold then resize */
 	if (((double)ht->fill / (double)ht->size) > HT_THRESHOLD) {
@@ -41,7 +44,7 @@ void sethash(type_ht **htb, void *key, void *val) {
 	
 	/* not found so need to add a new entry */
 	ht->buckets[i] = acons(key, val, ht->buckets[i]);
-	(ht->fill)++;
+	ht->fill++;
 }
 
 void remhash(type_ht *ht, void *key) {
@@ -49,13 +52,15 @@ void remhash(type_ht *ht, void *key) {
 	type_cell **c;
 
 	i = sxhash(key) % ht->size;
-	c = &(ht->buckets[i]);
+	c = ht->buckets + i;
 
 	while (*c != NULL) {
-		if (eql((*c)->car, key)) {
+        if (eql((*c)->car, key)) {
 			*c = (*c)->cdr;
+            ht->fill--;
 			break;
 		}
+        c = (type_cell **)&((*c)->cdr);
 	}  
 }
 
@@ -81,6 +86,7 @@ void ht_resize(type_ht **ht) {
 	for(i=0; i < oldsize; i++) {
 		c = oldbuckets[i];
 		while (c != NULL) {      
+            /* c = ((key . val) ...) so we want key = (caar c), val = (cdar c) */
 			sethash(ht, cell_caar(c), cell_cdar(c));
 			c = c->cdr;
 		}

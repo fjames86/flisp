@@ -14,6 +14,9 @@ bool eq (void *val1, void *val2) {
 		case TYPE_INT:
 			ret = (((type_int *)val1)->i == ((type_int *)val2)->i);
 			break;
+        case TYPE_SYMBOL:
+            ret = (CAST(type_symbol *, val1)->sym == CAST(type_symbol *, val2)->sym);
+            break;
 		default:
 			ret = (val1 == val2);
 		}
@@ -35,6 +38,9 @@ bool eql(void *val1, void *val2) {
 		case TYPE_DOUBLE:
 			ret = (((type_double *)val1)->d == ((type_double *)val2)->d);
 			break;
+        case TYPE_SYMBOL:
+            ret = (CAST(type_symbol *, val1)->sym == CAST(type_symbol *, val2)->sym);
+            break;
 		default:
 			ret = eq(val1, val2);
 		}
@@ -53,6 +59,8 @@ bool equal(void *val1, void *val2) {
 
 	if ((t1 == TYPE_INT || t1 == TYPE_DOUBLE) && (t2 == TYPE_INT || t2 == TYPE_DOUBLE)) {
 		ret = number_equal(val1, val2);
+    } else if (t1 == TYPE_SYMBOL && t2 == TYPE_SYMBOL) {
+        ret = (CAST(type_symbol *, val1)->sym == CAST(type_symbol *, val2)->sym);
 	} else if (t1 == TYPE_STRING && t2 == TYPE_STRING) {
 		ret = strcmp(CAST(type_string *, val1)->str, CAST(type_string *, val2)->str);
 	} else if (t1 == TYPE_ARRAY && t2 == TYPE_ARRAY) {

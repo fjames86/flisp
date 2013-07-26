@@ -8,6 +8,7 @@
 #include "types.h"
 #include "gc.h"
 #include "lists.h"
+#include "ht.h"
 
 #define ENV_SIZE           20
 

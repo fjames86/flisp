@@ -20,10 +20,10 @@ void *eval(void *expr, environment *env) {
     break;
   case TYPE_SYMBOL:
     found = lookup(&ret, expr, env);
-    if (!tmp) {
-      /* error, not found */
-      ret = NULL;
-    }        
+    if (!found) {
+        /* not found error */
+        ret = NULL;
+    }
     break;
   case TYPE_CELL:
     ret = eval_expr(CAST(type_cell *, expr), env);
