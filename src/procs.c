@@ -28,7 +28,7 @@ void *proc_add (type_cell *args) {
             }
             break;
         case TYPE_DOUBLE:
-            d = (double)CAST(type_int *, c)->i;      
+            d = CAST(type_double *, c)->d;
             if (t == TYPE_INT) {
                 t = TYPE_DOUBLE;
                 dret = (double)iret;
@@ -47,9 +47,11 @@ void *proc_add (type_cell *args) {
 
     if (t == TYPE_INT) {
         return (void *)gc_new_int (iret);
-    } else {
+    } else if (t == TYPE_DOUBLE) {
         return (void *)gc_new_double (dret);
-    }  
+    } else {
+      return NULL;
+    }
 }
 
 void *proc_mul (type_cell *args) {
@@ -114,27 +116,35 @@ void *proc_sub (type_cell *args) {
     d1 = CAST(type_double *, c)->d;
   }
 
-  subs = proc_add((type_cell *)cell_cdr(args));
-  t2 = get_type(subs);
-  if (t2 == TYPE_INT) {
-    if (t1 == TYPE_INT) {
-      i2 = i1 - CAST(type_int *, subs)->i;
-    } else if (t1 == TYPE_DOUBLE) {
-      d2 = d1 - (double)CAST(type_int *, subs)->i;
-    }      
-  } else if (t2 == TYPE_DOUBLE) {
-    if (t1 == TYPE_INT) {
-      d2 = (double)i1 - CAST(type_double *, subs)->d;
-      t1 = TYPE_DOUBLE;
-    } else if (t1 == TYPE_DOUBLE) {
-      d2 = d1 - CAST(type_double *, subs)->d;
+  args = cell_cdr(args);
+  if (args == NULL) {
+    i2 = -i1;
+    d2 = -d1;
+  } else {
+    subs = proc_add((type_cell *)args);
+    t2 = get_type(subs);
+    if (t2 == TYPE_INT) {
+      if (t1 == TYPE_INT) {
+        i2 = i1 - CAST(type_int *, subs)->i;
+      } else if (t1 == TYPE_DOUBLE) {
+        d2 = d1 - (double)CAST(type_int *, subs)->i;
+      }      
+    } else if (t2 == TYPE_DOUBLE) {
+      if (t1 == TYPE_INT) {
+        d2 = (double)i1 - CAST(type_double *, subs)->d;
+        t1 = TYPE_DOUBLE;
+      } else if (t1 == TYPE_DOUBLE) {
+        d2 = d1 - CAST(type_double *, subs)->d;
+      }
     }
   }
 
   if (t1 == TYPE_INT) {
     return gc_new_int (i2);
-  } else {
+  } else if (t1 == TYPE_DOUBLE){
     return gc_new_double (d2);
+  } else {
+    return NULL;
   }
 }
 

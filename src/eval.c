@@ -37,7 +37,8 @@ void *eval(void *expr, environment *env) {
 
 void *eval_expr(type_cell *expr, environment *env) {
   void *proc, *ret;
-  void *name, *val, *args;
+  void *name, *val;
+  type_cell *args, **c;
 
   proc = cell_car((void *)expr);
   expr = (type_cell *)cell_cdr((void *)expr);
@@ -62,10 +63,14 @@ void *eval_expr(type_cell *expr, environment *env) {
       expr = cell_cddr(expr);
       ret = eval(cell_car(expr), env);
     }
-  } else {    
+  } else {
+    /* procedure application. could be either a closure or primitive proc */
     args = NULL;
+    c = &args;
     while (expr != NULL) {
-      args = cons (eval(expr->car, env), args);
+      (*c) = cons(eval(expr->car, env), NULL);
+      c = (type_cell **)&((*c)->cdr);
+
       expr = expr->cdr;
     }
 
