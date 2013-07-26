@@ -23,6 +23,7 @@ bool lookup(void **val, type_symbol *sym, environment *env);
 environment *extend_env (environment *env, type_cell *syms, type_cell *vals);
 environment *extend_env_special (environment *env, type_cell *syms, type_cell *vals);
 void env_define (environment *env, type_symbol *sym, void *val);
+void env_set (environment *env, type_symbol *sym, void *val);
 
 #endif 
 

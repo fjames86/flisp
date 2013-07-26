@@ -9,6 +9,9 @@
 #include "env.h"
 #include "eval.h"
 
+#define __FLISP_VERSION__ "0.1"
+
+
 void print_heap(size_t topbytes);
 void print_val(void *val);
 bool whitespace(char c);
@@ -42,6 +45,8 @@ int main (int argc, char **argv) {
 	type_array *arr;
 	environment toplevel;
 	char *symt;
+
+	printf("Welcome to flisp " __FLISP_VERSION__ " Copyright Frank James " __DATE__ "\n");
 	
 	/* create the heap */
 	heap = calloc (HEAP_SIZE, sizeof(char));
@@ -169,7 +174,7 @@ void print_val (void *val) {
 		printf ("%s", ((type_symbol *)val)->sym);
 		break;
 	case TYPE_DOUBLE:
-		printf ("%lf", ((type_double *)val)->d);
+		printf ("%1lf", ((type_double *)val)->d);
 		break;
     case TYPE_HT:
 		printf("#<HT %p :FILL %d>", val, ((type_ht *)val)->fill);
