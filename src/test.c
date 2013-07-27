@@ -61,7 +61,9 @@ int main (int argc, char **argv) {
 
     env_init(&toplevel);
 
+	/*
 	save_image ("flisp.core.bin");
+	*/
 	
 	while (TRUE) {
 		printf ("\n> ");

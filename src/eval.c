@@ -36,7 +36,7 @@ void *eval(void *expr, environment *env) {
 
 
 void *eval_expr(type_cell *expr, environment *env) {
-	void *proc, *ret;
+	void *proc, *ret, *bindings, *body;
 	void *name, *val;
 	type_cell *args, **c;
 
@@ -70,6 +70,11 @@ void *eval_expr(type_cell *expr, environment *env) {
 			expr = cell_cddr(expr);
 			ret = eval(cell_car(expr), env);
 		}
+	} else if (eq(proc, intern("LET"))) {
+		/* (let bindings body) */
+		bindings = cell_car(expr);
+		body = cell_cdr(expr);
+		ret = eval_let (bindings, body, env);
 	} else {
 		/* procedure application. could be either a closure or primitive proc */
 		args = NULL;
@@ -91,14 +96,45 @@ void *eval_exprs(type_cell *exprs, environment *env) {
 
 	ret = NULL;
 	while (exprs != NULL) {
-		ret = eval(exprs->car, env);
-		if (exprs->cdr == NULL) {
-			break;
-		}
+		ret = eval(cell_car(exprs), env);
 		exprs = exprs->cdr;
 	}
 	return ret;
 }
+
+void *eval_let (type_cell *bindings, type_cell *body, environment *env) {
+	type_cell *syms, *vals;
+	void *ret, *binding;
+	
+	syms = vals = NULL;
+	while (bindings != NULL) {
+		/* bindings->car = (name expr) or name */
+		binding = cell_car(bindings);
+		
+		switch (get_type(binding)) {
+		case TYPE_SYMBOL:
+			syms = cons(binding, syms);
+			vals = cons(NULL, vals);
+			break;
+		case TYPE_CELL:
+			syms = cons(cell_car(binding), syms);
+			vals = cons(eval(cell_cadr(binding), env), vals);
+			break;
+		default:
+			/* error ? */
+			return NULL;
+		}
+		
+		bindings = bindings->cdr;
+	}
+	
+	extend_env (env, syms, vals);
+	ret = eval_exprs(body, env);
+	remove_frame (env);
+	return ret;
+}
+
+
 
 void *apply (void *proc, type_cell *args) {
 	void *ret;

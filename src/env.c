@@ -23,35 +23,43 @@ void env_init(environment *env) {
 	env_define (env, intern("SET-AREF!"), gc_new_proc (&proc_set_aref));
 }
 
+/* lookup a binding in the environment. search through the lexical frames before trying the toplevel */
 bool lookup(void **val, type_symbol *sym, environment *env) {
     bool found;
 	void *tmp;
-	
-	tmp = assoc(CAST(void *, sym), env->lexical);
-	if (tmp != NULL) {
-		*val = CAST(type_cell *, tmp)->cdr;
-		return TRUE;
-    } else {
-  
-		found = gethash(env->special, sym, val);
-		if (found) {
-			return TRUE;
-		} else {
-			*val = NULL;
-		}
-	}
+	type_cell *frame;
 
-	*val = NULL;
-	return FALSE;
+	
+	frame = env->lexical;
+	while (frame != NULL) {
+		tmp = assoc(CAST(void *, sym), frame->car);
+		if (tmp != NULL) {
+			*val = CAST(type_cell *, tmp)->cdr;
+			return TRUE;
+		}
+		frame = frame->cdr;
+	}
+	
+	found = gethash(env->special, sym, val);
+	return found;
 }
 
 environment *extend_env (environment *env, type_cell *syms, type_cell *vals) {
+	type_cell *frame = NULL;
 	while (syms != NULL && vals != NULL) {
-		env->lexical = acons(syms->car, vals->car, env->lexical);
+		frame = acons(syms->car, vals->car, frame);
 		syms = syms->cdr;
 		vals = vals->cdr;
 	}
+	/* push the frame onto the lexical bindings */
+	cell_push (&(env->lexical), frame);
+	
+	/* env->lexical = cons(frame, env->lexical); */
+	return env;
+}
 
+environment *remove_frame (environment *env) {
+	cell_pop (&(env->lexical));
 	return env;
 }
 
