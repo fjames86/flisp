@@ -362,3 +362,14 @@ void *proc_apply (type_cell *args) {
 	return apply(proc, args);
 }
 
+/* (load filename) */
+void *proc_load (type_cell *args) {
+	void *fname;
+
+	fname = cell_car(args);
+	if (get_type(fname) == TYPE_STRING) {
+		load_file(CAST(type_string *, fname)->str);
+	}
+	return NULL;
+}
+

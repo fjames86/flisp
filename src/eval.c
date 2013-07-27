@@ -15,6 +15,8 @@ void *eval(void *expr, environment *env) {
 	case TYPE_STRING:
 	case TYPE_ARRAY:
 	case TYPE_HT:
+	case TYPE_PROC:
+	case TYPE_CLOSURE:
 		ret = expr;
 		break;
 	case TYPE_SYMBOL:
@@ -40,6 +42,10 @@ void *eval_expr(type_cell *expr, environment *env) {
 	void *name, *val;
 	type_cell *args, **c;
 
+	if (expr == NULL) {
+		return NULL;
+	}
+	
 	proc = cell_car((void *)expr);
 	expr = (type_cell *)cell_cdr((void *)expr);
 
@@ -85,7 +91,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 		args = NULL;
 		c = &args;
 		while (expr != NULL) {
-			(*c) = cons(eval(expr->car, env), NULL);
+			(*c) = cons(eval(cell_car(expr), env), NULL);
 			c = (type_cell **)&((*c)->cdr);
 
 			expr = expr->cdr;
@@ -140,7 +146,6 @@ void *eval_let (type_cell *bindings, type_cell *body, environment *env) {
 }
 
 
-
 void *apply (void *proc, type_cell *args) {
 	void *ret;
 	gc_type t = get_type (proc);
@@ -153,7 +158,7 @@ void *apply (void *proc, type_cell *args) {
 	case TYPE_CLOSURE:
 		/* evaluate the body in the environment packed with the cosure */
 		c = CAST(type_closure *, proc);
-		extend_env (c->env, c->params, args);
+		extend_env (c->env, c->params, args);		
 		ret = eval_exprs (c->body, c->env);
 		remove_frame (c->env);
 		break;
@@ -161,7 +166,7 @@ void *apply (void *proc, type_cell *args) {
 		/* error */
 		ret = NULL;
 	}
-
+	
 	return ret;
 }
 

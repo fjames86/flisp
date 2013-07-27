@@ -9,6 +9,7 @@
 #include "lists.h"
 
 extern void *apply (void *proc, type_cell *args);
+extern void load_file (char *fname);
 
 void *proc_car (type_cell *args);
 void *proc_cdr (type_cell *args);
@@ -29,6 +30,7 @@ void *proc_aref (type_cell *args);
 void *proc_set_aref (type_cell *args);
 
 void *proc_apply (type_cell *args);
+void *proc_load (type_cell *args);
 
 #endif 
 

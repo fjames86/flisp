@@ -26,6 +26,7 @@ void env_init(environment *env) {
 	env_define (env, intern("SET-AREF!"), gc_new_proc (&proc_set_aref));
 
 	env_define (env, intern("APPLY"), gc_new_proc (&proc_apply));
+	env_define (env, intern("LOAD"), gc_new_proc (&proc_load));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */
@@ -57,11 +58,11 @@ environment *extend_env (environment *env, type_cell *syms, type_cell *vals) {
 			frame = acons(syms, vals, frame);
 			break;
 		} else {
-			frame = acons(syms->car, vals->car, frame);
+			frame = acons(cell_car(syms), cell_car(vals), frame);
 		}
 		
-		syms = syms->cdr;
-		vals = vals->cdr;
+		syms = cell_cdr(syms);
+		vals = cell_cdr(vals);
 	}
 	
 	/* push the frame onto the lexical bindings */
@@ -92,21 +93,21 @@ void env_define (environment *env, type_symbol *sym, void *val) {
 
 void env_set (environment *env, type_symbol *sym, void *val) {
 	/* lookup in lexical vars first, then try special */
-	type_cell *frame, *c, *binding;
+	type_cell *frames, *frame, *binding;
 	
-	frame = env->lexical;
-	while (frame != NULL) {
-		c = cell_car(frame);
-		while (c != NULL) {
-			/* c = ((sym . val) ...) c->car = (sym . val) */
-			binding = cell_car(c);
+	frames = env->lexical;
+	while (frames != NULL) {
+		frame = cell_car(frames);
+		while (frame != NULL) {
+			/* frame = ((sym . val) ...) c->car = (sym . val) */
+			binding = cell_car(frame);
 			if (eq(cell_car(binding), sym)) {
 				binding->cdr = val;
 				return;
 			}
-			c = c->cdr;
+			frame = frame->cdr;
 		}
-		frame = frame->cdr;
+		frames = frames->cdr;
 	}
 
 	/* not found in lexical frames, set at top level */

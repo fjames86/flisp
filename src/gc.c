@@ -141,17 +141,18 @@ type_array *gc_new_array (size_t size) {
 }
 
 type_proc *gc_new_proc (flisp_proc_t proc) {
-  type_proc *ret = gc_malloc(sizeof(type_proc));
-  ret->tag.type = TYPE_PROC;
-  ret->tag.forw = NULL;
-  ret->proc = proc;
-  return ret;
+	type_proc *ret = gc_malloc(sizeof(type_proc));
+	ret->tag.type = TYPE_PROC;
+	ret->tag.forw = NULL;
+	ret->proc = proc;
+	return ret;
 }
 
 type_closure *gc_new_closure (type_cell *params, type_cell *body, environment *env) {
 	type_closure *ret = gc_malloc(sizeof(type_closure));
 	ret->tag.type = TYPE_CLOSURE;
 	ret->tag.forw = NULL;
+	
 	ret->params = params;
 	ret->body = body;
 	ret->env = env;
@@ -292,8 +293,12 @@ void gc_relocate_proc (type_proc **new, type_proc *old) {
 void gc_relocate_closure (type_closure **new, type_closure *old) {
 	old->tag.forw = new;
 
-	gc_relocate ((void **)&((*new)->params), old->params);
-	gc_relocate ((void **)&((*new)->body), old->body);
+	(*new)->params = NULL;
+	(*new)->body = NULL;
+	gc_relocate ((void **)(&((*new)->params)), old->params);
+	gc_relocate ((void **)(&((*new)->body)), old->body);
+
+	/* don't relocate the environment */
 }
 
 

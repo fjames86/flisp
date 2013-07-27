@@ -27,13 +27,17 @@ void *next_expr();
 type_string *read_string();
 void save_image (char *fname);
 void load_image (char *fname);
+void load_file (char *fname);
 
 #define MAX_LINE 100
+FILE *readfile;
 char buffer[MAX_LINE];
 char *bufferp;
 
 #define HEAP_SIZE (1024*1024)
 #define SYMTAB_SIZE (1024*1024)
+
+environment toplevel;
 
 int main (int argc, char **argv) {
 	void *heap;
@@ -45,7 +49,6 @@ int main (int argc, char **argv) {
 	char *strtab;
 	type_ht *ht;
 	type_array *arr;
-	environment toplevel;
 	char *symt;
 
 	printf("Welcome to flisp " __FLISP_VERSION__ " Copyright Frank James " __DATE__ "\n");
@@ -55,7 +58,8 @@ int main (int argc, char **argv) {
 	gc_init(heap, HEAP_SIZE);
 	
 	bufferp = "";
-
+	readfile = stdin;
+	
 	symt = calloc (SYMTAB_SIZE, sizeof(char));
 	symbol_init (symt, SYMTAB_SIZE);
 
@@ -199,6 +203,8 @@ void print_val (void *val) {
 	case TYPE_CLOSURE:
 		printf("#<CLOSURE %p>", val);
 		break;
+	default:
+		printf("#<UNKNOWN %d>", type);		
 	}
 }
 
@@ -345,7 +351,12 @@ bool doublep (char *str) {
 
 
 void refresh_buffer() {
-	gets(buffer);
+	/*gets(buffer);*/
+	if (feof(readfile) != 0) {
+		fclose(readfile);
+		readfile = stdin;
+	}
+	fgets(buffer, MAX_LINE, readfile);
 	bufferp = buffer;
 }
 
@@ -361,7 +372,7 @@ void next_word (char *dest) {
 		bufferp++;
 	}
 
-	if (*bufferp == '\0') {
+	if (*bufferp == '\0' || *bufferp == '\n') {
 		return next_word(dest);
 	}
 	
@@ -670,3 +681,20 @@ void load_image (char *fname) {
 	}
 }
 
+void load_file(char *fname) {
+	FILE *f, *tmp;
+	void *expr;
+	
+	f = fopen(fname, "r");
+	if (f != NULL) {
+		tmp = readfile;
+		readfile = f;
+
+		do {
+			expr = next_expr();
+			eval(expr, &toplevel);
+		} while (expr != NULL);		
+
+		readfile = tmp;
+	}
+}
