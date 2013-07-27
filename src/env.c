@@ -48,10 +48,18 @@ bool lookup(void **val, type_symbol *sym, environment *env) {
 environment *extend_env (environment *env, type_cell *syms, type_cell *vals) {
 	type_cell *frame = NULL;
 	while (syms != NULL && vals != NULL) {
-		frame = acons(syms->car, vals->car, frame);
+		if (get_type(syms) == TYPE_SYMBOL) {
+			/* dotted list */
+			frame = acons(syms, vals, frame);
+			break;
+		} else {
+			frame = acons(syms->car, vals->car, frame);
+		}
+		
 		syms = syms->cdr;
 		vals = vals->cdr;
 	}
+	
 	/* push the frame onto the lexical bindings */
 	cell_push (&(env->lexical), frame);
 	
