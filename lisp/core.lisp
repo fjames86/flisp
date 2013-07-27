@@ -17,7 +17,6 @@
 (define (cddar x) (cdr (cdar x)))
 (define (cdddr x) (cdr (cddr x)))
 
-
 (define (mapcar proc list)
 	(if list
 		(cons (proc (car list))

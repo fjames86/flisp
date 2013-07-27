@@ -73,7 +73,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 		} 
 		ret = name;
 	} else if (eq(proc, intern("DEFMACRO"))) {
-		/* (defmacro (name . args) . body) -> (define (name . args) (macro (lambda args body))) */
+		/* (defmacro (name . args) . body) */
 		name = cell_car(expr);
 		params = cell_cdr(name);
 		name = cell_car(name);
