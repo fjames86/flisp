@@ -73,12 +73,12 @@ void *eval_expr(type_cell *expr, environment *env) {
 		} 
 		ret = name;
 	} else if (eq(proc, intern("DEFMACRO"))) {
-		/* (defmacro (name . args) . body) -> (define (name . args) (eval (lambda args body))) */
+		/* (defmacro (name . args) . body) -> (define (name . args) (macro (lambda args body))) */
 		name = cell_car(expr);
 		params = cell_cdr(name);
 		name = cell_car(name);
 		body = cell_cdr(expr);
-		val = gc_new_closure (params, cons(intern("EVAL"), body), env);
+		val = cons (intern ("MACRO"), gc_new_closure (params, body, env));
 		
 		sethash(&(env->special), name, val);
 		ret = name;
@@ -111,16 +111,22 @@ void *eval_expr(type_cell *expr, environment *env) {
 		ret = gc_new_closure (params, body, env);
 	} else {
 		/* procedure application. could be either a closure or primitive proc */
-		args = NULL;
-		c = &args;
-		while (expr != NULL) {
-			(*c) = cons(eval(cell_car(expr), env), NULL);
+		proc = eval(proc, env);
+
+		if (get_type(proc) == TYPE_CELL && eq(cell_car(proc), intern("MACRO"))) {
+			ret = eval(apply(cell_cdr(proc), expr), env);			
+		} else {
+			args = NULL;
+			c = &args;
+			while (expr != NULL) {
+				(*c) = cons(eval(cell_car(expr), env), NULL);
 			c = (type_cell **)&((*c)->cdr);
-
+			
 			expr = expr->cdr;
+			}
+			
+			ret = apply (proc, args);
 		}
-
-		ret = apply (eval(proc, env), args); 
 	}
 	return ret;
 }
