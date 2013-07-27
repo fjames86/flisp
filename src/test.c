@@ -352,19 +352,14 @@ bool doublep (char *str) {
 
 void refresh_buffer() {
 	/*gets(buffer);*/
-#if 1
+
    	if (feof(readfile) != 0) {
+		/* this is such a hack */
 		strcpy(buffer, "NIL");
 	} else {
 		fgets(buffer, MAX_LINE, readfile);
 	}			
-#else
-	if (fgets(buffer, MAX_LINE, readfile) == NULL) {
-		fclose(readfile);
-		readfile = stdin;
-		refresh_buffer();
-	}
-#endif
+
 	bufferp = buffer;
 }
 
