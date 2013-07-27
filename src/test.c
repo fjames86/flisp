@@ -33,7 +33,7 @@ char buffer[MAX_LINE];
 char *bufferp;
 
 #define HEAP_SIZE (1024*1024)
-#define SYMTAB_SIZE (1024)
+#define SYMTAB_SIZE (1024*1024)
 
 int main (int argc, char **argv) {
 	void *heap;

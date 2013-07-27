@@ -327,3 +327,38 @@ void *proc_set_aref (type_cell *args) {
 	return ret;
 }
 
+void *proc_list (type_cell *args) {
+	type_cell *ret, **c;
+
+	ret = NULL;
+	c = &ret;
+	while (args != NULL) {
+		*c = cons(args->car, NULL);
+		c = (type_cell **)&((*c)->cdr);
+		args = args->cdr;
+	}
+
+	return ret;
+}
+
+void *proc_reverse (type_cell *args) {
+	type_cell *ret, **c;
+	
+	args = cell_car(args);
+	ret = NULL;
+	c = &ret;
+	while (args != NULL) {
+		*c = cons(args->car, *c);
+		args = args->cdr;
+	}
+	return ret;
+}
+
+void *proc_apply (type_cell *args) {
+	void *proc;
+
+	proc = cell_car(args);
+	args = cell_cdr(args);
+	return apply(proc, args);
+}
+

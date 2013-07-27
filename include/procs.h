@@ -8,11 +8,15 @@
 #include "array.h"
 #include "lists.h"
 
+extern void *apply (void *proc, type_cell *args);
+
 void *proc_car (type_cell *args);
 void *proc_cdr (type_cell *args);
 void *proc_set_car (type_cell *args);
 void *proc_set_cdr (type_cell *args);
 void *proc_cons (type_cell *args);
+void *proc_list (type_cell *args);
+void *proc_reverse (type_cell *args);
 
 void *proc_quit (type_cell *args);
 void *proc_add (type_cell *args);
@@ -23,6 +27,8 @@ void *proc_div (type_cell *args);
 void *proc_make_array (type_cell *args);
 void *proc_aref (type_cell *args);
 void *proc_set_aref (type_cell *args);
+
+void *proc_apply (type_cell *args);
 
 #endif 
 

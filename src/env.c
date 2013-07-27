@@ -13,7 +13,9 @@ void env_init(environment *env) {
 	env_define (env, intern("SET-CAR!"), gc_new_proc (&proc_set_car));
 	env_define (env, intern("SET-CDR!"), gc_new_proc (&proc_set_cdr));
 	env_define (env, intern("CONS"), gc_new_proc (&proc_cons));
-	
+	env_define (env, intern("LIST"), gc_new_proc (&proc_list));
+	env_define (env, intern("REVERSE"), gc_new_proc (&proc_reverse));
+		
 	env_define (env, intern("QUIT"), gc_new_proc (&proc_quit));
 	env_define (env, intern("+"), gc_new_proc (&proc_add));
 	env_define (env, intern("-"), gc_new_proc (&proc_sub));
@@ -22,6 +24,8 @@ void env_init(environment *env) {
 	env_define (env, intern("MAKE-ARRAY"), gc_new_proc (&proc_make_array));
 	env_define (env, intern("AREF"), gc_new_proc (&proc_aref));
 	env_define (env, intern("SET-AREF!"), gc_new_proc (&proc_set_aref));
+
+	env_define (env, intern("APPLY"), gc_new_proc (&proc_apply));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */
