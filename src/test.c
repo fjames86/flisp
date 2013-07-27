@@ -352,12 +352,19 @@ bool doublep (char *str) {
 
 void refresh_buffer() {
 	/*gets(buffer);*/
-	if (feof(readfile) != 0) {
-		printf("end of file reached. changing to reading from stdin\n");
+#if 1
+   	if (feof(readfile) != 0) {
+		strcpy(buffer, "NIL");
+	} else {
+		fgets(buffer, MAX_LINE, readfile);
+	}			
+#else
+	if (fgets(buffer, MAX_LINE, readfile) == NULL) {
 		fclose(readfile);
 		readfile = stdin;
+		refresh_buffer();
 	}
-	fgets(buffer, MAX_LINE, readfile);
+#endif
 	bufferp = buffer;
 }
 
@@ -629,7 +636,6 @@ void *next_expr() {
 		ret = (void *)intern(word);
 	}
 
-	printf("Read in "); print_val (ret); printf("\n");
 	return ret;
 }
 
@@ -694,13 +700,16 @@ void load_file(char *fname) {
 
 		do {
 			expr = next_expr();
-			if (readfile == stdin) {
+			if (feof(readfile) != 0) {
 				/* must've hit the end of the file */
+				eval(expr, &toplevel);
 				break;
+			} else {
+				eval(expr, &toplevel);
 			}
-			eval(expr, &toplevel);			
 		} while (expr != NULL);		
 
+		fclose(readfile);
 		readfile = tmp;
 	}
 }
