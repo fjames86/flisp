@@ -52,12 +52,22 @@ void *eval_expr(type_cell *expr, environment *env) {
 	/* go through the special operators */
 	if (eq(proc, intern("QUOTE"))) {
 		ret = cell_car(expr);
-	} else if (eq(proc, intern("DEF"))) {
-		/* (def name expr). proc = DEF, exprs = (name expr) */
+	} else if (eq(proc, intern("DEFINE"))) {
+		/* (define name expr) or (define (name args) body), */
 		name = cell_car(expr);
-		expr = cell_cadr(expr);
-		val = eval(expr, env);
-		sethash(&(env->special), name, val);
+		switch (get_type(name)) {
+		case TYPE_SYMBOL:
+			expr = cell_cadr(expr);
+			val = eval(expr, env);
+			sethash(&(env->special), name, val);
+			break;
+		case TYPE_CELL:
+			params = cell_cdr(name);
+			name = cell_car(name);
+			body = cell_cdr(expr);
+			sethash(&(env->special), name, gc_new_closure (params, body, env));
+			break;
+		} 
 		ret = name;
 	} else if (eq(proc, intern("SET!"))) {
 		/* (set! var val) */
