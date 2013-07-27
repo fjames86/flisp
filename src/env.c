@@ -12,7 +12,8 @@ void env_init(environment *env) {
 	env_define (env, intern("CDR"), gc_new_proc (&proc_cdr));
 	env_define (env, intern("SET-CAR!"), gc_new_proc (&proc_set_car));
 	env_define (env, intern("SET-CDR!"), gc_new_proc (&proc_set_cdr));
-  
+	env_define (env, intern("CONS"), gc_new_proc (&proc_cons));
+	
 	env_define (env, intern("QUIT"), gc_new_proc (&proc_quit));
 	env_define (env, intern("+"), gc_new_proc (&proc_add));
 	env_define (env, intern("-"), gc_new_proc (&proc_sub));
@@ -79,17 +80,24 @@ void env_define (environment *env, type_symbol *sym, void *val) {
 
 void env_set (environment *env, type_symbol *sym, void *val) {
 	/* lookup in lexical vars first, then try special */
-	type_cell *c;
-
-	c = env->lexical;
-	while (c != NULL) {
-		if (eql(cell_car(c), sym)) {
-			c->cdr = val;
-			return;
+	type_cell *frame, *c, *binding;
+	
+	frame = env->lexical;
+	while (frame != NULL) {
+		c = cell_car(frame);
+		while (c != NULL) {
+			/* c = ((sym . val) ...) c->car = (sym . val) */
+			binding = cell_car(c);
+			if (eq(cell_car(binding), sym)) {
+				binding->cdr = val;
+				return;
+			}
+			c = c->cdr;
 		}
-		c = c->cdr;
+		frame = frame->cdr;
 	}
 
+	/* not found in lexical frames, set at top level */
 	sethash(&(env->special), sym, val);
 }
 

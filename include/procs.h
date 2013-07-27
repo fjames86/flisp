@@ -12,6 +12,7 @@ void *proc_car (type_cell *args);
 void *proc_cdr (type_cell *args);
 void *proc_set_car (type_cell *args);
 void *proc_set_cdr (type_cell *args);
+void *proc_cons (type_cell *args);
 
 void *proc_quit (type_cell *args);
 void *proc_add (type_cell *args);

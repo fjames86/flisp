@@ -52,6 +52,14 @@ void *proc_set_cdr (type_cell *args) {
 	return NULL;
 }
 
+/* (cons car cdr) */
+void *proc_cons (type_cell *args) {
+	void *car, *cdr, *ret;
+	car = cell_car(args);
+	cdr = cell_cadr(args);
+	return cons(car, cdr);
+}
+
 void *proc_quit (type_cell *args) {
 	printf("Bye.\n");
 	exit(0);
@@ -279,7 +287,7 @@ void *proc_aref (type_cell *args) {
 		a = CAST(type_array *, x);
 			
 		x = cell_car(args);
-		if (get_type (args) == TYPE_INT) {
+		if (get_type (x) == TYPE_INT) {
 			i = CAST(type_int *, x)->i;
 
 			ret = aref(a, i);
