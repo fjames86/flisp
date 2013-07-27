@@ -372,4 +372,3 @@ void *proc_load (type_cell *args) {
 	}
 	return NULL;
 }
-
