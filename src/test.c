@@ -353,6 +353,7 @@ bool doublep (char *str) {
 void refresh_buffer() {
 	/*gets(buffer);*/
 	if (feof(readfile) != 0) {
+		printf("end of file reached. changing to reading from stdin\n");
 		fclose(readfile);
 		readfile = stdin;
 	}
@@ -627,7 +628,8 @@ void *next_expr() {
 		string_upcase(word);		
 		ret = (void *)intern(word);
 	}
-	
+
+	printf("Read in "); print_val (ret); printf("\n");
 	return ret;
 }
 
@@ -692,7 +694,11 @@ void load_file(char *fname) {
 
 		do {
 			expr = next_expr();
-			eval(expr, &toplevel);
+			if (readfile == stdin) {
+				/* must've hit the end of the file */
+				break;
+			}
+			eval(expr, &toplevel);			
 		} while (expr != NULL);		
 
 		readfile = tmp;
