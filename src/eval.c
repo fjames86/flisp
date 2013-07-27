@@ -52,6 +52,9 @@ void *eval_expr(type_cell *expr, environment *env) {
 	/* go through the special operators */
 	if (eq(proc, intern("QUOTE"))) {
 		ret = cell_car(expr);
+	} else if (eq(proc, intern("BEGIN"))) {
+		/* (begin name body) */
+		ret = eval_exprs (expr, env);
 	} else if (eq(proc, intern("DEFINE"))) {
 		/* (define name expr) or (define (name args) body), */
 		name = cell_car(expr);
@@ -68,6 +71,16 @@ void *eval_expr(type_cell *expr, environment *env) {
 			sethash(&(env->special), name, gc_new_closure (params, body, env));
 			break;
 		} 
+		ret = name;
+	} else if (eq(proc, intern("DEFMACRO"))) {
+		/* (defmacro (name . args) . body) -> (define (name . args) (eval (lambda args body))) */
+		name = cell_car(expr);
+		params = cell_cdr(name);
+		name = cell_car(name);
+		body = cell_cdr(expr);
+		val = gc_new_closure (params, cons(intern("EVAL"), body), env);
+		
+		sethash(&(env->special), name, val);
 		ret = name;
 	} else if (eq(proc, intern("SET!"))) {
 		/* (set! var val) */
