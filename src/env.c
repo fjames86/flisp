@@ -55,7 +55,7 @@ environment *extend_env (environment *env, type_cell *syms, type_cell *vals) {
 	/* push the frame onto the lexical bindings */
 	cell_push (&(env->lexical), frame);
 	
-	/* env->lexical = cons(frame, env->lexical); */
+	/*	env->lexical = cons(frame, env->lexical); */
 	return env;
 }
 

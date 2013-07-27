@@ -36,7 +36,7 @@ void *eval(void *expr, environment *env) {
 
 
 void *eval_expr(type_cell *expr, environment *env) {
-	void *proc, *ret, *bindings, *body;
+	void *proc, *ret, *bindings, *params, *body;
 	void *name, *val;
 	type_cell *args, **c;
 
@@ -75,6 +75,11 @@ void *eval_expr(type_cell *expr, environment *env) {
 		bindings = cell_car(expr);
 		body = cell_cdr(expr);
 		ret = eval_let (bindings, body, env);
+	} else if (eq(proc, intern("LAMBDA"))) {
+		/* (lambda params body) */
+		params = CAST(type_cell *, cell_car(expr));
+		body = CAST(type_cell *, cell_cdr(expr));
+		ret = gc_new_closure (params, body, env);
 	} else {
 		/* procedure application. could be either a closure or primitive proc */
 		args = NULL;
@@ -139,14 +144,18 @@ void *eval_let (type_cell *bindings, type_cell *body, environment *env) {
 void *apply (void *proc, type_cell *args) {
 	void *ret;
 	gc_type t = get_type (proc);
-
+	type_closure *c;
+	
 	switch (t) {
 	case TYPE_PROC:
 		ret = apply_proc(CAST(type_proc *, proc)->proc, args);
 		break;
-	case TYPE_CELL:        
-		/* closure */
-		ret = NULL;
+	case TYPE_CLOSURE:
+		/* evaluate the body in the environment packed with the cosure */
+		c = CAST(type_closure *, proc);
+		extend_env (c->env, c->params, args);
+		ret = eval_exprs (c->body, c->env);
+		remove_frame (c->env);
 		break;
 	default :
 		/* error */

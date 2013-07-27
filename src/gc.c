@@ -148,10 +148,21 @@ type_proc *gc_new_proc (flisp_proc_t proc) {
   return ret;
 }
 
+type_closure *gc_new_closure (type_cell *params, type_cell *body, environment *env) {
+	type_closure *ret = gc_malloc(sizeof(type_closure));
+	ret->tag.type = TYPE_CLOSURE;
+	ret->tag.forw = NULL;
+	ret->params = params;
+	ret->body = body;
+	ret->env = env;
+	return ret;
+}
+
 /* make a new object based on its type */
 void *gc_new_copy (void *object) {
 	gc_type type;
 	void *ret = NULL;
+	type_closure *c;
 	
 	type = get_type(object);
 	switch (type) {
@@ -182,6 +193,10 @@ void *gc_new_copy (void *object) {
     case TYPE_PROC:
         ret = gc_new_proc(((type_proc *)object)->proc);
         break;
+	case TYPE_CLOSURE:
+		c = CAST(type_closure *, object);		
+		ret = gc_new_closure (c->params, c->body, c->env);
+		break;
 	}
 	return ret;
 }
@@ -274,6 +289,12 @@ void gc_relocate_proc (type_proc **new, type_proc *old) {
     old->tag.forw = new;
 }
 
+void gc_relocate_closure (type_closure **new, type_closure *old) {
+	old->tag.forw = new;
+
+	gc_relocate ((void **)&((*new)->params), old->params);
+	gc_relocate ((void **)&((*new)->body), old->body);
+}
 
 
 /* --------- top level relocate function -------- */
@@ -312,8 +333,11 @@ void gc_relocate (void **new, void *old) {
 		gc_relocate_array ((type_array **)new, (type_array *)old);
 		break;
     case TYPE_PROC:
-      gc_relocate_proc ((type_proc **)new, (type_proc *)old);
-      break;
+		gc_relocate_proc ((type_proc **)new, (type_proc *)old);
+		break;
+	case TYPE_CLOSURE:
+		gc_relocate_closure ((type_closure **)new, (type_closure *)old);
+		break;
 	}
 }
 

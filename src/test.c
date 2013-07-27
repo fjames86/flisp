@@ -196,6 +196,9 @@ void print_val (void *val) {
     case TYPE_PROC:
         printf("#<PROC %p>", CAST(type_proc *, val)->proc);
         break;
+	case TYPE_CLOSURE:
+		printf("#<CLOSURE %p>", val);
+		break;
 	}
 }
 

@@ -6,6 +6,10 @@
 #include "types.h"
 #include "symbol.h"
 #include "procs.h"
+#include "env.h"
+#include "lists.h"
+
+struct environment_;
 
 /* globals used to keep track of the heap */
 void *gc_working;
@@ -26,7 +30,7 @@ type_double *gc_new_double (double d);
 type_ht *gc_new_ht (size_t size);
 type_array *gc_new_array (size_t size);
 type_proc *gc_new_proc (flisp_proc_t proc);
-
+type_closure *gc_new_closure (type_cell *params, type_cell *body, struct environment_ *env);
 
 void *gc_new_copy (void *object);
 
@@ -39,6 +43,7 @@ void gc_relocate_double (type_double **new, type_double *old);
 void gc_relocate_ht (type_ht **new, type_ht *old);
 void gc_relocate_array (type_array **new, type_array *old);
 void gc_relocate_proc (type_proc **new, type_proc *old);
+void gc_relocate_closure (type_closure **new, type_closure *old);
 
 void gc_relocate (void **new, void *old);
 
