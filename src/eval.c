@@ -69,7 +69,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 		case TYPE_CELL:
 			params = cell_cdr(name);
 			name = cell_car(name);
-			body = cell_cdr(expr);
+			body = macroexpand (cell_cdr(expr), env);
 			sethash(&(env->special), name, gc_new_closure (params, body, env));
 			break;
 		} 
@@ -80,7 +80,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 		params = cell_cdr(name);
 		name = cell_car(name);
 		body = cell_cdr(expr);
-		val = cons (intern ("MACRO"), gc_new_closure (params, body, env));
+		val = cons (intern ("MACRO"), cons (gc_new_closure (params, body, env), NULL));
 		
 		sethash(&(env->special), name, val);
 		ret = name;
@@ -116,7 +116,8 @@ void *eval_expr(type_cell *expr, environment *env) {
 		proc = eval(proc, env);
 
 		if (get_type(proc) == TYPE_CELL && eq(cell_car(proc), intern("MACRO"))) {
-			ret = eval(apply(cell_cdr(proc), expr), env);			
+			/* runtime macro expansion */
+			ret = eval(apply(cell_cadr(proc), expr), env);
 		} else {
 			args = NULL;
 			c = &args;
@@ -211,6 +212,50 @@ void *apply (void *proc, type_cell *args) {
 
 void *apply_proc (flisp_proc_t proc, type_cell *args) {
 	return (proc)(args);
+}
+
+void *macroexpand_1 (void *expr, environment *env) {
+	gc_type t;
+	void *ret, *tmp;
+	type_cell *c;
+	
+	t = get_type (expr);
+
+	if (t == TYPE_CELL) {
+		c = CAST(type_cell *, expr);
+		tmp = eval (cell_car(c), env);
+		if (get_type(tmp) == TYPE_CELL && eq(cell_car(tmp), intern("MACRO"))) {
+			ret = macroexpand (apply (cell_cadr(tmp), cell_cdr(expr)), env);
+		} else {
+			ret = expr;
+		}
+	} else {
+		ret = expr;
+	}
+	return ret;
+}
+
+void *macroexpand (void *expr, environment *env) {
+	gc_type t;
+	type_cell *cell, **c;
+	void *ret;
+	
+	expr = macroexpand_1 (expr, env);
+	
+	t = get_type(expr);
+	if (t == TYPE_CELL) {
+		cell = CAST(type_cell *, expr);
+		ret = NULL;
+		c = (type_cell **)&ret;
+		while (cell != NULL) {
+			*c = macroexpand_1 (cell, env);
+			c = (type_cell **)&((*c)->cdr);
+			cell = cell_cdr(cell);
+		}		
+	} else {
+		ret = expr;
+	}
+	return ret;
 }
 
 

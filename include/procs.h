@@ -7,9 +7,12 @@
 #include "gc.h"
 #include "array.h"
 #include "lists.h"
+#include "env.h"
 
 extern void *apply (void *proc, type_cell *args);
 extern void load_file (char *fname);
+extern void *macroexpand (void *expr, struct environment_ *env);
+extern struct environment_ toplevel;
 
 void *proc_car (type_cell *args);
 void *proc_cdr (type_cell *args);
@@ -39,6 +42,8 @@ void *proc_gte (type_cell *args);
 void *proc_lt (type_cell *args);
 void *proc_lte (type_cell *args);
 void *proc_e (type_cell *args);
+
+void *proc_macroexpand (type_cell *args);
 
 #endif 
 

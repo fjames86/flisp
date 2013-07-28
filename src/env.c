@@ -36,6 +36,8 @@ void env_init(environment *env) {
 	env_define (env, intern(">="), gc_new_proc (&proc_gte));
 	env_define (env, intern("<="), gc_new_proc (&proc_lte));
 	env_define (env, intern("="), gc_new_proc (&proc_e));
+
+	env_define (env, intern("MACROEXPAND"), gc_new_proc (&proc_macroexpand));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */

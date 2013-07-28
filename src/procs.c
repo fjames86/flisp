@@ -543,3 +543,9 @@ void *proc_e (type_cell *args) {
 	return ret;
 }
 
+void *proc_macroexpand (type_cell *args) {
+	type_cell *expr;
+
+	expr = cell_car(args);
+	return macroexpand (expr, &toplevel);
+}
