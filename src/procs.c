@@ -372,3 +372,157 @@ void *proc_load (type_cell *args) {
 	}
 	return NULL;
 }
+
+void *proc_eq (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (eq(ret, c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+							 
+void *proc_eql (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (eql(ret, c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+void *proc_equal (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (equal(ret, c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+void *proc_gt (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (cast_to_double (ret) > cast_to_double (c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+void *proc_lt (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (cast_to_double (ret) < cast_to_double (c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+void *proc_gte (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (cast_to_double (ret) >= cast_to_double (c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+void *proc_lte (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (cast_to_double (ret) <= cast_to_double (c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+
+void *proc_e (type_cell *args) {
+	void *ret, *c;
+
+	ret = cell_car(args);
+	args = cell_cdr(args);
+	while (args != NULL) {
+		c = cell_car(args);
+		if (cast_to_double (ret) == cast_to_double (c)) {
+			ret = c;
+			args = args->cdr;
+		} else {
+			ret = NULL;
+			break;
+		}
+	}
+
+	return ret;
+}
+

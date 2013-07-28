@@ -31,6 +31,14 @@ void *proc_set_aref (type_cell *args);
 
 void *proc_apply (type_cell *args);
 void *proc_load (type_cell *args);
+void *proc_eq (type_cell *args);
+void *proc_eql (type_cell *args);
+void *proc_equal (type_cell *args);
+void *proc_gt (type_cell *args);
+void *proc_gte (type_cell *args);
+void *proc_lt (type_cell *args);
+void *proc_lte (type_cell *args);
+void *proc_e (type_cell *args);
 
 #endif 
 

@@ -142,3 +142,22 @@ bool array_equal(void *val1, void *val2) {
 	return ret;
 }
 
+double cast_to_double (void *val) {
+	double d;
+	gc_type t = get_type(val);
+	
+	switch(t) {
+	case TYPE_INT:
+		d = (double)CAST(type_int *, val)->i;
+		break;
+	case TYPE_DOUBLE:
+		d = CAST(type_double *, val)->d;
+		break;
+	default:
+		d = 0.0;
+	}
+	return d;
+}
+
+
+			

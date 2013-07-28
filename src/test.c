@@ -702,6 +702,7 @@ void load_file(char *fname) {
 
 		do {
 			expr = next_expr();
+			/*			printf ("read: "); print_val(expr); printf("\n");*/
 			if (feof(readfile) != 0) {
 				/* must've hit the end of the file */
 				eval(expr, &toplevel);

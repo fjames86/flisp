@@ -27,6 +27,15 @@ void env_init(environment *env) {
 
 	env_define (env, intern("APPLY"), gc_new_proc (&proc_apply));
 	env_define (env, intern("LOAD"), gc_new_proc (&proc_load));
+	env_define (env, intern("EQ?"), gc_new_proc (&proc_eq));
+	env_define (env, intern("EQL?"), gc_new_proc (&proc_eql));
+	env_define (env, intern("EQUAL?"), gc_new_proc (&proc_equal));
+
+	env_define (env, intern(">"), gc_new_proc (&proc_gt));
+	env_define (env, intern("<"), gc_new_proc (&proc_lt));
+	env_define (env, intern(">="), gc_new_proc (&proc_gte));
+	env_define (env, intern("<="), gc_new_proc (&proc_lte));
+	env_define (env, intern("="), gc_new_proc (&proc_e));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */
