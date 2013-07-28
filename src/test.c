@@ -681,6 +681,42 @@ void save_image (char *fname) {
 	}
 }
 
+void save_image_obj (FILE *f, void *val) {
+	gc_tag tag;
+	tag = *CAST(gc_tag *, val);
+	if (tag.forw == NULL) {
+		switch (tag.type) {			
+		case TYPE_INT:
+			fwrite (val, sizeof(type_int), 1, f);
+			break;
+		case TYPE_DOUBLE:
+			fwrite (val, sizeof(type_double), 1, f);
+			break;
+		case TYPE_STRING:
+			fwrite (val, sizeof(type_string), 1, f);
+			break;
+		case TYPE_SYMBOL:
+			fwrite (val, sizeof(type_symbol), 1, f);
+			break;
+		case TYPE_CELL:
+			fwrite (val, sizeof(type_cell), 1, f);
+			break;
+		case TYPE_HT:
+			fwrite (val, sizeof(type_ht), 1, f);
+			break;
+		case TYPE_ARRAY:
+			fwrite (val, sizeof(type_array), 1, f);
+			break;
+		case TYPE_PROC:
+			fwrite (val, sizeof(type_proc), 1, f);
+			break;
+		case TYPE_CLOSURE:
+			fwrite (val, sizeof(type_closure), 1, f);
+			break;
+		}
+	}
+}
+
 
 void load_image (char *fname) {
 	size_t n, i;
