@@ -113,6 +113,9 @@ void *eval_expr(type_cell *expr, environment *env) {
 		ret = gc_new_closure (params, body, env);
 	} else if (eq(proc, intern ("QUASIQUOTE"))) {
 		ret = eval_quasiquote (cell_car (expr), env);
+	} else if (eq(proc, intern ("UNQUOTE"))) {
+		error ("Unquote outside a quasiquote", "EVAL-EXPR");
+		ret = NULL;
 	} else {
 		/* procedure application. could be either a closure or primitive proc */
 		proc = eval(proc, env);
