@@ -8,6 +8,7 @@
 #include "ht.h"
 #include "env.h"
 #include "eval.h"
+#include "error.h"
 
 #define __FLISP_VERSION__ "0.1"
 
@@ -50,7 +51,8 @@ int main (int argc, char **argv) {
 	type_ht *ht;
 	type_array *arr;
 	char *symt;
-
+	type_error *err;
+	
 	printf("Welcome to flisp " __FLISP_VERSION__ " Copyright Frank James " __DATE__ "\n");
 	
 	/* create the heap */
@@ -71,9 +73,19 @@ int main (int argc, char **argv) {
 	
 	while (TRUE) {
 		printf ("\n> ");
+		error_clear();
 		expr = next_expr();
-        print_val(eval(expr, &toplevel)); 
-
+        expr = eval(expr, &toplevel);
+		err = errors();
+		if (err != NULL) {
+			while (err != NULL) {
+				printf("Error: %s at %s\n", err->message->str, err->location->str);
+				err = err->next;
+			}
+		} else {
+			print_val (expr);
+		}
+			
 		gc_collect_init();
         gc_collect ((void **)&(toplevel.special));
         gc_collect ((void **)&(toplevel.lexical));
@@ -429,14 +441,14 @@ type_cell *read_list () {
 			/* dotted list */
 			if (first == TRUE) {
 				/* error, dotted list not at end of list */
-				printf ("Error: dotted list not at end of list.\n");
+				error ("Dotted list not at end of list", "READ-LIST");
 				top = NULL;
 				break;
 			} else {
 				*builder = next_expr();
 				next_word(word);
 				if (strcmp(word, ")") != 0) {
-					printf("Error: dotted list not at end of list\n");
+					error ("Dotted list not at end of list", "READ-LIST");
 					top = NULL;
 				}
 				break;
@@ -563,7 +575,7 @@ type_string *read_string () {
 		} else if (*bufferp == '\0') {
 			/* end of line without an escape, error */
 			ret = NULL;
-			printf("Error: unterminated string detected.\n");
+			error ("Unterminated string detected", "READ-STRING");
 			bufferp++;
 			break;
 		} else if (*bufferp == '"') {
@@ -608,11 +620,11 @@ void *next_expr() {
 		ret = read_list();
 	} else if (strcmp (word, ")") == 0) {
 		/* end of a list. shoulnd't happen here */
-		printf ("Error: unmatched closing paren\n");
+		error ("Unmatched closing paren", "NEXT-EXPR");
 		ret = NULL;
 	} else if (strcmp (word, ".") == 0) {
 		/* dotted end of list. shouldn't happen here */
-		printf ("Error: dotted list not in list \n");
+		error ("Dotted list not in list", "NEXT-EXPR");
 		return NULL;
     } else if (strcmp (word, "'") == 0) {
         /* quote read macro */

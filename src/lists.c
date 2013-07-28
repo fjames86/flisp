@@ -15,7 +15,12 @@ void *cell_car(type_cell *cell) {
 	if (cell == NULL) {
 		return NULL;
 	} else {
-		return cell->car;
+		if (CAST(gc_tag *, cell)->type == TYPE_CELL) {
+			return cell->car;
+		} else {
+			error("Not a cons cell", "CAR");
+			return NULL;
+		}
 	}
 }
 
@@ -23,7 +28,12 @@ void *cell_cdr(type_cell *cell) {
 	if (cell == NULL) {
 		return NULL;
 	} else {
-		return cell->cdr;
+		if (CAST(gc_tag *, cell)->type == TYPE_CELL) {			
+			return cell->cdr;
+		} else {
+			error("Not a cons CELL", "CDR");
+			return NULL;
+		}
 	}
 }
 
@@ -94,15 +104,3 @@ void *assoc (void *key, type_cell *alist) {
     
 	return NULL;
 }
-
-type_cell *mapcar (void *(*proc)(void *), type_cell *args) {
-  type_cell *ret = NULL;
-  
-  while (args != NULL) {
-    cell_push (&ret, (proc)(args->car));
-    args = args->cdr;
-  }
-
-  return ret;
-}
-

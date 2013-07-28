@@ -10,6 +10,7 @@ void *proc_car (type_cell *args) {
 	if (get_type(c) == TYPE_CELL) {
 		c = cell_car(c);
 	} else {
+		error ("Not a cons cell", "CAR");
 		c = NULL;
 	}
 	return c;
@@ -23,6 +24,7 @@ void *proc_cdr (type_cell *args) {
 	if (get_type(c) == TYPE_CELL) {
 		c = cell_cdr(c);
 	} else {
+		error ("Not a cons cell", "CDR");
 		c = NULL;
 	}
 	return c;
@@ -96,6 +98,8 @@ void *proc_add (type_cell *args) {
             break;
         default:
             /* error? */
+			error ("Not a number", "+");
+			return NULL;
             i = 0;
         }
           
@@ -142,6 +146,8 @@ void *proc_mul (type_cell *args) {
             break;
         default:
             /* error? */
+			error ("Not a number", "*");
+			return NULL;
             i = 1;
         }
           
@@ -193,6 +199,9 @@ void *proc_sub (type_cell *args) {
 			} else if (t1 == TYPE_DOUBLE) {
 				d2 = d1 - CAST(type_double *, subs)->d;
 			}
+		} else {
+			error ("Not a number", "-");
+			return NULL;
 		}
 	}
 
@@ -246,6 +255,9 @@ void *proc_div (type_cell *args) {
 			} else if (t1 == TYPE_DOUBLE) {
 				d2 = d1 / CAST(type_double *, subs)->d;
 			}
+		} else {
+			error ("Not a number", "/");
+			return NULL;
 		}
 	}
 
@@ -270,6 +282,7 @@ void *proc_make_array (type_cell *args) {
 		size = CAST(type_int *, args)->i;
 		a = gc_new_array (size);
 	} else {
+		error ("Size not an integer", "MAKE-ARRAY");
 		a = NULL;
 	}
 	return a;
@@ -292,9 +305,11 @@ void *proc_aref (type_cell *args) {
 
 			ret = aref(a, i);
 		} else {
+			error ("Index not an integer", "AREF");			
 			ret = NULL;
 		}
 	} else {
+		error ("Not an array", "AREF");
 		ret = NULL;
 	}
 	return ret;
@@ -319,9 +334,11 @@ void *proc_set_aref (type_cell *args) {
 			x = cell_car(args);
 			set_aref(a, i, x);
 		} else {
+			error ("Index not an integer", "SET-AREF!");
 			ret = NULL;
 		}
 	} else {
+		error ("Not an array", "SET-AREF!");
 		ret = NULL;
 	}
 	return ret;

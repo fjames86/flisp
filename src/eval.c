@@ -23,6 +23,7 @@ void *eval(void *expr, environment *env) {
 		found = lookup(&ret, expr, env);
 		if (!found) {
 			/* not found error */
+			error("Variable not found", "EVAL");
 			ret = NULL;
 		}
 		break;
@@ -31,6 +32,7 @@ void *eval(void *expr, environment *env) {
 		break;
 	default:
 		/* unknown type ? */
+		error ("Unknown type", "EVAl");
 		ret = expr;
 	}
 	return ret;    
@@ -121,6 +123,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 			while (expr != NULL) {
 				if (get_type(expr) != TYPE_CELL) {
 					/* dotted list ? not allowed */
+					error("Must be a proper list", "EVAL-EXPR");
 					return NULL;
 				}
 				
@@ -167,6 +170,7 @@ void *eval_let (type_cell *bindings, type_cell *body, environment *env) {
 			break;
 		default:
 			/* error ? */
+			error ("Incorrectly formatted let binding", "EVAL-LET");
 			return NULL;
 		}
 		
@@ -198,6 +202,7 @@ void *apply (void *proc, type_cell *args) {
 		break;
 	default :
 		/* error */
+		error ("Can only apply a procedure or closure", "APPLY");
 		ret = NULL;
 	}
 	

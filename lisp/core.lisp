@@ -35,3 +35,8 @@
 (define (identity x) x)
 
 
+(defmacro (and expr . exprs)
+	(if exprs
+		 `(if ,expr (and ,@exprs))
+		 expr))
+

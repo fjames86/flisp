@@ -5,6 +5,7 @@
 #include "sys.h"
 #include "types.h"
 #include "gc.h"
+#include "error.h"
 
 bool eq(void *val1, void *val2);
 bool eql(void *val1, void *val2);

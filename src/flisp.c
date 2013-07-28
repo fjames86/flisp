@@ -154,6 +154,7 @@ double cast_to_double (void *val) {
 		d = CAST(type_double *, val)->d;
 		break;
 	default:
+		error ("Not a number", "CAST-TO-DOUBLE");
 		d = 0.0;
 	}
 	return d;
