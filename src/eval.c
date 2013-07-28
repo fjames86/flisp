@@ -119,10 +119,15 @@ void *eval_expr(type_cell *expr, environment *env) {
 			args = NULL;
 			c = &args;
 			while (expr != NULL) {
+				if (get_type(expr) != TYPE_CELL) {
+					/* dotted list ? not allowed */
+					return NULL;
+				}
+				
 				(*c) = cons(eval(cell_car(expr), env), NULL);
-			c = (type_cell **)&((*c)->cdr);
-			
-			expr = expr->cdr;
+				c = (type_cell **)&((*c)->cdr);
+				
+				expr = expr->cdr;
 			}
 			
 			ret = apply (proc, args);
