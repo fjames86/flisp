@@ -104,3 +104,19 @@ void *assoc (void *key, type_cell *alist) {
     
 	return NULL;
 }
+
+type_cell *mapcar (void *(*proc)(void *), type_cell *args) {
+	type_cell *ret = NULL;
+
+	while (args != NULL) {
+		if (get_type(args) == TYPE_CELL) {
+			cell_push (&ret, (proc)(args->car));
+			args = cell_cdr(args);
+		} else {
+			error ("Must be a proper list", "MAPCAR");
+			break;
+		}
+	}
+
+	return ret;
+}

@@ -22,6 +22,7 @@ void set_cdr(type_cell *cell, void *val);
 
 type_cell *acons (void *key, void *val, type_cell *alist);
 void *assoc (void *key, type_cell *alist);
+type_cell *mapcar (void *(*proc)(void *), type_cell *args);
 
 #endif
 

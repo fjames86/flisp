@@ -111,6 +111,8 @@ void *eval_expr(type_cell *expr, environment *env) {
 		params = CAST(type_cell *, cell_car(expr));
 		body = CAST(type_cell *, cell_cdr(expr));
 		ret = gc_new_closure (params, body, env);
+	} else if (eq(proc, intern ("QUASIQUOTE"))) {
+		ret = eval_quasiquote (cell_car (expr), env);
 	} else {
 		/* procedure application. could be either a closure or primitive proc */
 		proc = eval(proc, env);
@@ -258,4 +260,28 @@ void *macroexpand (void *expr, environment *env) {
 	return ret;
 }
 
-
+void *eval_quasiquote (void *expr, environment *env) {
+	gc_type t;
+	type_cell *c, **builder;
+	void *ret;
+	
+	t = get_type(expr);
+	if (t == TYPE_CELL) {
+		c = CAST (type_cell *, expr);
+		if (eq(cell_car(c), intern("UNQUOTE"))) {
+			ret = eval(cell_cadr(c), env);
+		} else {
+			/* examine each element in the list */
+			ret = NULL;
+			builder = (type_cell **)&ret;
+			while (c != NULL) {
+				*builder = cons (eval_quasiquote (cell_car(c), env), NULL);
+				builder = (type_cell **)&((*builder)->cdr);
+				c = cell_cdr(c);
+			}
+		}
+	} else {
+		ret = expr;
+	}
+	return ret;
+}

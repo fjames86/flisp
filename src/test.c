@@ -395,7 +395,7 @@ void next_word (char *dest) {
 	while (TRUE) {
 		if (whitespace(*bufferp) || *bufferp == '\0') {
 			break;
-		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"' || *bufferp == '\'' || *bufferp == ';') {
+		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"' || *bufferp == '\'' || *bufferp == ';' || *bufferp == ',' || *bufferp == '`') {
 			if (!done) {
 				*dest = *bufferp;
 				dest++;
@@ -463,6 +463,28 @@ type_cell *read_list () {
 			}
             cell = cons(next_expr(), NULL);
             (*builder)->car = cons(intern("QUOTE"), cell);
+			builder = (type_cell **)(&((*builder)->cdr));
+		} else if (strcmp (word, "`") == 0) {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+            cell = cons(next_expr(), NULL);
+            (*builder)->car = cons(intern("QUASIUOTE"), cell);
+			builder = (type_cell **)(&((*builder)->cdr));
+		} else if (strcmp (word, ",") == 0) {
+			if (first == TRUE) {
+				top = gc_new_cell();
+				builder = &top;
+				first = FALSE;
+			} else {
+				*builder = gc_new_cell();
+			}
+            cell = cons(next_expr(), NULL);
+            (*builder)->car = cons(intern("UNQUOTE"), cell);
 			builder = (type_cell **)(&((*builder)->cdr));
 		} else if (strcmp (word, "\"") == 0) {
 			if (first == TRUE) {
@@ -630,6 +652,16 @@ void *next_expr() {
         /* quote read macro */
         builder = cons(next_expr(), NULL);
         builder = cons(intern("QUOTE"), builder);
+        ret = builder;
+	} else if (strcmp (word, "`") == 0) {
+        /* quote read macro */
+        builder = cons(next_expr(), NULL);
+        builder = cons(intern("QUASIQUOTE"), builder);
+        ret = builder;
+	} else if (strcmp (word, ",") == 0) {
+        /* quote read macro */
+        builder = cons(next_expr(), NULL);
+        builder = cons(intern("UNQUOTE"), builder);
         ret = builder;
 	} else if (strcmp (word, "\"") == 0) {
 		/* quote, read string */
