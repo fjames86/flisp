@@ -383,7 +383,7 @@ void next_word (char *dest) {
 	while (TRUE) {
 		if (whitespace(*bufferp) || *bufferp == '\0') {
 			break;
-		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"' || *bufferp == '\'') {
+		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"' || *bufferp == '\'' || *bufferp == ';') {
 			if (!done) {
 				*dest = *bufferp;
 				dest++;
@@ -462,6 +462,9 @@ type_cell *read_list () {
 			}
 			(*builder)->car = read_string();
 			builder = (type_cell **)(&((*builder)->cdr));
+		} else if (strcmp (word, ";") == 0) {
+			/* comment */
+			refresh_buffer();
 		} else if (integerp (word) == TRUE) {
 			if (first == TRUE) {
 				top = gc_new_cell();
@@ -619,6 +622,10 @@ void *next_expr() {
 	} else if (strcmp (word, "\"") == 0) {
 		/* quote, read string */
 		ret = read_string();
+	} else if (strcmp (word, ";") == 0) {
+		/* comment */
+		refresh_buffer();
+		ret = next_expr();
 	} else if (integerp (word) == TRUE) {
 		/* integer */
 		ret = (void *)gc_new_int (parse_integer (word));
