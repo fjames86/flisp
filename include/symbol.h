@@ -22,6 +22,7 @@ void symbol_init (char *table, size_t size);
 char *intern_new_symbol (char *str);
 char *lookup_symbol (char *str);
 type_symbol *intern (char *str);
+type_symbol *gensym ();
 
 #endif
 

@@ -1,12 +1,26 @@
 
 #include "eval.h"
 
+/*
+ * evaluation proceeds as follows:
+ * 1. pass the input form to macroexpand. This promises to macro expand the toplevel of the form 
+ *    until the car position is not a macro any longer.
+ * 2. The result of macroexpand is passed to eval_expr which actually does the evaluation.
+ *
+ * Note that this means macro expansion happens every time a form is evaluated. This is bad news in
+ * the body of lambda expressions, that might be evaluated multiple times. This means we must first macro
+ * expand the body before passing it to gc_new_closure().
+ */
+
+
 void *eval(void *expr, environment *env) {
 	gc_type type;
 	type_cell *args;
 	void *ret, *tmp;
 	bool found;
 
+	expr = macroexpand (expr, env);
+	
 	type = get_type(expr);
 	switch (type) {
 	case TYPE_NULL:
@@ -126,7 +140,9 @@ void *eval_expr(type_cell *expr, environment *env) {
 
 		if (get_type(proc) == TYPE_CELL && eq(cell_car(proc), intern("MACRO"))) {
 			/* runtime macro expansion */
-			ret = eval(apply(cell_cadr(proc), expr), env);
+			/* BAD FIXME!!!1  */
+			error ("Encountered a macro after macroexpansion", "EVAL-EXPR");
+			ret = NULL; /*eval(apply(cell_cadr(proc), expr), env);*/
 		} else {
 			args = NULL;
 			c = &args;
@@ -141,6 +157,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 				c = (type_cell **)&((*c)->cdr);
 				
 				expr = expr->cdr;
+
 			}
 			
 			ret = apply (proc, args);
@@ -223,47 +240,50 @@ void *apply_proc (flisp_proc_t proc, type_cell *args) {
 	return (proc)(args);
 }
 
-void *macroexpand_1 (void *expr, environment *env) {
+/* macroexpansion works as follows:
+ * atoms. left unevaluated
+ * lists. evaluate the object in the car position. if it returns (macro <proc>) then apply the <proc> to the cdr of the list
+ *        otherwise build up a new list by expanding each element in the list
+ */
+
+void *macroexpand (void *expr, environment *env) {
+	void *ret, *macro;
 	gc_type t;
-	void *ret, *tmp;
-	type_cell *c;
-	
+	type_cell *c, *car, **builder;
+
+	printf("macroexpand: "); print_val (expr); printf("\n");
 	t = get_type (expr);
 
 	if (t == TYPE_CELL) {
-		c = CAST(type_cell *, expr);
-		tmp = eval (cell_car(c), env);
-		if (get_type(tmp) == TYPE_CELL && eq(cell_car(tmp), intern("MACRO"))) {
-			ret = macroexpand (apply (cell_cadr(tmp), cell_cdr(expr)), env);
-		} else {
-			ret = expr;
+		c = CAST (type_cell *, expr);	   
+		car = cell_car (c);
+		if (get_type (car) == TYPE_SYMBOL) {
+			if (lookup (&macro, CAST (type_symbol *, car), env)) {
+				if (get_type (macro) == TYPE_CELL && eq(cell_car (CAST(type_cell *, macro)), intern("MACRO"))) {
+					ret = apply (cell_cadr (CAST (type_cell *, macro)), cell_cdr (c));
+					goto macroexpand_end;
+				}
+			}
+		}
+		
+		ret = NULL;
+		builder = (type_cell **)&ret;
+		while (c != NULL) {
+			if (get_type (c) == TYPE_CELL) {
+				*builder = cons (macroexpand (cell_car (c), env), NULL);
+				builder = (type_cell **)&((*builder)->cdr);
+				c = c->cdr;
+			} else {
+				/* dotted list? */
+				*builder = c;
+				break;
+			}
 		}
 	} else {
 		ret = expr;
 	}
-	return ret;
-}
 
-void *macroexpand (void *expr, environment *env) {
-	gc_type t;
-	type_cell *cell, **c;
-	void *ret;
-	
-	expr = macroexpand_1 (expr, env);
-	
-	t = get_type(expr);
-	if (t == TYPE_CELL) {
-		cell = CAST(type_cell *, expr);
-		ret = NULL;
-		c = (type_cell **)&ret;
-		while (cell != NULL) {
-			*c = macroexpand_1 (cell, env);
-			c = (type_cell **)&((*c)->cdr);
-			cell = cell_cdr(cell);
-		}		
-	} else {
-		ret = expr;
-	}
+ macroexpand_end:
 	return ret;
 }
 
@@ -291,27 +311,33 @@ void *eval_quasiquote (void *expr, environment *env) {
 			ret = NULL;
 			builder = (type_cell **)&ret;
 			while (c != NULL) {
-				car = cell_car(c);				
-				t = get_type(car);
-				if (t == TYPE_CELL) {
-					if (eq(cell_car(car), intern("UNQUOTE"))) {
-						*builder = cons (eval (cell_cadr(car), env), NULL);
-						builder = (type_cell **)&((*builder)->cdr);
-					} else if (eq(cell_car(car), intern("UNQUOTE-SPLICING"))) {
-						*builder = eval (cell_cadr (car), env);
-						while (*builder != NULL) {
+				if (get_type (c) == TYPE_CELL) {
+					car = cell_car(c);				
+					t = get_type(car);
+					if (t == TYPE_CELL) {
+						if (eq(cell_car(car), intern("UNQUOTE"))) {
+							*builder = cons (eval (cell_cadr(car), env), NULL);
+							builder = (type_cell **)&((*builder)->cdr);
+						} else if (eq(cell_car(car), intern("UNQUOTE-SPLICING"))) {
+							*builder = eval (cell_cadr (car), env);
+							while (*builder != NULL) {
+								builder = (type_cell **)&((*builder)->cdr);
+							}					
+						} else {
+							/* a new sub list. need to recursively call quasiquote on this */
+							*builder = eval_quasiquote (car, env);
 							builder = (type_cell **)&((*builder)->cdr);
 						}					
 					} else {
-						/* a new sub list. need to recursively call quasiquote on this */
-						*builder = eval_quasiquote (car, env);
+						*builder = cons (car, NULL);
 						builder = (type_cell **)&((*builder)->cdr);
-					}					
+					}
+					c = c->cdr;
 				} else {
-					*builder = cons (car, NULL);
-					builder = (type_cell **)&((*builder)->cdr);
+					/* dotted list? */
+					*builder = c;
+					break;
 				}
-				c = c->cdr;
 			}
 		}
 	} else {

@@ -75,6 +75,7 @@ int main (int argc, char **argv) {
 		printf ("\n> ");
 		error_clear();
 		expr = next_expr();
+		expr = macroexpand (expr, &toplevel);
         expr = eval(expr, &toplevel);
 		err = errors();
 		if (err != NULL) {

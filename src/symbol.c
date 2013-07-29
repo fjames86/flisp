@@ -64,3 +64,23 @@ type_symbol *intern (char *str) {
     
     return gc_new_symbol(sym);
 }
+
+type_symbol *gensym () {	
+	char str[10];
+	size_t len;
+	type_symbol *ret;
+	
+	strcpy (str, "GENSYM");	
+	len = strlen(str) + 1;
+	if ((void *)symbol_p > (void *)(string_table_p + len)) {
+		/* add the name to the string table, but don't add it to the symbol table */
+		strcpy(string_table_p, str);
+		ret = gc_new_symbol (string_table_p);
+		string_table_p += len;		
+	} else {
+		/* out of memory */
+		ret = NULL;
+	}
+	
+	return ret;
+}
