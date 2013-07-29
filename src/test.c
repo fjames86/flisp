@@ -473,7 +473,7 @@ type_cell *read_list () {
 				*builder = gc_new_cell();
 			}
             cell = cons(next_expr(), NULL);
-            (*builder)->car = cons(intern("QUASIUOTE"), cell);
+            (*builder)->car = cons(intern("QUASIQUOTE"), cell);
 			builder = (type_cell **)(&((*builder)->cdr));
 		} else if (strcmp (word, ",") == 0) {
 			if (first == TRUE) {

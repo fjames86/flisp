@@ -95,6 +95,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 		/* (if test then else) */
 		name = eval(cell_car(expr), env);
 		if (name != NULL) {
+
 			expr = cell_cdr(expr);
 			ret = eval(cell_car(expr), env);
 		} else {
@@ -115,6 +116,9 @@ void *eval_expr(type_cell *expr, environment *env) {
 		ret = eval_quasiquote (cell_car (expr), env);
 	} else if (eq(proc, intern ("UNQUOTE"))) {
 		error ("Unquote outside a quasiquote", "EVAL-EXPR");
+		ret = NULL;
+	} else if (eq(proc, intern ("UNQUOTE-SPLICING"))) {
+		error ("Unquote-splicing outside a quasiquote", "EVAL-EXPR");
 		ret = NULL;
 	} else {
 		/* procedure application. could be either a closure or primitive proc */
@@ -263,24 +267,51 @@ void *macroexpand (void *expr, environment *env) {
 	return ret;
 }
 
+/*
+ * (quasiquote <atom>) -> <atom>
+ * (quasiquote (a b c (unquote d))) -> (a b c (eval d))
+ * (quasiquote (unquote a)) -> (eval a)
+ * (quasiquote (((... (unquote a))))) -> (((... (eval a))))
+ * (quasiquote (quote (unquote a))) -> (quote (eval a))
+ */
 void *eval_quasiquote (void *expr, environment *env) {
 	gc_type t;
 	type_cell *c, **builder;
-	void *ret;
+	void *ret, *car;
 	
 	t = get_type(expr);
 	if (t == TYPE_CELL) {
 		c = CAST (type_cell *, expr);
-		if (eq(cell_car(c), intern("UNQUOTE"))) {
-			ret = eval(cell_cadr(c), env);
+		if (eq (cell_car(c), intern("UNQUOTE"))) {
+			ret = eval (cell_cadr (c), env);
+		} else if (eq (cell_car(c), intern ("UNQUOTE-SPLICING"))) {
+			error ("Can't splice when not in a list", "EVAL-QUASIQUOTE");
+			ret = NULL;
 		} else {
-			/* examine each element in the list */
 			ret = NULL;
 			builder = (type_cell **)&ret;
 			while (c != NULL) {
-				*builder = cons (eval_quasiquote (cell_car(c), env), NULL);
-				builder = (type_cell **)&((*builder)->cdr);
-				c = cell_cdr(c);
+				car = cell_car(c);				
+				t = get_type(car);
+				if (t == TYPE_CELL) {
+					if (eq(cell_car(car), intern("UNQUOTE"))) {
+						*builder = cons (eval (cell_cadr(car), env), NULL);
+						builder = (type_cell **)&((*builder)->cdr);
+					} else if (eq(cell_car(car), intern("UNQUOTE-SPLICING"))) {
+						*builder = eval (cell_cadr (car), env);
+						while (*builder != NULL) {
+							builder = (type_cell **)&((*builder)->cdr);
+						}					
+					} else {
+						/* a new sub list. need to recursively call quasiquote on this */
+						*builder = eval_quasiquote (car, env);
+						builder = (type_cell **)&((*builder)->cdr);
+					}					
+				} else {
+					*builder = cons (car, NULL);
+					builder = (type_cell **)&((*builder)->cdr);
+				}
+				c = c->cdr;
 			}
 		}
 	} else {
