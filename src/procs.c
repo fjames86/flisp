@@ -641,5 +641,25 @@ void *proc_gethash (type_cell *args) {
 	}
 	return ret;
 }
-		
+
+
+void *proc_sethash (type_cell *args) {
+	type_ht *ht;
+	void *key, *val;
+	
+	ht = cell_car(args);
+	args = cell_cdr (args);
+	key = cell_car (args);
+	val = cell_cadr (args);
+	
+	if (get_type(ht) == TYPE_HT) {
+		sethash (&ht, key, val);
+	} else {
+		error ("Sethash expects a hash table as the first argument", "SETHASH");
+	}
+	return NULL;
+}
+
+
+
 
