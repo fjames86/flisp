@@ -11,7 +11,7 @@
 #include "error.h"
 
 #define __FLISP_VERSION__ "0.1"
-
+#define LISP_CORE_FILE "lisp/core.lisp"
 
 void print_heap(size_t topbytes);
 void print_val(void *val);
@@ -70,7 +70,10 @@ int main (int argc, char **argv) {
 	/*
 	save_image ("flisp.core.bin");
 	*/
-	
+
+	printf ("Loading core files...\n");
+	load_file (LISP_CORE_FILE);
+
 	while (TRUE) {
 		printf ("\n> ");
 		expr = next_expr();
@@ -801,7 +804,7 @@ void load_file(char *fname) {
 
 		do {
 			expr = next_expr();
-			printf ("read: "); print_val(expr); printf("\n");
+			/*			printf ("read: "); print_val(expr); printf("\n");*/
 			if (feof(readfile) != 0) {
 				/* must've hit the end of the file */
 				eval(expr, &toplevel);
