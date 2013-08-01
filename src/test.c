@@ -73,9 +73,11 @@ int main (int argc, char **argv) {
 	
 	while (TRUE) {
 		printf ("\n> ");
-		error_clear();
 		expr = next_expr();
+		/*		printf ("REad: "); print_val (expr); 
 		expr = macroexpand (expr, &toplevel);
+		printf (" expanded: "); print_val (expr); printf("\n");*/
+		error_clear();
         expr = eval(expr, &toplevel);
 		err = errors();
 		if (err != NULL) {
@@ -799,7 +801,7 @@ void load_file(char *fname) {
 
 		do {
 			expr = next_expr();
-			/*			printf ("read: "); print_val(expr); printf("\n");*/
+			printf ("read: "); print_val(expr); printf("\n");
 			if (feof(readfile) != 0) {
 				/* must've hit the end of the file */
 				eval(expr, &toplevel);

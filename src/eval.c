@@ -19,8 +19,6 @@ void *eval(void *expr, environment *env) {
 	void *ret, *tmp;
 	bool found;
 
-	expr = macroexpand (expr, env);
-	
 	type = get_type(expr);
 	switch (type) {
 	case TYPE_NULL:
@@ -34,19 +32,20 @@ void *eval(void *expr, environment *env) {
 		ret = expr;
 		break;
 	case TYPE_SYMBOL:
-		found = lookup(&ret, expr, env);
+		found = lookup (&ret, expr, env);
 		if (!found) {
 			/* not found error */
 			error("Variable not found", "EVAL");
+			printf ("var %s not found\n", CAST(type_symbol *, expr)->sym);
 			ret = NULL;
 		}
 		break;
 	case TYPE_CELL:
-		ret = eval_expr(CAST(type_cell *, expr), env);
+		ret = eval_expr (CAST (type_cell *, expr), env);
 		break;
 	default:
 		/* unknown type ? */
-		error ("Unknown type", "EVAl");
+		error ("Unknown type", "EVAL");
 		ret = expr;
 	}
 	return ret;    
@@ -56,12 +55,13 @@ void *eval(void *expr, environment *env) {
 void *eval_expr(type_cell *expr, environment *env) {
 	void *proc, *ret, *bindings, *params, *body;
 	void *name, *val;
-	type_cell *args, **c;
+	type_cell *args, **c, *orig;
 
 	if (expr == NULL) {
 		return NULL;
 	}
-	
+
+	orig = expr;
 	proc = cell_car((void *)expr);
 	expr = (type_cell *)cell_cdr((void *)expr);
 
@@ -83,7 +83,8 @@ void *eval_expr(type_cell *expr, environment *env) {
 		case TYPE_CELL:
 			params = cell_cdr(name);
 			name = cell_car(name);
-			body = macroexpand (cell_cdr(expr), env);
+			/*			body = macroexpand (cell_cdr(expr), env);*/
+			body = cell_cdr (expr);
 			sethash(&(env->special), name, gc_new_closure (params, body, env));
 			break;
 		} 
@@ -140,9 +141,8 @@ void *eval_expr(type_cell *expr, environment *env) {
 
 		if (get_type(proc) == TYPE_CELL && eq(cell_car(proc), intern("MACRO"))) {
 			/* runtime macro expansion */
-			/* BAD FIXME!!!1  */
-			error ("Encountered a macro after macroexpansion", "EVAL-EXPR");
-			ret = NULL; /*eval(apply(cell_cadr(proc), expr), env);*/
+			orig = macroexpand (orig, env);
+			ret = eval (orig, env);
 		} else {
 			args = NULL;
 			c = &args;
@@ -246,46 +246,75 @@ void *apply_proc (flisp_proc_t proc, type_cell *args) {
  *        otherwise build up a new list by expanding each element in the list
  */
 
+
+/*
+ * macroexpansion works by expanding the top. but it must not expand inside a quote expression
+ * quasiquote expressions should be handled like the evaluation rules of eval-quasiquote
+ */
 void *macroexpand (void *expr, environment *env) {
-	void *ret, *macro;
 	gc_type t;
-	type_cell *c, *car, **builder;
-
-	printf("macroexpand: "); print_val (expr); printf("\n");
-	t = get_type (expr);
-
-	if (t == TYPE_CELL) {
-		c = CAST (type_cell *, expr);	   
-		car = cell_car (c);
-		if (get_type (car) == TYPE_SYMBOL) {
-			if (lookup (&macro, CAST (type_symbol *, car), env)) {
-				if (get_type (macro) == TYPE_CELL && eq(cell_car (CAST(type_cell *, macro)), intern("MACRO"))) {
-					ret = apply (cell_cadr (CAST (type_cell *, macro)), cell_cdr (c));
-					goto macroexpand_end;
-				}
-			}
-		}
+	void *ret;
+	type_cell *c, **builder;
+	void *mac;
+	bool found;
 		
-		ret = NULL;
-		builder = (type_cell **)&ret;
-		while (c != NULL) {
+	t = get_type (expr);
+	if (t == TYPE_CELL) {
+		if (eq(cell_car (expr), intern("QUOTE"))) {
+			/* quote expression, just return the expr itself */
+			ret = expr;
+		} else if (eq(cell_car (expr), intern("QUASIQUOTE"))) {
+			/* if the expression to be spliced is a form (list) then macro expand that */
+			ret = NULL;
+			builder = (type_cell **)&ret;
+			c = cell_cadr (expr);
 			if (get_type (c) == TYPE_CELL) {
-				*builder = cons (macroexpand (cell_car (c), env), NULL);
-				builder = (type_cell **)&((*builder)->cdr);
-				c = c->cdr;
+				while (c != NULL) {
+					*builder = cons (macroexpand (cell_car (c), env), NULL);
+					builder = (type_cell **)&((*builder)->cdr);
+					c = c->cdr;
+				} 
 			} else {
-				/* dotted list? */
-				*builder = c;
-				break;
+				*builder = cell_cadr (expr);
+			}
+			ret = cons (ret, NULL);
+			ret = cons (intern ("QUASIQUOTE"), ret);
+		} else {
+			/* macro? */
+			c = cell_car (expr);
+			mac = NULL;
+			found = FALSE;
+			if (get_type (c) == TYPE_SYMBOL) {
+				found = lookup (&mac, cell_car (expr), env);
+			}
+
+			if (found && mac != NULL && get_type (mac) == TYPE_CELL && eq(cell_car (mac), intern("MACRO"))) {
+				/* a macro, apply the cadr to the rest */
+				ret = apply (cell_cadr(mac), cell_cdr (expr));
+			} else {
+				/* build up the list by macroexpanding each term in it */
+				c = CAST(type_cell *, expr);
+				ret = NULL;
+				builder = (type_cell **)&ret;
+				while (c != NULL) {
+					if (get_type (c) == TYPE_CELL) {
+						*builder = cons (macroexpand (cell_car (c), env), NULL);
+						builder = (type_cell **)&((*builder)->cdr);
+						c = c->cdr;
+					} else {
+						*builder = macroexpand (c, env);
+						break;
+					}
+				}
 			}
 		}
 	} else {
 		ret = expr;
 	}
 
- macroexpand_end:
 	return ret;
 }
+
 
 /*
  * (quasiquote <atom>) -> <atom>
@@ -319,13 +348,14 @@ void *eval_quasiquote (void *expr, environment *env) {
 							*builder = cons (eval (cell_cadr(car), env), NULL);
 							builder = (type_cell **)&((*builder)->cdr);
 						} else if (eq(cell_car(car), intern("UNQUOTE-SPLICING"))) {
-							*builder = eval (cell_cadr (car), env);
+							/* unquote-splicing needs to be non-destructive */
+							*builder = copy_list (eval (cell_cadr (car), env));
 							while (*builder != NULL) {
 								builder = (type_cell **)&((*builder)->cdr);
-							}					
+							}							
 						} else {
 							/* a new sub list. need to recursively call quasiquote on this */
-							*builder = eval_quasiquote (car, env);
+							*builder = cons (eval_quasiquote (car, env), NULL);
 							builder = (type_cell **)&((*builder)->cdr);
 						}					
 					} else {
