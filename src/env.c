@@ -44,6 +44,9 @@ void env_init(environment *env) {
 	env_define (env, intern("PRINT"), gc_new_proc (&proc_print));
 	env_define (env, intern("PRINC"), gc_new_proc (&proc_princ));
 	env_define (env, intern("FORMAT"), gc_new_proc (&proc_format));
+	env_define (env, intern("TOPLEVEL"), gc_new_proc (&proc_toplevel));
+	env_define (env, intern("GETHASH"), gc_new_proc (&proc_gethash));
+	
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */

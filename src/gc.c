@@ -271,7 +271,8 @@ void gc_relocate_ht (type_ht **new, type_ht *old) {
 	for(i=0; i < old->size; i++) {
 		c = old->buckets[i];
 		gc_relocate((void **)&((*new)->buckets[i]), c);
-	}  
+	}
+	(*new)->fill = old->fill;
 }
 
 /* arrays are similar to hash tables */

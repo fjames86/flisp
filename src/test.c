@@ -205,7 +205,7 @@ void print_val (void *val) {
 		printf ("%1lf", ((type_double *)val)->d);
 		break;
     case TYPE_HT:
-		printf("#<HT %p :FILL %d>", val, ((type_ht *)val)->fill);
+		printf("#<HT %p :SIZE %d :FILL %d>", val, CAST(type_ht *, val)->size, ((type_ht *)val)->fill);
 		break;
 	case TYPE_ARRAY:
 		printf ("#(");
@@ -804,7 +804,7 @@ void load_file(char *fname) {
 
 		do {
 			expr = next_expr();
-			/*			printf ("read: "); print_val(expr); printf("\n");*/
+			/*printf ("read: "); print_val(expr); printf("\n");*/
 			if (feof(readfile) != 0) {
 				/* must've hit the end of the file */
 				eval(expr, &toplevel);

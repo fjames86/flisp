@@ -613,3 +613,33 @@ void *proc_format (type_cell *args) {
 	}
 }
 
+void *proc_toplevel (type_cell *args) {
+	return toplevel.special;
+}
+
+void *proc_gethash (type_cell *args) {
+	type_ht *ht;
+	void *key, *ret;
+	bool found;
+	type_cell *c;
+	
+	ht = cell_car(args);
+	key = cell_cadr (args);
+
+	if (get_type(ht) == TYPE_HT) {
+		found = gethash (ht, key, &ret);
+		c = cons (ret, NULL);
+		if (found) {
+			c->cdr = cons (intern("T"), NULL);
+		} else {
+			c->cdr = cons (NULL, NULL);
+		}
+		ret = c;
+	} else {
+		error ("Gethash expects a hash table as the first argument", "GETHASH");
+		ret = NULL;
+	}
+	return ret;
+}
+		
+

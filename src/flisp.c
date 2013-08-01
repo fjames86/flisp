@@ -187,6 +187,20 @@ void print_object (void *obj) {
 	case TYPE_HT:
 		print_string ("#<HASH-TABLE ");
 		print_hex ((size_t)obj);
+		print_string (" :SIZE ");
+		print_int (CAST(type_ht *, obj)->size);
+		print_string (" :FILL ");
+		print_int (CAST(type_ht *, obj)->fill);
+		print_string (">");
+		break;
+	case TYPE_CLOSURE:
+		print_string ("#<CLOSURE ");
+		print_hex ((size_t)obj);
+		print_string (">");
+		break;
+	case TYPE_PROC:
+		print_string ("#<PROC ");
+		print_hex ((size_t)obj);
 		print_string (">");
 		break;
 	case TYPE_ARRAY:
@@ -244,6 +258,16 @@ void print_object_nice (void *obj) {
 		break;
 	case TYPE_HT:
 		print_string ("#<HASH-TABLE ");
+		print_hex ((size_t)obj);
+		print_string (">");
+		break;
+	case TYPE_CLOSURE:
+		print_string ("#<CLOSURE ");
+		print_hex ((size_t)obj);
+		print_string (">");
+		break;
+	case TYPE_PROC:
+		print_string ("#<PROC ");
 		print_hex ((size_t)obj);
 		print_string (">");
 		break;
