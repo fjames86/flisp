@@ -52,7 +52,7 @@ int main (int argc, char **argv) {
 	type_array *arr;
 	char *symt;
 	type_error *err;
-	
+
 	printf("Welcome to flisp " __FLISP_VERSION__ " Copyright Frank James " __DATE__ "\n");
 	
 	/* create the heap */
@@ -818,3 +818,12 @@ void load_file(char *fname) {
 		readfile = tmp;
 	}
 }
+
+void putch (char c) {
+	putchar (c);
+}
+
+char getch () {
+	return getchar ();
+}
+

@@ -93,3 +93,55 @@ char *string_upcase(char *string) {
 	}
 	return string;
 }
+
+void print_int (int i) {
+	if (i < 0) {
+		putch('-');
+		i = -i;
+	}
+
+	if (i / 10 != 0) {
+		print_int (i / 10);
+	}
+	putch('0' + (i % 10));
+}
+
+void print_hex (size_t i) {
+	size_t x;
+	if (i / 16 != 0) {
+		print_int (i / 16);
+	}
+	x = i % 16;
+	if (x < 10) {
+		putch('0' + (i % 16));
+	} else {
+		putch ('A' + x - 10);
+	}
+}
+
+void print_double (double x, int p) {
+	long d;
+	
+	if (x < 0) {
+		putch('-');
+		x = -x;
+	}
+	
+	d = x;
+	
+	print_int ((int)d);
+	putch('.');
+	while (p--) {
+		x = (x - d) * 10;
+		d = x;
+		putch('0' + d);
+	}
+}
+
+void print_string (char *str) {
+	while (*str != '\0') {
+		putch (*str);
+		str = str++;
+	}
+}
+

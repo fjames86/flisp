@@ -549,3 +549,67 @@ void *proc_macroexpand (type_cell *args) {
 	expr = cell_car(args);
 	return macroexpand (expr, &toplevel);
 }
+
+void *proc_gensym (type_cell *args) {
+	return gensym ();
+}
+
+void *proc_typeof (type_cell *args) {
+	void *ret;
+	gc_type t = get_type (cell_car(args));
+
+	switch (t) {
+	case TYPE_NULL:
+		ret = intern("NULL");
+		break;
+	case TYPE_SYMBOL:
+		ret = intern("SYMBOL");
+		break;
+	case TYPE_INT:
+		ret = intern("INT");
+		break;
+	case TYPE_DOUBLE:
+		ret = intern("DOUBLE");
+		break;
+	case TYPE_STRING:
+		ret = intern("STRING");
+		break;
+	case TYPE_CELL:
+		ret = intern("CONS");
+		break;
+	case TYPE_ARRAY:
+		ret = intern("ARRAY");
+		break;
+	case TYPE_HT:
+		ret = intern("HASH-TABLE");
+		break;
+	case TYPE_CLOSURE:
+		ret = intern("CLOSURE");
+		break;
+	case TYPE_PROC:
+		ret = intern("PROC");
+		break;
+	}
+	return ret;
+}
+
+void *proc_print (type_cell *args) {
+	print_object (cell_car (args));
+	putch ('\n');
+	return NULL;
+}
+
+
+void *proc_princ (type_cell *args) {
+	print_object_nice (cell_car (args));
+	return NULL;
+}
+
+void *proc_format (type_cell *args) {
+	if (get_type (cell_car (args)) == TYPE_STRING) {
+		format ((type_string *)cell_car (args), cell_cdr (args));
+	} else {
+		error ("Format string must be a string", "FORMAT");
+	}
+}
+

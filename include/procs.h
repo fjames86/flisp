@@ -44,6 +44,12 @@ void *proc_lte (type_cell *args);
 void *proc_e (type_cell *args);
 
 void *proc_macroexpand (type_cell *args);
+void *proc_gensym (type_cell *args);
+void *proc_typeof (type_cell *args);
+
+void *proc_print (type_cell *args);
+void *proc_princ (type_cell *args);
+void *proc_format (type_cell *args);
 
 #endif 
 

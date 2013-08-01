@@ -14,6 +14,9 @@ bool number_equal(void *val1, void *val2);
 bool cell_equal(void *val1, void *val2);
 bool array_equal(void *val1, void *val2);
 double cast_to_double (void *val);
+void print_object (void *obj);
+void print_object_nice (void *obj);
+void format (type_string *string, type_cell *args);
 
 #endif
 

@@ -38,6 +38,12 @@ void env_init(environment *env) {
 	env_define (env, intern("="), gc_new_proc (&proc_e));
 
 	env_define (env, intern("MACROEXPAND"), gc_new_proc (&proc_macroexpand));
+	env_define (env, intern("GENSYM"), gc_new_proc (&proc_gensym));
+	env_define (env, intern("TYPE-OF"), gc_new_proc (&proc_typeof));
+
+	env_define (env, intern("PRINT"), gc_new_proc (&proc_print));
+	env_define (env, intern("PRINC"), gc_new_proc (&proc_princ));
+	env_define (env, intern("FORMAT"), gc_new_proc (&proc_format));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */

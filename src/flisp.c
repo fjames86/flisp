@@ -160,5 +160,163 @@ double cast_to_double (void *val) {
 	return d;
 }
 
+void print_object (void *obj) {
+	type_cell *c;
+	size_t i;
+	bool printed;
+	gc_type t = get_type (obj);
 
-			
+	switch (t) {
+	case TYPE_NULL:
+		print_string ("NIL");
+		break;
+	case TYPE_INT:
+		print_int (CAST(type_int *, obj)->i);
+		break;
+	case TYPE_DOUBLE:
+		print_double (CAST(type_double *, obj)->d, 5);
+		break;
+	case TYPE_SYMBOL:
+		print_string (CAST(type_symbol *, obj)->sym);
+		break;
+	case TYPE_STRING:
+		putch ('"');
+		print_string (CAST(type_string *, obj)->str);
+		putch ('"');
+		break;
+	case TYPE_HT:
+		print_string ("#<HASH-TABLE ");
+		print_hex ((size_t)obj);
+		print_string (">");
+		break;
+	case TYPE_ARRAY:
+		print_string ("#(");
+		for (i=0; i < CAST(type_array *, obj)->size; i++) {
+			if (i > 0) {
+				print_string (" ");
+			}
+			print_object (CAST(type_array *, obj)->data[i]);
+		}
+		print_string (")");
+		break;
+	case TYPE_CELL:
+		print_string ("(");
+		c = CAST(type_cell *, obj);
+		printed = FALSE;
+		while (c != NULL) {
+			if (get_type(c) != TYPE_CELL) {
+				print_string (" . ");
+				print_object (c);
+				break;
+			} else {
+				if (printed) {
+					print_string (" ");
+				}
+				print_object (cell_car(c));
+				printed = TRUE;
+			}
+			c = cell_cdr(c);
+		}
+	}
+}
+
+void print_object_nice (void *obj) {
+	type_cell *c;
+	size_t i;
+	bool printed;
+	gc_type t = get_type (obj);
+
+	switch (t) {
+	case TYPE_NULL:
+		print_string ("NIL");
+		break;
+	case TYPE_INT:
+		print_int (CAST(type_int *, obj)->i);
+		break;
+	case TYPE_DOUBLE:
+		print_double (CAST(type_double *, obj)->d, 5);
+		break;
+	case TYPE_SYMBOL:
+		print_string (CAST(type_symbol *, obj)->sym);
+		break;
+	case TYPE_STRING:
+		print_string (CAST(type_string *, obj)->str);
+		break;
+	case TYPE_HT:
+		print_string ("#<HASH-TABLE ");
+		print_hex ((size_t)obj);
+		print_string (">");
+		break;
+	case TYPE_ARRAY:
+		print_string ("#(");
+		for (i=0; i < CAST(type_array *, obj)->size; i++) {
+			if (i > 0) {
+				print_string (" ");
+			}
+			print_object (CAST(type_array *, obj)->data[i]);
+		}
+		print_string (")");
+		break;
+	case TYPE_CELL:
+		print_string ("(");
+		c = CAST(type_cell *, obj);
+		printed = FALSE;
+		while (c != NULL) {
+			if (get_type(c) != TYPE_CELL) {
+				print_string (" . ");
+				print_object (c);
+				break;
+			} else {
+				if (printed) {
+					print_string (" ");
+				}
+				print_object (cell_car(c));
+				printed = TRUE;
+			}
+			c = cell_cdr(c);
+		}
+	}
+}
+
+
+/*
+ * formated output
+ * ~S print readable object
+ * ~A print human readable objet
+ * ~% newlie
+ * ~~ ~ char
+ * ~<other> error?
+ */
+void format (type_string *string, type_cell *args) {
+	char *fstr = string->str;
+	while (*fstr != '\0') {
+		if (*fstr == '~') {
+			/* dispatch char */
+			fstr++;
+			switch (*fstr) {
+			case '%':
+				putch ('\n');
+				break;
+			case '~':
+				putch ('~');
+				break;
+			case 'S':
+			case 's':
+				print_object (cell_car(args));
+				args = cell_cdr(args);
+				break;
+			case 'A':
+			case 'a':
+				print_object_nice (cell_car(args));
+			    args = cell_cdr(args);
+				break;
+			default:
+				error ("Unknown format dispatch char", "FORMAT");
+			}
+		} else {
+			putch (*fstr);
+		}
+
+		fstr++;
+	}
+}
