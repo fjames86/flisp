@@ -160,6 +160,28 @@ double cast_to_double (void *val) {
 	return d;
 }
 
+void print_list (type_cell *l) {
+    bool printed = FALSE;
+
+    putch ('(');
+    while (l != NULL) {
+        if (get_type(l) != TYPE_CELL) {
+            print_string (" . ");
+            print_object (l);
+            break;
+        } else {
+            if (printed) {
+                putch (' ');
+            }
+            print_object (cell_car (l));
+            printed = TRUE;
+            l = l->cdr;
+        }
+    }
+    putch (')');
+}
+
+
 void print_object (void *obj) {
 	type_cell *c;
 	size_t i;
@@ -214,23 +236,8 @@ void print_object (void *obj) {
 		print_string (")");
 		break;
 	case TYPE_CELL:
-		print_string ("(");
-		c = CAST(type_cell *, obj);
-		printed = FALSE;
-		while (c != NULL) {
-			if (get_type(c) != TYPE_CELL) {
-				print_string (" . ");
-				print_object (c);
-				break;
-			} else {
-				if (printed) {
-					print_string (" ");
-				}
-				print_object (cell_car(c));
-				printed = TRUE;
-			}
-			c = cell_cdr(c);
-		}
+        print_list (obj);
+        break;
 	}
 }
 
@@ -282,23 +289,8 @@ void print_object_nice (void *obj) {
 		print_string (")");
 		break;
 	case TYPE_CELL:
-		print_string ("(");
-		c = CAST(type_cell *, obj);
-		printed = FALSE;
-		while (c != NULL) {
-			if (get_type(c) != TYPE_CELL) {
-				print_string (" . ");
-				print_object (c);
-				break;
-			} else {
-				if (printed) {
-					print_string (" ");
-				}
-				print_object (cell_car(c));
-				printed = TRUE;
-			}
-			c = cell_cdr(c);
-		}
+        print_list (obj);
+        break;
 	}
 }
 

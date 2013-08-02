@@ -77,9 +77,6 @@ int main (int argc, char **argv) {
 	while (TRUE) {
 		printf ("\n> ");
 		expr = next_expr();
-		/*		printf ("REad: "); print_val (expr); 
-		expr = macroexpand (expr, &toplevel);
-		printf (" expanded: "); print_val (expr); printf("\n");*/
 		error_clear();
         expr = eval(expr, &toplevel);
 		err = errors();
@@ -89,7 +86,7 @@ int main (int argc, char **argv) {
 				err = err->next;
 			}
 		} else {
-			print_val (expr);
+			print_object (expr);
 		}
 			
 		gc_collect_init();
