@@ -27,6 +27,7 @@ typedef struct environment_ {
 void env_init (environment *env);
 bool lookup(void **val, type_symbol *sym, environment *env);
 environment *extend_env (environment *env, type_cell *syms, type_cell *vals);
+environment *rebind_env (environment *env, type_cell *vals);
 environment *remove_frame (environment *env);
 environment *extend_env_special (environment *env, type_cell *syms, type_cell *vals);
 void env_define (environment *env, type_symbol *sym, void *val);

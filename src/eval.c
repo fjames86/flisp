@@ -166,16 +166,18 @@ void *eval_expr(type_cell *expr, environment *env) {
 	return ret;
 }
 
+/* allow recursion looping by rebinding and jumping back to the start */
 void *eval_exprs(type_cell *exprs, environment *env) {
-	void *ret;
+    void *ret;
 
 	ret = NULL;
-	while (exprs != NULL) {
-		ret = eval(cell_car(exprs), env);
-		exprs = exprs->cdr;
+	while (exprs != NULL) {        
+        ret = eval(cell_car(exprs), env);
+        exprs = exprs->cdr;
 	}
 	return ret;
 }
+
 
 void *eval_let (type_cell *bindings, type_cell *body, environment *env) {
 	type_cell *syms, *vals;

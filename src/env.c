@@ -1,4 +1,5 @@
 
+
 #include "env.h"
 
 void env_init(environment *env) {
@@ -90,6 +91,20 @@ environment *extend_env (environment *env, type_cell *syms, type_cell *vals) {
 	
 	/*	env->lexical = cons(frame, env->lexical); */
 	return env;
+}
+
+environment *rebind_env (environment *env, type_cell *vals) {
+    type_cell *frame = cell_car (env->lexical);
+    type_cell *c;
+
+    while (frame != NULL) {
+        c = cell_car (frame);
+        c->cdr = cell_car (vals);
+        vals = vals->cdr;
+        frame = frame->cdr;
+    }
+
+    return env;
 }
 
 environment *remove_frame (environment *env) {
