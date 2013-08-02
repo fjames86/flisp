@@ -25,6 +25,7 @@ void sethash(type_ht **htb, void *key, void *val) {
 	
 	i = sxhash(key) % ht->size;
     c = ht->buckets[i];
+#if 0
     while (c != NULL) {
       /* c = ((key . val) ....) */
       e = cell_car(c);
@@ -33,6 +34,12 @@ void sethash(type_ht **htb, void *key, void *val) {
         return;
       }
       c = c->cdr; 
+    }
+#endif 
+    e = assoc (key, c);
+    if (e != NULL) {
+      e->cdr = val;
+      return;
     }
 
 	/* if fill level larger than the threshold then resize */
