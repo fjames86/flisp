@@ -26,3 +26,14 @@
             (cons (proc list)
 		   (mapcdr proc (cdr list)))))
 
+
+(define (nth n list)
+    (cond 
+      ((< n 0) nil)
+      ((null list) nil)
+      (t
+       (if (= n 0)
+           (car list)
+           (nth (1- n) (cdr list))))))
+
+

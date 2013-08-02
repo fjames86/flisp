@@ -238,6 +238,7 @@ void gc_relocate_cell (type_cell **new, type_cell *old) {
 		if (forw != NULL) {
 			(*new)->car = forw;
 		} else {
+            (*new)->car = NULL;
 			gc_relocate(&((*new)->car), old->car);
 		}
 	}
@@ -247,6 +248,7 @@ void gc_relocate_cell (type_cell **new, type_cell *old) {
 		if (forw != NULL) {
 			(*new)->cdr = forw;
 		} else {
+            (*new)->cdr = NULL;
 			gc_relocate(&((*new)->cdr), old->cdr);
 		}
 	}
@@ -270,7 +272,14 @@ void gc_relocate_ht (type_ht **new, type_ht *old) {
 	old->tag.forw = new;
 	for(i=0; i < old->size; i++) {
 		c = old->buckets[i];
-		gc_relocate((void **)&((*new)->buckets[i]), c);
+        if (c != NULL) {
+            if (c->tag.forw == NULL) {
+                (*new)->buckets[i] = NULL;
+                gc_relocate((void **)&((*new)->buckets[i]), c);
+            } else {
+                (*new)->buckets[i] = c->tag.forw;
+            }
+        }
 	}
 	(*new)->fill = old->fill;
 }
@@ -283,6 +292,7 @@ void gc_relocate_array (type_array **new, type_array *old) {
 	old->tag.forw = new;
 	for(i=0; i < old->size; i++) {
 		c = old->data[i];
+        (*new)->data[i] = NULL;
 		gc_relocate((void **)&((*new)->data[i]), c);
 	}
 }
@@ -292,14 +302,30 @@ void gc_relocate_proc (type_proc **new, type_proc *old) {
 }
 
 void gc_relocate_closure (type_closure **new, type_closure *old) {
+    void *forw;
+
 	old->tag.forw = new;
 
 	(*new)->params = NULL;
 	(*new)->body = NULL;
-	gc_relocate ((void **)(&((*new)->params)), old->params);
-	gc_relocate ((void **)(&((*new)->body)), old->body);
 
-	/* don't relocate the environment */
+    if (old->params != NULL) {
+        forw = old->params->tag.forw;
+        if (forw) {
+            (*new)->params = forw;
+        } else {
+            gc_relocate ((void **)(&((*new)->params)), old->params);
+        }
+    }
+
+    if (old->body != NULL) {
+        forw = old->body->tag.forw;
+        if (forw) {
+            (*new)->body = forw;
+        } else {
+            gc_relocate ((void **)(&((*new)->body)), old->body);
+        }
+    }
 }
 
 

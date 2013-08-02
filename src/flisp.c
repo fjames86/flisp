@@ -185,7 +185,6 @@ void print_list (type_cell *l) {
 void print_object (void *obj) {
 	type_cell *c;
 	size_t i;
-	bool printed;
 	gc_type t = get_type (obj);
 
 	switch (t) {
@@ -238,6 +237,8 @@ void print_object (void *obj) {
 	case TYPE_CELL:
         print_list (obj);
         break;
+    default:
+        error ("Unknown type", "PRINT");
 	}
 }
 
@@ -291,6 +292,8 @@ void print_object_nice (void *obj) {
 	case TYPE_CELL:
         print_list (obj);
         break;
+    default:
+      error ("Unknown type", "PRINC");
 	}
 }
 

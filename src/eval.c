@@ -78,6 +78,7 @@ void *eval_expr(type_cell *expr, environment *env) {
 		case TYPE_SYMBOL:
 			expr = cell_cadr(expr);
 			val = eval(expr, env);
+            printf ("defining "); print_object (expr); printf (" to "); print_object (val); printf ("\n");
 			sethash(&(env->special), name, val);
 			break;
 		case TYPE_CELL:
@@ -87,6 +88,8 @@ void *eval_expr(type_cell *expr, environment *env) {
 			body = cell_cdr (expr);
 			sethash(&(env->special), name, gc_new_closure (params, body, env));
 			break;
+        default:
+            error ("Must define either a symbol or a closure", "EVAL-EXPR");
 		} 
 		ret = name;
 	} else if (eq(proc, intern("DEFMACRO"))) {

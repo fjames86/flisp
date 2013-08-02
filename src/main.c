@@ -85,9 +85,17 @@ int main (int argc, char **argv) {
 				printf("Error: %s at %s\n", err->message->str, err->location->str);
 				err = err->next;
 			}
-		} else {
-			print_object (expr);
-		}
+		} 
+
+        error_clear ();
+        print_object (expr);        
+		err = errors();
+		if (err != NULL) {
+			while (err != NULL) {
+				printf("Error: %s at %s\n", err->message->str, err->location->str);
+				err = err->next;
+			}
+		} 
 			
 		gc_collect_init();
         gc_collect ((void **)&(toplevel.special));

@@ -30,10 +30,9 @@ void sethash(type_ht **htb, void *key, void *val) {
       e = cell_car(c);
       if (eql(cell_car(e), key)) {
         e->cdr = val;
-        /*        set_cdr(c, val);*/
         return;
       }
-      c = c->cdr; /*cell_cdr(c);*/
+      c = c->cdr; 
     }
 
 	/* if fill level larger than the threshold then resize */
