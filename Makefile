@@ -1,9 +1,10 @@
 
 IDIR=include
+LDIR=libs
 CC=gcc
 WARN=
 NOBUILTIN=-fno-builtin -nostdinc 
-CFLAGS=-I$(IDIR) -g $(WARN)
+CFLAGS=-I$(IDIR) -I$(LDIR) -g $(WARN)
 
 
 ODIR=obj
@@ -16,7 +17,7 @@ _OBJ = gc.o sys.o symbol.o types.o main.o lists.o ht.o array.o flisp.o env.o eva
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 flisp: $(OBJ)
-	gcc -o $@ $^
+	gcc -o $@ $^ -L$(LDIR) -lm
 
 $(ODIR)/%.o: ${SDIR}/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(NOBUILTIN)

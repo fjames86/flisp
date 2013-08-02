@@ -36,6 +36,7 @@ u_threshold= -7.45133219101941108420e+02;  /* 0xc0874910, 0xD52D3051 */
 	return __ieee754_exp(x);
 #else
 	double z;
+    puts ("my exp\n");
 	z = __ieee754_exp(x);
 	if(_LIB_VERSION == _IEEE_) return z;
 	if(finite(x)) {
