@@ -1,0 +1,23 @@
+lp="H:/doc/Linux/linux-man-pages/1.65/man-pages-1.65"
+for f in *.c; do if [ -f $f ]; then
+	mm=${f##*_}
+	mm=${mm%%.*}
+	for mand in man3 man3p; do
+		if [ ! -d $mand ]; then
+			mkdir $mand
+		fi
+		ext=${mand#man}
+		mp="$lp/$mand/$mm.$ext"
+		if [ -s "$mp" ]; then
+			echo $mm.$ext
+			cp -fp "$mp" "$mand/$mm.$ext"
+			line1=$(head -1 "$mp")
+			if [ "${line1:0:3}" = ".so" ]; then
+				lnfile=$(echo $line1 | sed -e "s/^.*\.so *//")
+				echo $lnfile
+				cp -fp "$lp/$lnfile" "$lnfile"
+			fi
+		fi
+	done
+fi
+done

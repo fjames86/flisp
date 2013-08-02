@@ -1,0 +1,364 @@
+diff -cr -x config.log -x config.status -x config.cache -x '*.Po' -x '*.pot' -I 'fdlibm-5.2-orig*' fdlibm-5.2-orig/index.html fdlibm-5.2/index.html
+*** fdlibm-5.2-orig/index.html	Mon Jun 13 03:14:02 1994
+--- fdlibm-5.2/index.html	Fri Jun 21 18:16:04 2002
+***************
+*** 1,178 ****
+! <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+! <HTML>
+! <TITLE>/netlib/fdlibm</TITLE>
+! <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#330088" ALINK="#FF0044">
+! <H2>/netlib/fdlibm</H2>
+! <UL>
+! <LI><EM>file: </EM><A HREF="fdlibm.h.gz">fdlibm.h</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/fdlibm.h.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="index.gz">index</A><MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_acos.c.gz">e_acos.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_acos.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_acosh.c.gz">e_acosh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_acosh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_asin.c.gz">e_asin.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_asin.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_atan2.c.gz">e_atan2.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_atan2.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_atanh.c.gz">e_atanh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_atanh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_cosh.c.gz">e_cosh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_cosh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_exp.c.gz">e_exp.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_exp.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_fmod.c.gz">e_fmod.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_fmod.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_gamma.c.gz">e_gamma.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_gamma.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_gamma_r.c.gz">e_gamma_r.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_gamma_r.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_hypot.c.gz">e_hypot.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_hypot.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_j0.c.gz">e_j0.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_j0.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_j1.c.gz">e_j1.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_j1.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_jn.c.gz">e_jn.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_jn.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_lgamma.c.gz">e_lgamma.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_lgamma.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_lgamma_r.c.gz">e_lgamma_r.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_lgamma_r.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_log.c.gz">e_log.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_log.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_log10.c.gz">e_log10.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_log10.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_pow.c.gz">e_pow.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_pow.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_rem_pio2.c.gz">e_rem_pio2.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_rem_pio2.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_remainder.c.gz">e_remainder.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_remainder.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_scalb.c.gz">e_scalb.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_scalb.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_sinh.c.gz">e_sinh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_sinh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="e_sqrt.c.gz">e_sqrt.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/e_sqrt.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="k_cos.c.gz">k_cos.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/k_cos.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="k_rem_pio2.c.gz">k_rem_pio2.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/k_rem_pio2.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="k_sin.c.gz">k_sin.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/k_sin.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="k_standard.c.gz">k_standard.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/k_standard.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="k_tan.c.gz">k_tan.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/k_tan.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="makefile.gz">makefile</A><MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_asinh.c.gz">s_asinh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_asinh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_atan.c.gz">s_atan.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_atan.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_cbrt.c.gz">s_cbrt.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_cbrt.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_ceil.c.gz">s_ceil.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_ceil.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_copysign.c.gz">s_copysign.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_copysign.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_cos.c.gz">s_cos.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_cos.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_erf.c.gz">s_erf.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_erf.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_expm1.c.gz">s_expm1.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_expm1.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_fabs.c.gz">s_fabs.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_fabs.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_finite.c.gz">s_finite.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_finite.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_floor.c.gz">s_floor.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_floor.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_frexp.c.gz">s_frexp.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_frexp.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_ilogb.c.gz">s_ilogb.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_ilogb.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_isnan.c.gz">s_isnan.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_isnan.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_ldexp.c.gz">s_ldexp.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_ldexp.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_lib_version.c.gz">s_lib_version.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_lib_version.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_log1p.c.gz">s_log1p.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_log1p.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_logb.c.gz">s_logb.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_logb.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_matherr.c.gz">s_matherr.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_matherr.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_modf.c.gz">s_modf.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_modf.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_nextafter.c.gz">s_nextafter.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_nextafter.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_rint.c.gz">s_rint.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_rint.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_scalbn.c.gz">s_scalbn.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_scalbn.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_signgam.c.gz">s_signgam.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_signgam.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_significand.c.gz">s_significand.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_significand.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_sin.c.gz">s_sin.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_sin.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_tan.c.gz">s_tan.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_tan.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="s_tanh.c.gz">s_tanh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/s_tanh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_acos.c.gz">w_acos.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_acos.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_acosh.c.gz">w_acosh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_acosh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_asin.c.gz">w_asin.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_asin.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_atan2.c.gz">w_atan2.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_atan2.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_atanh.c.gz">w_atanh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_atanh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_cosh.c.gz">w_cosh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_cosh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_exp.c.gz">w_exp.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_exp.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_fmod.c.gz">w_fmod.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_fmod.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_gamma.c.gz">w_gamma.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_gamma.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_gamma_r.c.gz">w_gamma_r.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_gamma_r.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_hypot.c.gz">w_hypot.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_hypot.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_j0.c.gz">w_j0.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_j0.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_j1.c.gz">w_j1.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_j1.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_jn.c.gz">w_jn.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_jn.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_lgamma.c.gz">w_lgamma.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_lgamma.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_lgamma_r.c.gz">w_lgamma_r.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_lgamma_r.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_log.c.gz">w_log.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_log.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_log10.c.gz">w_log10.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_log10.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_pow.c.gz">w_pow.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_pow.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_remainder.c.gz">w_remainder.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_remainder.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_scalb.c.gz">w_scalb.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_scalb.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_sinh.c.gz">w_sinh.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_sinh.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="w_sqrt.c.gz">w_sqrt.c</A> (<A HREF="ftp://netlib.bell-labs.com/netlib.depend/fdlibm/w_sqrt.c.tar">with dependencies</A>)<MENU>
+! </MENU>
+! <LI><EM>file: </EM><A HREF="readme.gz">readme</A><MENU>
+! </MENU>
+! <P><LI><A HREF="http://netlib.bell-labs.com/netlib/bib/thesaurus.html">index help</A>
+! </UL>
+! <P><A HREF="http://netlib.bell-labs.com/netlib/bib/ericjack.html">Eric and Jack</EM>
+! </BODY></HTML>
+--- 1,180 ----
+! <head>
+! <title>fdlibm</title>
+! <meta name="waisindex" value="nse">
+! </head>
+! <h1>fdlibm</h1>
+! <p>
+! Click <A HREF="http://www.netlib.org/master_counts2.html#fdlibm">here</A> to see the number of accesses to this library.
+! <p><hr>
+! <pre>
+! file	<a href="fdlibm.h">fdlibm.h</a>
+! 
+! file	<a href="index">index</a>
+! 
+! file	<a href="e_acos.c">e_acos.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_acos.c">e_acos.c plus dependencies</a>
+! 
+! file	<a href="e_acosh.c">e_acosh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_acosh.c">e_acosh.c plus dependencies</a>
+! 
+! file	<a href="e_asin.c">e_asin.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_asin.c">e_asin.c plus dependencies</a>
+! 
+! file	<a href="e_atan2.c">e_atan2.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_atan2.c">e_atan2.c plus dependencies</a>
+! 
+! file	<a href="e_atanh.c">e_atanh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_atanh.c">e_atanh.c plus dependencies</a>
+! 
+! file	<a href="e_cosh.c">e_cosh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_cosh.c">e_cosh.c plus dependencies</a>
+! 
+! file	<a href="e_exp.c">e_exp.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_exp.c">e_exp.c plus dependencies</a>
+! 
+! file	<a href="e_fmod.c">e_fmod.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_fmod.c">e_fmod.c plus dependencies</a>
+! 
+! file	<a href="e_gamma.c">e_gamma.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_gamma.c">e_gamma.c plus dependencies</a>
+! 
+! file	<a href="e_gamma_r.c">e_gamma_r.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_gamma_r.c">e_gamma_r.c plus dependencies</a>
+! 
+! file	<a href="e_hypot.c">e_hypot.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_hypot.c">e_hypot.c plus dependencies</a>
+! 
+! file	<a href="e_j0.c">e_j0.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_j0.c">e_j0.c plus dependencies</a>
+! 
+! file	<a href="e_j1.c">e_j1.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_j1.c">e_j1.c plus dependencies</a>
+! 
+! file	<a href="e_jn.c">e_jn.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_jn.c">e_jn.c plus dependencies</a>
+! 
+! file	<a href="e_lgamma.c">e_lgamma.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_lgamma.c">e_lgamma.c plus dependencies</a>
+! 
+! file	<a href="e_lgamma_r.c">e_lgamma_r.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_lgamma_r.c">e_lgamma_r.c plus dependencies</a>
+! 
+! file	<a href="e_log.c">e_log.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_log.c">e_log.c plus dependencies</a>
+! 
+! file	<a href="e_log10.c">e_log10.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_log10.c">e_log10.c plus dependencies</a>
+! 
+! file	<a href="e_pow.c">e_pow.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_pow.c">e_pow.c plus dependencies</a>
+! 
+! file	<a href="e_rem_pio2.c">e_rem_pio2.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_rem_pio2.c">e_rem_pio2.c plus dependencies</a>
+! 
+! file	<a href="e_remainder.c">e_remainder.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_remainder.c">e_remainder.c plus dependencies</a>
+! 
+! file	<a href="e_scalb.c">e_scalb.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_scalb.c">e_scalb.c plus dependencies</a>
+! 
+! file	<a href="e_sinh.c">e_sinh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_sinh.c">e_sinh.c plus dependencies</a>
+! 
+! file	<a href="e_sqrt.c">e_sqrt.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/e_sqrt.c">e_sqrt.c plus dependencies</a>
+! 
+! file	<a href="k_cos.c">k_cos.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/k_cos.c">k_cos.c plus dependencies</a>
+! 
+! file	<a href="k_rem_pio2.c">k_rem_pio2.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/k_rem_pio2.c">k_rem_pio2.c plus dependencies</a>
+! 
+! file	<a href="k_sin.c">k_sin.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/k_sin.c">k_sin.c plus dependencies</a>
+! 
+! file	<a href="k_standard.c">k_standard.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/k_standard.c">k_standard.c plus dependencies</a>
+! 
+! file	<a href="k_tan.c">k_tan.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/k_tan.c">k_tan.c plus dependencies</a>
+! 
+! file	<a href="makefile">makefile</a>
+! 
+! file	<a href="s_asinh.c">s_asinh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_asinh.c">s_asinh.c plus dependencies</a>
+! 
+! file	<a href="s_atan.c">s_atan.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_atan.c">s_atan.c plus dependencies</a>
+! 
+! file	<a href="s_cbrt.c">s_cbrt.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_cbrt.c">s_cbrt.c plus dependencies</a>
+! 
+! file	<a href="s_ceil.c">s_ceil.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_ceil.c">s_ceil.c plus dependencies</a>
+! 
+! file	<a href="s_copysign.c">s_copysign.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_copysign.c">s_copysign.c plus dependencies</a>
+! 
+! file	<a href="s_cos.c">s_cos.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_cos.c">s_cos.c plus dependencies</a>
+! 
+! file	<a href="s_erf.c">s_erf.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_erf.c">s_erf.c plus dependencies</a>
+! 
+! file	<a href="s_expm1.c">s_expm1.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_expm1.c">s_expm1.c plus dependencies</a>
+! 
+! file	<a href="s_fabs.c">s_fabs.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_fabs.c">s_fabs.c plus dependencies</a>
+! 
+! file	<a href="s_finite.c">s_finite.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_finite.c">s_finite.c plus dependencies</a>
+! 
+! file	<a href="s_floor.c">s_floor.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_floor.c">s_floor.c plus dependencies</a>
+! 
+! file	<a href="s_frexp.c">s_frexp.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_frexp.c">s_frexp.c plus dependencies</a>
+! 
+! file	<a href="s_ilogb.c">s_ilogb.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_ilogb.c">s_ilogb.c plus dependencies</a>
+! 
+! file	<a href="s_isnan.c">s_isnan.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_isnan.c">s_isnan.c plus dependencies</a>
+! 
+! file	<a href="s_ldexp.c">s_ldexp.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_ldexp.c">s_ldexp.c plus dependencies</a>
+! 
+! file	<a href="s_lib_version.c">s_lib_version.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_lib_version.c">s_lib_version.c plus dependencies</a>
+! 
+! file	<a href="s_log1p.c">s_log1p.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_log1p.c">s_log1p.c plus dependencies</a>
+! 
+! file	<a href="s_logb.c">s_logb.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_logb.c">s_logb.c plus dependencies</a>
+! 
+! file	<a href="s_matherr.c">s_matherr.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_matherr.c">s_matherr.c plus dependencies</a>
+! 
+! file	<a href="s_modf.c">s_modf.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_modf.c">s_modf.c plus dependencies</a>
+! 
+! file	<a href="s_nextafter.c">s_nextafter.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_nextafter.c">s_nextafter.c plus dependencies</a>
+! 
+! file	<a href="s_rint.c">s_rint.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_rint.c">s_rint.c plus dependencies</a>
+! 
+! file	<a href="s_scalbn.c">s_scalbn.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_scalbn.c">s_scalbn.c plus dependencies</a>
+! 
+! file	<a href="s_signgam.c">s_signgam.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_signgam.c">s_signgam.c plus dependencies</a>
+! 
+! file	<a href="s_significand.c">s_significand.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_significand.c">s_significand.c plus dependencies</a>
+! 
+! file	<a href="s_sin.c">s_sin.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_sin.c">s_sin.c plus dependencies</a>
+! 
+! file	<a href="s_tan.c">s_tan.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_tan.c">s_tan.c plus dependencies</a>
+! 
+! file	<a href="s_tanh.c">s_tanh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/s_tanh.c">s_tanh.c plus dependencies</a>
+! 
+! file	<a href="w_acos.c">w_acos.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_acos.c">w_acos.c plus dependencies</a>
+! 
+! file	<a href="w_acosh.c">w_acosh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_acosh.c">w_acosh.c plus dependencies</a>
+! 
+! file	<a href="w_asin.c">w_asin.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_asin.c">w_asin.c plus dependencies</a>
+! 
+! file	<a href="w_atan2.c">w_atan2.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_atan2.c">w_atan2.c plus dependencies</a>
+! 
+! file	<a href="w_atanh.c">w_atanh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_atanh.c">w_atanh.c plus dependencies</a>
+! 
+! file	<a href="w_cosh.c">w_cosh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_cosh.c">w_cosh.c plus dependencies</a>
+! 
+! file	<a href="w_exp.c">w_exp.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_exp.c">w_exp.c plus dependencies</a>
+! 
+! file	<a href="w_fmod.c">w_fmod.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_fmod.c">w_fmod.c plus dependencies</a>
+! 
+! file	<a href="w_gamma.c">w_gamma.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_gamma.c">w_gamma.c plus dependencies</a>
+! 
+! file	<a href="w_gamma_r.c">w_gamma_r.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_gamma_r.c">w_gamma_r.c plus dependencies</a>
+! 
+! file	<a href="w_hypot.c">w_hypot.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_hypot.c">w_hypot.c plus dependencies</a>
+! 
+! file	<a href="w_j0.c">w_j0.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_j0.c">w_j0.c plus dependencies</a>
+! 
+! file	<a href="w_j1.c">w_j1.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_j1.c">w_j1.c plus dependencies</a>
+! 
+! file	<a href="w_jn.c">w_jn.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_jn.c">w_jn.c plus dependencies</a>
+! 
+! file	<a href="w_lgamma.c">w_lgamma.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_lgamma.c">w_lgamma.c plus dependencies</a>
+! 
+! file	<a href="w_lgamma_r.c">w_lgamma_r.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_lgamma_r.c">w_lgamma_r.c plus dependencies</a>
+! 
+! file	<a href="w_log.c">w_log.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_log.c">w_log.c plus dependencies</a>
+! 
+! file	<a href="w_log10.c">w_log10.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_log10.c">w_log10.c plus dependencies</a>
+! 
+! file	<a href="w_pow.c">w_pow.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_pow.c">w_pow.c plus dependencies</a>
+! 
+! file	<a href="w_remainder.c">w_remainder.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_remainder.c">w_remainder.c plus dependencies</a>
+! 
+! file	<a href="w_scalb.c">w_scalb.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_scalb.c">w_scalb.c plus dependencies</a>
+! 
+! file	<a href="w_sinh.c">w_sinh.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_sinh.c">w_sinh.c plus dependencies</a>
+! 
+! file	<a href="w_sqrt.c">w_sqrt.c</a>  <a href="/cgi-bin/netlibfiles.pl?filename=/fdlibm/w_sqrt.c">w_sqrt.c plus dependencies</a>
+! 
+! file	<a href="readme">readme</a>
+! 
+! </pre>
+! </body>
+! </html>
