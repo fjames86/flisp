@@ -36,7 +36,6 @@ void *eval(void *expr, environment *env) {
 		if (!found) {
 			/* not found error */
 			error("Variable not found", "EVAL");
-			printf ("var %s not found\n", CAST(type_symbol *, expr)->sym);
 			ret = NULL;
 		}
 		break;
@@ -78,7 +77,6 @@ void *eval_expr(type_cell *expr, environment *env) {
 		case TYPE_SYMBOL:
 			expr = cell_cadr(expr);
 			val = eval(expr, env);
-            printf ("defining "); print_object (expr); printf (" to "); print_object (val); printf ("\n");
 			sethash(&(env->special), name, val);
 			break;
 		case TYPE_CELL:

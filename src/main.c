@@ -96,10 +96,11 @@ int main (int argc, char **argv) {
 				err = err->next;
 			}
 		} 
-			
+					
 		gc_collect_init();
         gc_collect ((void **)&(toplevel.special));
         gc_collect ((void **)&(toplevel.lexical));
+		
 	}
 
 	free(heap);

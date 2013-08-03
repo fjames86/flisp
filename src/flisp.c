@@ -26,7 +26,7 @@ bool eq (void *val1, void *val2) {
 
 bool eql(void *val1, void *val2) {
 	gc_type t1, t2;
-	bool ret;
+	bool ret = FALSE;
 	t1 = get_type(val1);
 	t2 = get_type(val2);
 
@@ -52,7 +52,7 @@ bool eql(void *val1, void *val2) {
 
 bool equal(void *val1, void *val2) {
 	gc_type t1, t2;
-	bool ret;
+	bool ret = FALSE;
 
 	t1 = get_type(val1);
 	t2 = get_type(val2);
@@ -77,7 +77,7 @@ bool equal(void *val1, void *val2) {
 
 bool number_equal (void *val1, void *val2) {
 	gc_type t1, t2;
-	bool ret;
+	bool ret = FALSE;
 
 	t1 = get_type(val1);
 	t2 = get_type(val2);
@@ -98,7 +98,7 @@ bool number_equal (void *val1, void *val2) {
 
 bool cell_equal(void *val1, void *val2) {
 	gc_type t1, t2;
-	bool ret;
+	bool ret = FALSE;
 
 	t1 = get_type(val1);
 	t2 = get_type(val2);
@@ -216,7 +216,7 @@ void print_object (void *obj) {
 		break;
 	case TYPE_CLOSURE:
 		print_string ("#<CLOSURE ");
-		print_hex ((size_t)obj);
+		print_int ((size_t)obj);
 		print_string (">");
 		break;
 	case TYPE_PROC:

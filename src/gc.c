@@ -207,61 +207,23 @@ void *gc_new_copy (void *object) {
 
 /* each type needs to know how to move its contents around */
 
-/* ints don't store any references so don't need to do anything
- * this is the simplest base case
- */
-void gc_relocate_int (type_int **new, type_int *old) {
-	old->tag.forw = new;
-}
-
-/* strings are also pretty simple. they only store a reference to a passive
- * block of data (the characters) and this gets copied automatically by the
- * constructor
- */
-void gc_relocate_string (type_string **new, type_string *old) {
-	old->tag.forw = new;
-}
-
 /* list cells are more complicated. both the car and cdr may reference
  * other objects. if this has already been moved, as indicated by the broken
  * heart flag, then just use the forwarding address. Otherwise, it's not
  * been moved so call the relocate function on it
  */
 void gc_relocate_cell (type_cell **new, type_cell *old) {	
-	void **d;
-    void *forw;
-
-	old->tag.forw = new;
-
 	if (old->car != NULL) {
-        forw = CAST(gc_tag *, cell_car(old))->forw;
-		if (forw != NULL) {
-			(*new)->car = forw;
-		} else {
-            (*new)->car = NULL;
-			gc_relocate(&((*new)->car), old->car);
-		}
+		gc_relocate (&((*new)->car), old->car);
+	} else {
+		(*new)->car = NULL;
 	}
 
 	if (old->cdr != NULL) {
-        forw = CAST(gc_tag *, cell_cdr(old))->forw;
-		if (forw != NULL) {
-			(*new)->cdr = forw;
-		} else {
-            (*new)->cdr = NULL;
-			gc_relocate(&((*new)->cdr), old->cdr);
-		}
+		gc_relocate (&((*new)->cdr), old->cdr);
+	} else {
+		(*new)->cdr = NULL;
 	}
-}
-
-/* relocatign a string is the smae as relocating a stirng */
-void gc_relocate_symbol (type_symbol **new, type_symbol *old) {
-	old->tag.forw = new;
-}
-
-/* relocating a double is also easy */
-void gc_relocate_double (type_double **new, type_double *old) {
-	old->tag.forw = new;
 }
 
 /* hash tables are harder to deal with than lists, but thankfully are composed of lists */
@@ -269,17 +231,13 @@ void gc_relocate_ht (type_ht **new, type_ht *old) {
 	size_t i;
 	type_cell *c;
 
-	old->tag.forw = new;
 	for(i=0; i < old->size; i++) {
 		c = old->buckets[i];
         if (c != NULL) {
-            if (c->tag.forw == NULL) {
-                (*new)->buckets[i] = NULL;
-                gc_relocate((void **)&((*new)->buckets[i]), c);
-            } else {
-                (*new)->buckets[i] = c->tag.forw;
-            }
-        }
+			gc_relocate ((void **)&((*new)->buckets[i]), c);
+        } else {
+			(*new)->buckets[i] = NULL;
+		}
 	}
 	(*new)->fill = old->fill;
 }
@@ -289,43 +247,18 @@ void gc_relocate_array (type_array **new, type_array *old) {
 	size_t i;
 	void *c;
 
-	old->tag.forw = new;
 	for(i=0; i < old->size; i++) {
 		c = old->data[i];
-        (*new)->data[i] = NULL;
 		gc_relocate((void **)&((*new)->data[i]), c);
 	}
 }
 
-void gc_relocate_proc (type_proc **new, type_proc *old) {
-    old->tag.forw = new;
-}
-
+/* closures are simiar to cons cells, in that they only store a pair of pointers */
 void gc_relocate_closure (type_closure **new, type_closure *old) {
-    void *forw;
+	gc_relocate ((void **)&((*new)->params), old->params);
+	gc_relocate ((void **)&((*new)->body), old->body);
 
-	old->tag.forw = new;
-
-	(*new)->params = NULL;
-	(*new)->body = NULL;
-
-    if (old->params != NULL) {
-        forw = old->params->tag.forw;
-        if (forw) {
-            (*new)->params = forw;
-        } else {
-            gc_relocate ((void **)(&((*new)->params)), old->params);
-        }
-    }
-
-    if (old->body != NULL) {
-        forw = old->body->tag.forw;
-        if (forw) {
-            (*new)->body = forw;
-        } else {
-            gc_relocate ((void **)(&((*new)->body)), old->body);
-        }
-    }
+	/* don't need to relocate the env as this doesn't get gc'ed */
 }
 
 
@@ -335,37 +268,35 @@ void gc_relocate_closure (type_closure **new, type_closure *old) {
 void gc_relocate (void **new, void *old) {
 	gc_type type;
 
-	if (*new == NULL) {
-		*new = gc_new_copy (old);
+	/* check for NULL pointer */
+	if (old == NULL) {
+		*new = NULL;
+		return;	   
+	}
+	
+	/* if this object has already been relocated, as shown by the forw tag, just use that */
+	if (CAST(gc_tag *, old)->forw) {
+		*new = CAST(gc_tag *, old)->forw;
+		return;
 	}
 
+	/* copy across into the new location */
+	*new = gc_new_copy (old);
+	
+	/* set the broken heart/forwarding address tag */
+	CAST(gc_tag *, old)->forw = *new;
+
+	/* some types need special treatment. these are the ones that reference other objects */
 	type = get_type(old);
 	switch (type) {
-    case TYPE_NULL:
-        break;
-	case TYPE_INT:
-		gc_relocate_int ((type_int **)new, (type_int *)old);
-		break;
-	case TYPE_STRING:
-		gc_relocate_string ((type_string **)new, (type_string *)old);
-		break;
 	case TYPE_CELL:
 		gc_relocate_cell ((type_cell **)new, (type_cell *)old);
-		break;
-	case TYPE_SYMBOL:
-		gc_relocate_symbol ((type_symbol **)new, (type_symbol *)old);
-		break;
-	case TYPE_DOUBLE:
-		gc_relocate_double ((type_double **)new, (type_double *)old);
 		break;
     case TYPE_HT:
 		gc_relocate_ht ((type_ht **)new, (type_ht *)old);
 		break;
 	case TYPE_ARRAY:
 		gc_relocate_array ((type_array **)new, (type_array *)old);
-		break;
-    case TYPE_PROC:
-		gc_relocate_proc ((type_proc **)new, (type_proc *)old);
 		break;
 	case TYPE_CLOSURE:
 		gc_relocate_closure ((type_closure **)new, (type_closure *)old);
@@ -375,14 +306,18 @@ void gc_relocate (void **new, void *old) {
 
 /* copy the root variable and all of its references to the new heap */
 void gc_collect (void **root) {
-	void *new, *old;
+	void *old;
 
 	old = *root;
 	
 	/* make the new object */
 	if (old != NULL) {
-		*root = gc_new_copy(old);
+		if (CAST(gc_tag *, old)->forw) {
+			*root = CAST(gc_tag *, old)->forw;
+			return;
+		}
 		
+		*root = NULL;
 		gc_relocate(root, old);
 	}
 }
