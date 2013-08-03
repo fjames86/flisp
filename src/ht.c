@@ -100,7 +100,7 @@ void ht_resize(type_ht **ht) {
 }
 
 size_t sxhash(void *val) {
-  gc_type type = get_type(val);
+	gc_type type = get_type(val);
 	size_t ret = 42;
 	
 	switch (type) {
