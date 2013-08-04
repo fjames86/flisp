@@ -1,0 +1,29 @@
+
+#To create a floppy disk image:
+
+dd if=/dev/zero of=floppy.img bs=512 count=2880
+losetup /dev/loop0 floppy.img
+mkfs -t ext2 /dev/loop0
+mkdir looptmp
+mount -t ext2 /dev/loop0 looptmp
+cd looptmp
+mkdir boot
+mkdir boot/grub
+cp /usr/lib/grub/i386-pc/stage1 boot/grub
+cp /usr/lib/grub/i386-pc/stage2 boot/grub
+echo "(fd0) /dev/loop0" > boot/grub/device.map
+grub --device-map=boot/grub/device.map /dev/loop0
+
+# In the GRUB console:
+root (fd0)
+setup (fd0)
+
+# copy any files you might need...
+cp ../menu.lst boot/grub/
+cp ../kernel.bin boot/grub/
+
+#NOTE: You must unmount looptmp before using a emulator to directly read /dev/loop0, such as:
+umount looptmp
+losetup -d /dev/loop0
+
+qemu -fda /dev/loop0
