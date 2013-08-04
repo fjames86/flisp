@@ -660,6 +660,28 @@ void *proc_sethash (type_cell *args) {
 	return NULL;
 }
 
+void *proc_heap (type_cell *args) {
+	int used, tot;
+	used = (int)(free_p - gc_working);
+	tot = (int)gc_heap_size / 2;
+	print_string ("Heap: ");
+	print_int (used);
+	print_string (" / ");
+	print_int (tot);
+	print_string (" (");
+	print_int ((100 * used)/tot);
+	print_string ("%)\n");
 
+	used = (int)(string_table_p - string_table);
+	tot = (int)symbol_table_size;
+	print_string ("Symbol table: ");
+	print_int (used);
+	print_string (" / ");
+	print_int (tot);
+	print_string (" (");
+	print_int ((100 * used)/tot);
+	print_string ("%)\n");
+	
+}
 
 
