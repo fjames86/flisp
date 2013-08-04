@@ -82,6 +82,8 @@ void outportb (unsigned short _port, unsigned char _data)
  *  infinite loop. This will be like our 'idle' loop */
 int main()
 {
+	int i;
+	
 	/* You would add commands after here */
 	init_video ();
 	puts ("Welcome to Frank's OS! Copyright Frank James " __DATE__);

@@ -1,6 +1,16 @@
 
 #include "system.h"
 
+
+/* use this to store status of control, alt and shift keys */
+#define KEY_SHIFT       2
+#define KEY_ALT         3
+#define KEY_CONTROL     4
+#define KEY_NUM         5
+#define KEY_SCROLL      6
+#define KEY_CAPS        7
+
+
 /* KBDUS means US Keyboard Layout. This is a scancode table
  *  used to layout a standard US keyboard. I have left some
  *  comments in to give you an idea of what key is what, even
@@ -46,13 +56,12 @@ unsigned char kbdus[128] =
 		0,/* All other keys are undefined */
 	};
 
-/* use this to store status of control, alt and shift keys */
-#define KEY_SHIFT   0x1
-#define KEY_ALT     0x2
-#define KEY_CONTRoL 0x4
-#define KEY_NUM     0x8
-#define KEY_SCROLL  0x10
-#define KEY_CAPS    0x20
+#define KEYSTAT_SHIFT   0x1
+#define KEYSTAT_ALT     0x2
+#define KEYSTAT_CONTROL 0x4
+#define KEYSTAT_NUM     0x8
+#define KEYSTAT_SCROLL  0x10
+#define KEYSTAT_CAPS    0x20
 int keystatus;
 
 /* Handles the keyboard interrupt */
@@ -65,13 +74,11 @@ void keyboard_handler(struct regs *r)
 
 	/* If the top bit of the byte we read from the keyboard is
 	 *  set, that means that a key has just been released */
-	if (scancode & 0x80)
-		{
+	if (scancode & 0x80) {
 			/* You can use this one to see if the user released the
 			 *  shift, alt, or control keys... */
-		}
-	else
-		{
+		
+	} else {
 			/* Here, a key was just pressed. Please note that if you
 			 *  hold a key down, you will get repeated key press
 			 *  interrupts. */
@@ -84,8 +91,15 @@ void keyboard_handler(struct regs *r)
 			 *  to the above layout to correspond to 'shift' being
 			 *  held. If shift is held using the larger lookup table,
 			 *  you would add 128 to the scancode when you look for it */
+		
 			putch(kbdus[scancode]);
-		}
+			putch (' ');
+			while (scancode > 0) {
+				putch ('0' + scancode % 10);
+				scancode = scancode / 10;
+			}
+			putch ('\n');
+	}
 }
 
 void keyboard_install () {
