@@ -182,6 +182,11 @@ type_cell *append (type_cell *lists) {
             } else {
                 *builder = copy_list (tmp);
                 while (*builder != NULL) {
+                    if (get_type (*builder) != TYPE_CELL) {
+                        /* dotted list */
+                      error ("Cannot append dotted lists", "APPEND");
+                      return NULL;
+                    }
                     builder = (type_cell **)&((*builder)->cdr);
                 }
             }
