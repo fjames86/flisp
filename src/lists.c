@@ -159,3 +159,34 @@ type_cell *copy_list (type_cell *l) {
 	return ret;
 }
 
+type_cell *append (type_cell *lists) {
+    type_cell *c, **builder;
+    type_cell *tmp;
+    gc_type t;
+
+    c = NULL;
+    builder = &c;
+    while (lists != NULL) {
+        /* safety check for dotted list */
+        if (get_type(lists) != TYPE_CELL) {
+        /* dotted list */
+          error ("Can only append lists", "APPEND");
+          return NULL;
+        } else {
+            tmp = cell_car(lists);
+            t = get_type(tmp);
+            if (t != TYPE_CELL && t != TYPE_NULL) {
+                /* package it into a list. maybe shouldn't do this */
+                *builder = cons (tmp, NULL);
+                builder = (type_cell **)&((*builder)->cdr);
+            } else {
+                *builder = copy_list (tmp);
+                while (*builder != NULL) {
+                    builder = (type_cell **)&((*builder)->cdr);
+                }
+            }
+        }
+        lists = lists->cdr;
+    }
+    return c;
+}

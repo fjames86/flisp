@@ -371,12 +371,18 @@ void *proc_reverse (type_cell *args) {
 	return ret;
 }
 
+/* apply a proc to a list of arguments, e.g. (apply + 1 2 (list 3 4)) -> 10. the final arg MUST be a list or NULL */
 void *proc_apply (type_cell *args) {
 	void *proc;
 
 	proc = cell_car(args);
-	args = cell_cdr(args);
+	args = append (cell_cdr(args));
+
 	return apply(proc, args);
+}
+
+void *proc_append (type_cell *args) {
+  return append (args);
 }
 
 /* (load filename) */

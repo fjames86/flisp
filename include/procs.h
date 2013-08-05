@@ -33,6 +33,7 @@ void *proc_aref (type_cell *args);
 void *proc_set_aref (type_cell *args);
 
 void *proc_apply (type_cell *args);
+void *proc_append (type_cell *args);
 void *proc_load (type_cell *args);
 void *proc_eq (type_cell *args);
 void *proc_eql (type_cell *args);
