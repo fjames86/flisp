@@ -23,20 +23,20 @@ unsigned char kbdus[128] =
 		'\t',/* Tab */
 		'q', 'w', 'e', 'r',/* 19 */
 		't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',/* Enter key */
-		0,/* 29   - Control */
+		KEY_CONTROL,/* 29   - Control */
 		'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',/* 39 */
-		'\'', '`',   0,/* Left shift */
-		'\\', 'z', 'x', 'c', 'v', 'b', 'n',/* 49 */
-		'm', ',', '.', '/',   0,/* Right shift */
+		'\'', '`',   KEY_SHIFT,/* Left shift */
+		'#', 'z', 'x', 'c', 'v', 'b', 'n',/* 49 */
+		'm', ',', '.', '/',   KEY_SHIFT,/* Right shift */
 		'*',
-		0,/* Alt */
+		KEY_ALT,/* Alt */
 		' ',/* Space bar */
-		0,/* Caps lock */
+		KEY_CAPS,/* Caps lock */
 		0,/* 59 - F1 key ... > */
 		0,   0,   0,   0,   0,   0,   0,   0,
 		0,/* < ... F10 */
-		0,/* 69 - Num lock*/
-		0,/* Scroll Lock */
+		KEY_NUM,/* 69 - Num lock*/
+		KEY_SCROLL,/* Scroll Lock */
 		0,/* Home key */
 		0,/* Up Arrow */
 		0,/* Page Up */
@@ -50,11 +50,52 @@ unsigned char kbdus[128] =
 		0,/* Page Down */
 		0,/* Insert Key */
 		0,/* Delete Key */
-		0,   0,   0,
+		0,   0,   '\\',
 		0,/* F11 Key */
 		0,/* F12 Key */
 		0,/* All other keys are undefined */
 	};
+
+unsigned char kbdus_shift[128] =
+	{
+		0,  27, '!', '"', '#', '$', '%', '^', '&', '*',/* 9 */
+		'(', ')', '_', '+', '\b',/* Backspace */
+		'\t',/* Tab */
+		'Q', 'W', 'E', 'R',/* 19 */
+		'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',/* Enter key */
+		KEY_CONTROL,/* 29   - Control */
+		'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',/* 39 */
+		'@', '~',   KEY_SHIFT,/* Left shift */
+		'~', 'Z', 'X', 'C', 'V', 'B', 'N',/* 49 */
+		'M', '<', '>', '?',   KEY_SHIFT,/* Right shift */
+		'*',
+		KEY_ALT,/* Alt */
+		' ',/* Space bar */
+		KEY_CAPS,/* Caps lock */
+		0,/* 59 - F1 key ... > */
+		0,   0,   0,   0,   0,   0,   0,   0,
+		0,/* < ... F10 */
+		KEY_NUM,/* 69 - Num lock*/
+		KEY_SCROLL,/* Scroll Lock */
+		0,/* Home key */
+		0,/* Up Arrow */
+		0,/* Page Up */
+		'-',
+		0,/* Left Arrow */
+		0,
+		0,/* Right Arrow */
+		'+',
+		0,/* 79 - End key*/
+		0,/* Down Arrow */
+		0,/* Page Down */
+		0,/* Insert Key */
+		0,/* Delete Key */
+		0,   0,   '|',
+		0,/* F11 Key */
+		0,/* F12 Key */
+		0,/* All other keys are undefined */
+	};
+
 
 #define KEYSTAT_SHIFT   0x1
 #define KEYSTAT_ALT     0x2
@@ -64,12 +105,14 @@ unsigned char kbdus[128] =
 #define KEYSTAT_CAPS    0x20
 int keystatus;
 
+char kb_key;
+
 /* Handles the keyboard interrupt */
 void keyboard_handler(struct regs *r)
 {
 	unsigned char scancode;
-    char buffer[20];
-
+	char key;
+	
 	/* Read from the keyboard's data buffer */
 	scancode = inportb(0x60);
 
@@ -78,7 +121,28 @@ void keyboard_handler(struct regs *r)
 	if (scancode & 0x80) {
 			/* You can use this one to see if the user released the
 			 *  shift, alt, or control keys... */
-		
+		scancode = scancode & 0x7F;
+		key = kbdus[scancode];
+		switch (key) {
+		case KEY_SHIFT:
+			keystatus = keystatus ^ KEYSTAT_SHIFT;
+			break;
+		case KEY_CONTROL:
+			keystatus = keystatus ^ KEYSTAT_CONTROL;
+			break;	  
+		case KEY_ALT:
+			keystatus = keystatus ^ KEYSTAT_ALT;
+			break;
+		case KEY_CAPS:
+			keystatus = keystatus ^ KEYSTAT_CAPS;
+			break;
+		case KEY_NUM:
+			keystatus = keystatus ^ KEYSTAT_NUM;
+			break;
+		case KEY_SCROLL:
+			keystatus = keystatus ^ KEYSTAT_SCROLL;
+			break;
+		}	   
 	} else {
 			/* Here, a key was just pressed. Please note that if you
 			 *  hold a key down, you will get repeated key press
@@ -93,11 +157,66 @@ void keyboard_handler(struct regs *r)
 			 *  held. If shift is held using the larger lookup table,
 			 *  you would add 128 to the scancode when you look for it */
 		
-			putch(kbdus[scancode]);
-            atoi (buffer, scancode);
-            puts (buffer);
-			putch ('\n');
+		key = kbdus[scancode];
+		switch (key) {
+		case KEY_SHIFT:
+			keystatus = keystatus | KEYSTAT_SHIFT;
+			break;
+		case KEY_CONTROL:
+			keystatus = keystatus | KEYSTAT_CONTROL;
+			break;	  
+		case KEY_ALT:
+			keystatus = keystatus | KEYSTAT_ALT;
+			break;
+		case KEY_CAPS:
+			keystatus = keystatus | KEYSTAT_CAPS;
+			break;
+		case KEY_NUM:
+			keystatus = keystatus | KEYSTAT_NUM;
+			break;
+		case KEY_SCROLL:
+			keystatus = keystatus | KEYSTAT_SCROLL;
+			break;
+		}	   
+		
+		if (keystatus & KEYSTAT_SHIFT) {
+			key = kbdus_shift[scancode];
+		} else {		
+			key = kbdus[scancode];
+		}
+
+		/* putch(key); */
+		kb_key = key;
 	}
+}
+
+char getch () {
+	char ret;
+	while (kb_key == 0);
+	ret = kb_key;
+	kb_key = 0;
+	return ret;
+}
+
+void gets (char *buffer, unsigned int n) {
+	char key;
+	do {
+		key = getch ();
+		if (key == '\b') {
+			putch (' ');
+			putch (key);
+			buffer--;
+			n++;
+		} else {
+			if (n > 1) {
+				putch (key);
+				*buffer = key;
+				buffer++;
+				n--;
+			}
+		}
+	} while (key != '\n');
+	*buffer = '\0';
 }
 
 void keyboard_install () {

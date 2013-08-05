@@ -7,9 +7,10 @@ extern void *memcpy(void *dest, void *src, int count);
 extern void *memset(void *dest, unsigned char val, int count);
 extern void *memsetw(void *dest, unsigned short val, int count);
 extern int strlen(char *str);
+extern void int_to_string (char *buffer, int i);
+extern void print_int (int i);
 extern unsigned char inportb (unsigned short _port);
 extern void outportb (unsigned short _port, unsigned char _data);
-extern void atoi (char *buffer, int i);
 
 /* screen.c */
 extern void scroll();
@@ -57,5 +58,7 @@ extern void timer_wait(int ticks);
 /* keynoard */
 extern void keyboard_handler(struct regs *r);
 extern void keyboard_install ();
+extern char getch ();
+extern void gets (char *buffer, unsigned int n);
 
 #endif

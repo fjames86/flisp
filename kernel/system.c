@@ -59,6 +59,35 @@ int strlen(char *str)
 	return counter;
 }
 
+void int_to_string (char *buffer, int i) {
+	if (i < 0) {
+		*buffer = '-';
+		buffer++;
+		i = -i;
+	}
+
+	if (i == 0) {
+		*buffer = '\0';
+	} else {
+		if (i / 10 != 0) {
+			int_to_string (buffer++, i / 10);
+		}
+		*buffer = '0' + i % 10;
+	}
+}
+
+void print_int (int i) {
+	if (i < 0) {
+		putch ('-');
+		i = -i;
+	}
+
+	if (i / 10 != 0) {
+		print_int (i / 10);
+	}
+	putch ('0' + (i % 10));
+}
+
 /* We will use this later on for reading from the I/O ports to get data
  *  from devices such as the keyboard. We are using what is called
  *  'inline assembly' in these routines to actually do the work */
@@ -78,32 +107,12 @@ void outportb (unsigned short _port, unsigned char _data)
 	__asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
-
-/* convert an integer to a string */
-void atoi (char *buffer, int i) {
-  if (i < 0) {
-    i = -i;
-    *buffer = '-';
-    buffer++;
-  }
-
-  if (i / 10 != 0) {
-    atoi (buffer+1, i / 10);
-  }
-  *buffer = '0' + i % 10;
-  
-  if (i == 0) {
-    buffer++;
-    *buffer = '\0';
-  }
-
-}
-
 /* This is a very simple main() function. All it does is sit in an
  *  infinite loop. This will be like our 'idle' loop */
 int main()
 {
 	int i;
+	char buffer[71];
 	
 	/* You would add commands after here */
 	init_video ();
@@ -119,7 +128,10 @@ int main()
 
 	/* ...and leave this loop in. There is an endless loop in
 	 *  'start.asm' also, if you accidentally delete this next line */
-	for (;;);
+	for (;;) {
+		gets (buffer, 70);
+		puts (buffer);
+	}
 
 	return 0;
 }
