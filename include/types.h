@@ -18,6 +18,8 @@
 
 #define CAST(type, x)           ((type)(x))
 
+static char *type_names[] = {"INT", "STRING", "CONS", "SYMBOl", "DOUBLE", "HASH-TABLE", "ARRAY", "NULL", "PROC", "CLOSURE"};
+
 
 typedef unsigned int gc_type;
 

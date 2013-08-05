@@ -184,8 +184,8 @@ type_cell *append (type_cell *lists) {
                 while (*builder != NULL) {
                     if (get_type (*builder) != TYPE_CELL) {
                         /* dotted list */
-                      error ("Cannot append dotted lists", "APPEND");
-                      return NULL;
+                        error ("Cannot append dotted lists", "APPEND");
+                        return NULL;
                     }
                     builder = (type_cell **)&((*builder)->cdr);
                 }

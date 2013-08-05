@@ -50,6 +50,8 @@ void env_init(environment *env) {
 	env_define (env, intern("HEAP"), gc_new_proc (&proc_heap));
 
     env_define (env, intern ("APPEND"), gc_new_proc (&proc_append));
+    env_define (env, intern("COPY-LIST"), gc_new_proc (&proc_copy_list));
+
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */

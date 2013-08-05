@@ -564,39 +564,7 @@ void *proc_typeof (type_cell *args) {
 	void *ret;
 	gc_type t = get_type (cell_car(args));
 
-	switch (t) {
-	case TYPE_NULL:
-		ret = intern("NULL");
-		break;
-	case TYPE_SYMBOL:
-		ret = intern("SYMBOL");
-		break;
-	case TYPE_INT:
-		ret = intern("INT");
-		break;
-	case TYPE_DOUBLE:
-		ret = intern("DOUBLE");
-		break;
-	case TYPE_STRING:
-		ret = intern("STRING");
-		break;
-	case TYPE_CELL:
-		ret = intern("CONS");
-		break;
-	case TYPE_ARRAY:
-		ret = intern("ARRAY");
-		break;
-	case TYPE_HT:
-		ret = intern("HASH-TABLE");
-		break;
-	case TYPE_CLOSURE:
-		ret = intern("CLOSURE");
-		break;
-	case TYPE_PROC:
-		ret = intern("PROC");
-		break;
-	}
-	return ret;
+    ret = intern (type_names[t]);
 }
 
 void *proc_print (type_cell *args) {
@@ -687,7 +655,15 @@ void *proc_heap (type_cell *args) {
 	print_string (" (");
 	print_int ((100 * used)/tot);
 	print_string ("%)\n");
-	
+
+    return NULL;
 }
+
+
+void *proc_copy_list (type_cell *args) {
+  return copy_list (cell_car (args));
+}
+
+
 
 
