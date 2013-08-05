@@ -78,6 +78,27 @@ void outportb (unsigned short _port, unsigned char _data)
 	__asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
+
+/* convert an integer to a string */
+void atoi (char *buffer, int i) {
+  if (i < 0) {
+    i = -i;
+    *buffer = '-';
+    buffer++;
+  }
+
+  if (i / 10 != 0) {
+    atoi (buffer+1, i / 10);
+  }
+  *buffer = '0' + i % 10;
+  
+  if (i == 0) {
+    buffer++;
+    *buffer = '\0';
+  }
+
+}
+
 /* This is a very simple main() function. All it does is sit in an
  *  infinite loop. This will be like our 'idle' loop */
 int main()

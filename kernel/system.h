@@ -9,6 +9,7 @@ extern void *memsetw(void *dest, unsigned short val, int count);
 extern int strlen(char *str);
 extern unsigned char inportb (unsigned short _port);
 extern void outportb (unsigned short _port, unsigned char _data);
+extern void atoi (char *buffer, int i);
 
 /* screen.c */
 extern void scroll();

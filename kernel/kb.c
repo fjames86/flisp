@@ -68,6 +68,7 @@ int keystatus;
 void keyboard_handler(struct regs *r)
 {
 	unsigned char scancode;
+    char buffer[20];
 
 	/* Read from the keyboard's data buffer */
 	scancode = inportb(0x60);
@@ -93,11 +94,8 @@ void keyboard_handler(struct regs *r)
 			 *  you would add 128 to the scancode when you look for it */
 		
 			putch(kbdus[scancode]);
-			putch (' ');
-			while (scancode > 0) {
-				putch ('0' + scancode % 10);
-				scancode = scancode / 10;
-			}
+            atoi (buffer, scancode);
+            puts (buffer);
 			putch ('\n');
 	}
 }
