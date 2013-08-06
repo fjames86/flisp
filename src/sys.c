@@ -1,6 +1,32 @@
 
 #include "sys.h"
 
+
+void *memcpy(void *dest, void *src, int count)
+{
+	unsigned char *p = (unsigned char *)dest;
+	unsigned char *s = (unsigned char *)src;
+	while (count > 0) {
+		*p = *s;
+		p++;
+		s++;
+		count--;
+	}
+	return dest;
+}
+
+void *memset(void *dest, unsigned char val, int count)
+{
+  unsigned char *p;
+	while (count > 0) {
+		*p = val;
+		p++;
+		count--;
+	}
+	return dest;
+}
+
+#if 0
 void *memcpy (void *dest, void *source, size_t num) {
 	unsigned int i;
 
@@ -17,6 +43,7 @@ void *memset (void *dest, int val, size_t num) {
 	}
 	return dest;
 }
+#endif
 
 char *strcpy (char *dest, char *source) {
 	while (1) {

@@ -1,9 +1,9 @@
 
-CFLAGS  := -Wall -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I. -c 
+CFLAGS  := -Wall -fno-stack-protector -fno-builtin -nostdinc -g -c -I../include
 LDFLAGS := -nostdlib -Wl,-N -Wl,-Ttext -Wl,100000
 
-kernel.bin:	start.o	system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o
-	ld -T link.ld -o kernel.bin start.o system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o
+kernel.bin:	start.o	system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o 
+	ld -T link.ld -o kernel.bin start.o system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o # ../obj/reader.o ../obj/gc.o
 	@echo Done!
 
 kernel2.bin: start.asm system.c screen.c start.o gdt.o idt.o isrs.o irq.o timer.o kb.o
@@ -11,31 +11,31 @@ kernel2.bin: start.asm system.c screen.c start.o gdt.o idt.o isrs.o irq.o timer.
 
 
 start.o: start.asm
-	nasm  -f aout -o start.o start.asm
+	nasm  -f elf -o start.o start.asm
 
 system.o: system.c system.h
-	gcc $(CFLAGS) -c -o system.o system.c
+	gcc $(CFLAGS) -o system.o system.c
 
 screen.o: screen.c system.h
-	gcc  $(CFLAGS) -c -o screen.o screen.c
+	gcc  $(CFLAGS)  -o screen.o screen.c
 
 gdt.o: gdt.c system.h
-	gcc  $(CFLAGS) -c -o gdt.o gdt.c
+	gcc  $(CFLAGS) -o gdt.o gdt.c
 
 idt.o: idt.c system.h
-	gcc  $(CFLAGS) -c -o idt.o idt.c
+	gcc  $(CFLAGS) -o idt.o idt.c
 
 isrs.o: isrs.c system.h
-	gcc  $(CFLAGS) -c -o isrs.o isrs.c
+	gcc  $(CFLAGS) -o isrs.o isrs.c
 
 irq.o: irq.c system.h
-	gcc  $(CFLAGS) -c -o irq.o irq.c
+	gcc  $(CFLAGS) -o irq.o irq.c
 
 timer.o: timer.c system.h
-	gcc  $(CFLAGS) -c -o timer.o timer.c
+	gcc  $(CFLAGS) -o timer.o timer.c
 
 kb.o: kb.c system.h
-	gcc  $(CFLAGS) -c -o kb.o kb.c
+	gcc  $(CFLAGS) -o kb.o kb.c
 
 
 

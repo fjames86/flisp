@@ -2,6 +2,9 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
 
+#include "reader.h"
+#include "multiboot.h"
+
 /* system.c */
 extern void *memcpy(void *dest, void *src, int count);
 extern void *memset(void *dest, unsigned char val, int count);
@@ -9,8 +12,11 @@ extern void *memsetw(void *dest, unsigned short val, int count);
 extern int strlen(char *str);
 extern void int_to_string (char *buffer, int i);
 extern void print_int (int i);
+extern void print_uint (unsigned int i);
+extern char *string_upcase (char *str);
 extern unsigned char inportb (unsigned short _port);
 extern void outportb (unsigned short _port, unsigned char _data);
+extern void refresh_buffer ();
 
 /* screen.c */
 extern void scroll();

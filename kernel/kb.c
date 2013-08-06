@@ -200,13 +200,19 @@ char getch () {
 
 void gets (char *buffer, unsigned int n) {
 	char key;
+	unsigned int i = n;
 	do {
 		key = getch ();
 		if (key == '\b') {
+		  if (n < i) {
+		  putch ('\b');
 			putch (' ');
 			putch (key);
 			buffer--;
 			n++;
+		  }		  
+		} else if (key == '\n') {
+		  break;
 		} else {
 			if (n > 1) {
 				putch (key);
@@ -217,6 +223,7 @@ void gets (char *buffer, unsigned int n) {
 		}
 	} while (key != '\n');
 	*buffer = '\0';
+	putch ('\n');
 }
 
 void keyboard_install () {

@@ -88,6 +88,26 @@ void print_int (int i) {
 	putch ('0' + (i % 10));
 }
 
+void print_uint (unsigned int i) {
+  if (i / 10 != 0) {
+    print_int (i / 10);
+  }
+  putch ('0' + (i % 10));
+}
+
+
+char *string_upcase (char *str) {
+  char *s = str;
+
+  while (*str != '\0') {
+    if (*str >= 'a' && *str <= 'z') {
+      *str = 'A' + *str - 'a';
+    }
+    str++;
+  }
+  return s;
+}
+
 /* We will use this later on for reading from the I/O ports to get data
  *  from devices such as the keyboard. We are using what is called
  *  'inline assembly' in these routines to actually do the work */
@@ -107,17 +127,25 @@ void outportb (unsigned short _port, unsigned char _data)
 	__asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
+
+void refresh_buffer () {
+  gets(buffer, MAX_LINE);
+  bufferp = buffer;
+}
+
 /* This is a very simple main() function. All it does is sit in an
  *  infinite loop. This will be like our 'idle' loop */
-int main()
+int main(multiboot_info_t *mbd, unsigned int magic)
 {
 	int i;
 	char buffer[71];
 	
 	/* You would add commands after here */
 	init_video ();
-	puts ("Welcome to Frank's OS! Copyright Frank James " __DATE__);
+	puts ("Welcome to Frank's OS! Copyright Frank James " __DATE__ "\n");
 
+	puts ("Upper memory: "); print_uint ((mbd->mem_upper) >> 32); putch (' '); print_uint ((mbd->mem_upper << 32) >> 32); putch ('\n');
+	
 	gdt_install ();
 	idt_install ();
 	isrs_install ();
@@ -129,8 +157,11 @@ int main()
 	/* ...and leave this loop in. There is an endless loop in
 	 *  'start.asm' also, if you accidentally delete this next line */
 	for (;;) {
-		gets (buffer, 70);
-		puts (buffer);
+	  puts ("> ");
+	  gets (buffer, 70);
+	  string_upcase (buffer);
+	  puts (buffer);
+	  putch ('\n');
 	}
 
 	return 0;

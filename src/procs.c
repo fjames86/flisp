@@ -319,7 +319,7 @@ void *proc_aref (type_cell *args) {
 void *proc_set_aref (type_cell *args) {
 	type_array *a;
 	size_t i;
-	void *val, *x, *ret;
+	void *x;
 	
 	x = cell_car(args);
 	args = cell_cdr(args);
@@ -335,13 +335,11 @@ void *proc_set_aref (type_cell *args) {
 			set_aref(a, i, x);
 		} else {
 			error ("Index not an integer", "SET-AREF!");
-			ret = NULL;
 		}
 	} else {
 		error ("Not an array", "SET-AREF!");
-		ret = NULL;
 	}
-	return ret;
+	return NULL;
 }
 
 void *proc_list (type_cell *args) {
