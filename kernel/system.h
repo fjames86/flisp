@@ -2,7 +2,6 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
 
-#include "reader.h"
 #include "multiboot.h"
 
 /* system.c */
@@ -16,7 +15,6 @@ extern void print_uint (unsigned int i);
 extern char *string_upcase (char *str);
 extern unsigned char inportb (unsigned short _port);
 extern void outportb (unsigned short _port, unsigned char _data);
-extern void refresh_buffer ();
 
 /* screen.c */
 extern void scroll();

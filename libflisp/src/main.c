@@ -2,16 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sys.h"
-#include "gc.h"
-#include "lists.h"
-#include "ht.h"
-#include "env.h"
-#include "eval.h"
-#include "error.h"
-#include "reader.h"
+#include "flisp.h"
 
-#define __FLISP_VERSION__ "0.1"
+#define __FLISP_VERSION__ "0.2"
 #define LISP_CORE_FILE "lisp/core.lisp"
 
 void print_heap(size_t topbytes);
@@ -30,15 +23,7 @@ FILE *readfile;
 environment toplevel;
 
 int main (int argc, char **argv) {
-	void *heap;
-	type_int *i;
-	type_cell *c;
-	type_string *s;
-	char word[MAX_LINE];
-	void *expr;
-	char *strtab;
-	type_ht *ht;
-	type_array *arr;
+	void *heap, *expr;
 	char *symt;
 	type_error *err;
 

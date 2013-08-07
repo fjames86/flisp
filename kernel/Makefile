@@ -6,7 +6,7 @@ OBJS= start.o system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o
 
 all: floppy.img kernel.bin
 
-floppy.img:
+floppy.img: kernel.bin
 	./make-floppy.sh
 
 kernel.bin: $(OBJS)

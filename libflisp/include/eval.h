@@ -9,6 +9,8 @@
 #include "flisp.h"
 #include "ht.h"
 
+typedef struct environment_ environment;
+
 void *eval (void *expr, environment *env);
 void *eval_expr (type_cell *expr, environment *env);
 void *eval_exprs (type_cell *exprs, environment *env);

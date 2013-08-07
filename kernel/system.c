@@ -127,12 +127,6 @@ void outportb (unsigned short _port, unsigned char _data)
 	__asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
-
-void refresh_buffer () {
-  gets(buffer, MAX_LINE);
-  bufferp = buffer;
-}
-
 /* This is a very simple main() function. All it does is sit in an
  *  infinite loop. This will be like our 'idle' loop */
 int main(multiboot_info_t *mbd, unsigned int magic)
