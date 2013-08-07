@@ -16,7 +16,12 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _OBJ = gc.o sys.o symbol.o types.o main.o lists.o ht.o array.o flisp.o env.o eval.o procs.o error.o reader.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-all: libflisp.a flisp
+all: libflisp.a flisp kernel/floppy.img
+
+kernel/floppy.img: libflisp.a
+	cd kernel; make -f Makefile
+	cd kernel; ./make-floppy.sh
+	cp kernel/floppy.img .
 
 libflisp.a: $(OBJ)
 	ar rcs libflisp.a $(OBJ)
@@ -33,4 +38,5 @@ ${ODIR}/main.o: ${SDIR}/main.c ${DEPS}
 .PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(IDIR)/*~ flisp libflisp.a
+	rm -f $(ODIR)/*.o *~ core $(IDIR)/*~ flisp libflisp.a floppy.img
+	cd kernel; make -f Makefile clean 

@@ -27,6 +27,8 @@ void print_list (type_cell *l);
 void print_object (void *obj);
 void print_object_nice (void *obj);
 void format (type_string *string, type_cell *args);
+void format_ (char *fstr, type_cell *args);
+void flisp_repl ();
 
 #endif
 

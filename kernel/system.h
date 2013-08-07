@@ -3,6 +3,8 @@
 #define __SYSTEM_H
 
 #include "multiboot.h"
+#include "flisp.h"
+
 
 /* system.c */
 extern void *memcpy(void *dest, void *src, int count);

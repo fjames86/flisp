@@ -297,7 +297,6 @@ void print_object_nice (void *obj) {
 	}
 }
 
-
 /*
  * formated output
  * ~S print readable object
@@ -307,7 +306,12 @@ void print_object_nice (void *obj) {
  * ~<other> error?
  */
 void format (type_string *string, type_cell *args) {
-	char *fstr = string->str;
+  if (string && string->str) {
+    format_ (string->str, args);
+  }
+}
+
+void format_ (char *fstr, type_cell *args) {
 	while (*fstr != '\0') {
 		if (*fstr == '~') {
 			/* dispatch char */
@@ -339,3 +343,35 @@ void format (type_string *string, type_cell *args) {
 		fstr++;
 	}
 }
+
+
+void flisp_repl () {
+	type_error *err;
+	type_cell *errs;
+	void *expr;
+
+	while (TRUE) {
+		print_string ("\n> ");
+		expr = next_expr();
+		error_clear();
+		expr = eval(expr, &toplevel);
+		err = errors();
+		if (err != NULL) {
+			while (err != NULL) {
+				errs = cons (err->message, cons (err->location, NULL));
+				format_ ("Error: ~A at ~A~%", errs);
+				err = err->next;
+			}
+		} 
+
+		error_clear ();
+		print_object (expr);
+					
+		gc_collect_init();
+		gc_collect ((void **)&(toplevel.special));
+		gc_collect ((void **)&(toplevel.lexical));
+		
+	}
+}
+
+

@@ -48,34 +48,7 @@ int main (int argc, char **argv) {
 	printf ("Loading core files...\n");
 	load_file (LISP_CORE_FILE);
 
-	while (TRUE) {
-		printf ("\n> ");
-		expr = next_expr();
-		error_clear();
-        expr = eval(expr, &toplevel);
-		err = errors();
-		if (err != NULL) {
-			while (err != NULL) {
-				printf("Error: %s at %s\n", err->message->str, err->location->str);
-				err = err->next;
-			}
-		} 
-
-        error_clear ();
-        print_object (expr);        
-		err = errors();
-		if (err != NULL) {
-			while (err != NULL) {
-				printf("Error: %s at %s\n", err->message->str, err->location->str);
-				err = err->next;
-			}
-		} 
-					
-		gc_collect_init();
-        gc_collect ((void **)&(toplevel.special));
-        gc_collect ((void **)&(toplevel.lexical));
-		
-	}
+	flisp_repl ();
 
 	free(heap);
     return 0;

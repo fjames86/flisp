@@ -1,5 +1,5 @@
 
-CFLAGS  := -Wall -fno-stack-protector -fno-builtin -nostdinc -g -c -I../include
+CFLAGS  := -Wall -fno-stack-protector -fno-builtin -nostdinc -g -c -I../libflisp/include
 
 DEPS= system.h
 OBJS= start.o system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o 
@@ -16,8 +16,8 @@ kernel.bin: $(OBJS)
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) 
 
-start.o: start.asm
+start.o: 
 	nasm  -f elf -o start.o start.asm
 
 clean:
-	rm -f *.o *.bin
+	rm -f *.o *.bin floppy.img
