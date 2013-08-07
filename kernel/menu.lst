@@ -1,0 +1,4 @@
+
+title flisp OS
+root (fd0)
+kernel /boot/grub/kernel.bin

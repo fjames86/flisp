@@ -1,14 +1,14 @@
 
-IDIR=libflisp/include
-LDIR=libflisp/libs
+IDIR=include
+LDIR=libs
 CC=gcc
-WARN=-Wall
+WARN=
 NOBUILTIN=-fno-builtin -nostdinc 
 CFLAGS=-I$(IDIR) -I$(LDIR) -g $(WARN)
 
 
-ODIR=libflisp/obj
-SDIR=libflisp/src
+ODIR=obj
+SDIR=src
 
 _DEPS = gc.h sys.h symbol.h types.h lists.h ht.h array.h flisp.h env.h eval.h procs.h error.h reader.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
@@ -16,13 +16,8 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _OBJ = gc.o sys.o symbol.o types.o main.o lists.o ht.o array.o flisp.o env.o eval.o procs.o error.o reader.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-all: libflisp.a flisp
-
-libflisp.a: $(OBJ)
-	ar rcs libflisp.a $(OBJ)
-
-flisp: $(ODIR)/main.o libflisp.a
-	gcc -o $@ $(ODIR)/main.o -L. -lflisp
+flisp: $(OBJ)
+	gcc -o $@ $^ -L$(LDIR) -lm
 
 $(ODIR)/%.o: ${SDIR}/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(NOBUILTIN)
@@ -33,4 +28,4 @@ ${ODIR}/main.o: ${SDIR}/main.c ${DEPS}
 .PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(IDIR)/*~ flisp libflisp.a
+	rm -f $(ODIR)/*.o *~ core $(IDIR)/*~ 
