@@ -16,7 +16,7 @@ void *memcpy(void *dest, void *src, int count)
 
 void *memset(void *dest, unsigned char val, int count)
 {
-  unsigned char *p;
+	unsigned char *p = (unsigned char *)dest;	
 	while (count > 0) {
 		*p = val;
 		p++;
@@ -24,25 +24,6 @@ void *memset(void *dest, unsigned char val, int count)
 	}
 	return dest;
 }
-
-#if 0
-void *memcpy (void *dest, void *source, size_t num) {
-	unsigned int i;
-
-	for (i=0; i < num; i++) {
-		((char *)dest)[i] = ((char *)source)[i];
-	}
-	return dest;
-}
-
-void *memset (void *dest, int val, size_t num) {
-	unsigned int i;
-	for(i=0; i < num; i++) {
-		((int *)dest)[i] = val;
-	}
-	return dest;
-}
-#endif
 
 char *strcpy (char *dest, char *source) {
 	while (1) {

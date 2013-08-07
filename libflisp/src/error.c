@@ -27,4 +27,17 @@ void error_clear () {
 	error_p = NULL;
 }
 
+void print_errors () {
+  type_error *err;
+  type_cell *errs;
+
+  err = errors();
+  if (err != NULL) {
+    while (err != NULL) {
+      errs = cons (err->message, cons (err->location, NULL));
+      format_ ("Error: ~A at ~A~%", errs);
+      err = err->next;
+    }
+  } 
+}
 

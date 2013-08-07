@@ -238,6 +238,7 @@ void print_object (void *obj) {
         print_list (obj);
         break;
     default:
+      print_string ("#<UNKNOWN "); print_int (t); print_string (">");
         error ("Unknown type", "PRINT");
 	}
 }
@@ -293,6 +294,7 @@ void print_object_nice (void *obj) {
         print_list (obj);
         break;
     default:
+      print_string ("#<UNKNOWN "); print_int (t); print_string (">");
       error ("Unknown type", "PRINC");
 	}
 }
@@ -346,7 +348,6 @@ void format_ (char *fstr, type_cell *args) {
 
 
 void flisp_repl (bool quit) {
-	type_error *err;
 	type_cell *errs;
 	void *expr;
 
@@ -354,7 +355,9 @@ void flisp_repl (bool quit) {
 		print_string ("\n> ");
 		expr = next_expr();
 
+		error_clear ();
 		print_string ("-> "); print_object (expr); print_string ("\n");
+		print_errors ();
 
 		/* if a list and car eq to 'QUIT then leave */		
 		if (quit && 
@@ -366,18 +369,12 @@ void flisp_repl (bool quit) {
 		
 		error_clear();
 		expr = eval(expr, &toplevel);
-		err = errors();
-		if (err != NULL) {
-			while (err != NULL) {
-				errs = cons (err->message, cons (err->location, NULL));
-				format_ ("Error: ~A at ~A~%", errs);
-				err = err->next;
-			}
-		} 
+		print_errors ();
 
 		error_clear ();
 		print_object (expr);
-					
+		print_errors ();
+
 		gc_collect_init();
 		gc_collect ((void **)&(toplevel.special));
 		gc_collect ((void **)&(toplevel.lexical));

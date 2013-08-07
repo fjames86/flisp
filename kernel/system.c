@@ -1,6 +1,7 @@
 
 #include "system.h"
 
+/* already defined in libflisp */
 #if 0
 /* You will need to code these up yourself!  */
 void *memcpy(void *dest, void *src, int count)
@@ -22,7 +23,7 @@ void *memset(void *dest, unsigned char val, int count)
 {
 	/* Add code here to set 'count' bytes in 'dest' to 'val'.
 	 *  Again, return 'dest' */
-	unsigned char *p = (unsigned char *)dest;
+	unsigned char *p = (unsigned char *)dest;	
 	while (count > 0) {
 		*p = val;
 		p++;
@@ -192,6 +193,7 @@ void print_memory (multiboot_info_t *mbt) {
   puts ("Type   Address               length    \n");
   while (mmap < mbt->mmap_addr + mbt->mmap_length) {
     print_uint (mmap->type);
+    puts ("   ");
 
     puts (" 0x");
     print_hex (mmap->addr.base_addr_low >> 32);
@@ -257,8 +259,6 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	  for (;;);
 	} 
 
-	getch ();
-
 	if (memlength < KERNEL_SIZE) {
 	  puts ("Not even enough memory for the kernel?\n");
 	  for (;;);
@@ -270,8 +270,6 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	if (memlength < MIN_MEMORY) {
 	  puts ("Insufficient memory available, out of luck!\n");
 	}
-
-	getch ();
 	
 	puts ("Using memory starting at ");
 	print_hex (memstart);
@@ -288,19 +286,19 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	heaplength = memstart + memlength - heap;
 
 	/* setup the flisp environment */
-	puts ("Setting up heap\n");
-	memset (heap, 0, HEAP_SIZE);
-	gc_init(heap, HEAP_SIZE);
+	puts ("Setting up heap at "); print_hex (heap); 
+	puts (" of length "); print_hex (heaplength); puts ("\n");
+	gc_init(heap, heaplength);
 
-	puts ("Setting up symbol table\n");
-	memset (symt, 0, SYMTAB_SIZE);
-	symbol_init (symt, SYMTAB_SIZE);
 
+	puts ("Setting up symbol table at "); print_hex (symt); 
+	puts (" of length "); print_hex (symtlength); puts ("\n");
+	symbol_init (symt, symtlength);
+	
+	getch ();
 #if 1
 	toplevel.special = gc_new_ht (20);
 	toplevel.lexical = NULL;
-
-	proc_heap (NULL);
 #else
 	puts ("Environment init... ");
 	env_init (&toplevel);

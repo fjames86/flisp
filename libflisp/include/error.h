@@ -19,6 +19,7 @@ static type_error *error_p;
 void error (char *message, char *location);
 type_error *errors ();
 void error_clear ();
+void print_errors ();
 
 #endif
 
