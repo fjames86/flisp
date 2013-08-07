@@ -22,7 +22,6 @@ void *proc_cons (type_cell *args);
 void *proc_list (type_cell *args);
 void *proc_reverse (type_cell *args);
 
-void *proc_quit (type_cell *args);
 void *proc_add (type_cell *args);
 void *proc_sub (type_cell *args);
 void *proc_mul (type_cell *args);

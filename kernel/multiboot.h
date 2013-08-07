@@ -116,6 +116,23 @@ typedef struct memory_map
   unsigned long length_high;
   unsigned long type;
 } memory_map_t;
-     
+
+typedef struct multiboot_memory_map {
+  unsigned int size;
+
+  union {
+    unsigned long long base_addr;
+    unsigned long base_addr_low, base_addr_high;
+  } addr;
+
+  union {
+    unsigned long long length;
+    unsigned long length_low, length_high;
+  } length;
+
+  unsigned int type;
+} multiboot_memory_map_t;
+
+
 #endif /* ! ASM */
 

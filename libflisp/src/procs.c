@@ -62,12 +62,6 @@ void *proc_cons (type_cell *args) {
 	return cons(car, cdr);
 }
 
-void *proc_quit (type_cell *args) {
-	printf("Bye.\n");
-	exit(0);
-	return NULL;
-}
-
 void *proc_add (type_cell *args) {
     int i, iret = 0;
     double d, dret = 0;

@@ -31,11 +31,11 @@ bool integerp (char *str) {
 	/* first char may be a +, - or of course a digit */
 	if(!(*c == '+' || *c == '-' || digitp(*c))) return 0;
 
-	if (isdigit(*c)) d = 1;
+	if (digitp(*c)) d = 1;
 	
 	c++;
 	while(*c != '\0') {
-		if(!isdigit(*c)) return 0;
+		if(!digitp(*c)) return 0;
 		else d = 1;
 		c++;
 	}

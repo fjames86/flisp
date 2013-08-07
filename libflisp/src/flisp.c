@@ -345,7 +345,7 @@ void format_ (char *fstr, type_cell *args) {
 }
 
 
-void flisp_repl () {
+void flisp_repl (bool quit) {
 	type_error *err;
 	type_cell *errs;
 	void *expr;
@@ -353,6 +353,17 @@ void flisp_repl () {
 	while (TRUE) {
 		print_string ("\n> ");
 		expr = next_expr();
+
+		print_string ("-> "); print_object (expr); print_string ("\n");
+
+		/* if a list and car eq to 'QUIT then leave */		
+		if (quit && 
+		    get_type(expr) == TYPE_CELL &&
+		    get_type(cell_car(expr)) == TYPE_SYMBOL &&
+		    eq(cell_car(expr), intern("QUIT"))) {
+		  break;
+		}
+		
 		error_clear();
 		expr = eval(expr, &toplevel);
 		err = errors();

@@ -16,8 +16,7 @@ void env_init(environment *env) {
 	env_define (env, intern("CONS"), gc_new_proc (&proc_cons));
 	env_define (env, intern("LIST"), gc_new_proc (&proc_list));
 	env_define (env, intern("REVERSE"), gc_new_proc (&proc_reverse));
-		
-	env_define (env, intern("QUIT"), gc_new_proc (&proc_quit));
+
 	env_define (env, intern("+"), gc_new_proc (&proc_add));
 	env_define (env, intern("-"), gc_new_proc (&proc_sub));
 	env_define (env, intern("*"), gc_new_proc (&proc_mul));

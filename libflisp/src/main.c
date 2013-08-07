@@ -20,7 +20,9 @@ FILE *readfile;
 #define HEAP_SIZE (1024*1024)
 #define SYMTAB_SIZE (1024*1024)
 
+/*
 environment toplevel;
+*/
 
 int main (int argc, char **argv) {
 	void *heap, *expr;
@@ -33,9 +35,9 @@ int main (int argc, char **argv) {
 	heap = calloc (HEAP_SIZE, sizeof(char));
 	gc_init(heap, HEAP_SIZE);
 	
-	bufferp = "";
 	readfile = stdin;
-	
+	bufferp = "";
+
 	symt = calloc (SYMTAB_SIZE, sizeof(char));
 	symbol_init (symt, SYMTAB_SIZE);
 
@@ -48,7 +50,7 @@ int main (int argc, char **argv) {
 	printf ("Loading core files...\n");
 	load_file (LISP_CORE_FILE);
 
-	flisp_repl ();
+	flisp_repl (TRUE);
 
 	free(heap);
     return 0;

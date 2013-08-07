@@ -4,7 +4,13 @@
 bool gethash (type_ht *ht, void *key, void **val) {
 	size_t i;
 	type_cell *c;
-  
+
+	if (ht == NULL) {
+	  error ("Hash table not initialised", "GETHASH");
+	  *val = NULL;
+	  return FALSE;
+	}
+
 	i = sxhash(key) % ht->size;
 	c = assoc(key, ht->buckets[i]);
 	if (c != NULL) {
@@ -22,6 +28,11 @@ void sethash(type_ht **htb, void *key, void *val) {
 	type_ht *ht;
 
 	ht = *htb;
+
+	if (ht == NULL) {
+	  error ("Hash table not initialised", "SETHASH");
+	}
+
 	
 	i = sxhash(key) % ht->size;
     c = ht->buckets[i];

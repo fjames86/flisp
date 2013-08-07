@@ -28,7 +28,7 @@ void print_object (void *obj);
 void print_object_nice (void *obj);
 void format (type_string *string, type_cell *args);
 void format_ (char *fstr, type_cell *args);
-void flisp_repl ();
+void flisp_repl (bool quit);
 
 #endif
 

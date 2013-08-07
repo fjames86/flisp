@@ -18,9 +18,6 @@
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define abs(x)    (((x) < 0) ? (-(x)) : (x))
 
-/* 1 << 32 */
-#define SIGN_BIT 0xF0000000
-
 typedef unsigned int bool;
 typedef unsigned int size_t;
 
@@ -45,6 +42,7 @@ char *string_upcase(char *string);
 
 void print_int (int i);
 void print_hex (size_t i);
+void print_hexl (unsigned long l);
 void print_double (double x, int p);
 
 #endif

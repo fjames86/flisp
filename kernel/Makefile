@@ -2,7 +2,7 @@
 CFLAGS  := -Wall -fno-stack-protector -fno-builtin -nostdinc -g -c -I../libflisp/include
 
 DEPS= system.h
-OBJS= start.o system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o 
+OBJS= start.o system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o flisp_compat.o
 
 all: floppy.img kernel.bin
 

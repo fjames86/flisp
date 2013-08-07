@@ -1,7 +1,6 @@
 
 #include "sys.h"
 
-
 void *memcpy(void *dest, void *src, int count)
 {
 	unsigned char *p = (unsigned char *)dest;
@@ -133,17 +132,31 @@ void print_int (int i) {
 	putch('0' + (i % 10));
 }
 
-void print_hex (size_t i) {
-	size_t x;
-	if (i / 16 != 0) {
-		print_int (i / 16);
-	}
-	x = i % 16;
-	if (x < 10) {
-		putch('0' + (i % 16));
-	} else {
-		putch ('A' + x - 10);
-	}
+
+void print_hex (unsigned int i) {
+  unsigned int x;
+  int nibble;
+
+  for (nibble = 0; nibble < 8; nibble++) {
+    x = (i >> (4 * (7 - nibble))) & 0x0000000F;
+
+    if (x < 10) {
+      putch ('0' + x);
+    } else if (x >= 10 && x < 16) {
+      putch ('A' + x - 10);
+    } else {
+      putch ('?');
+    }
+  }
+}
+  
+
+void print_hexl (unsigned long l) {
+  unsigned int i;
+  i = (unsigned int)(l);
+  print_hex (i);
+  i = (unsigned int)(l >> 32);
+  print_hex (i);
 }
 
 void print_double (double x, int p) {

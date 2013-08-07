@@ -1,6 +1,7 @@
 
 #include "system.h"
 
+#if 0
 /* You will need to code these up yourself!  */
 void *memcpy(void *dest, void *src, int count)
 {
@@ -29,6 +30,7 @@ void *memset(void *dest, unsigned char val, int count)
 	}
 	return dest;
 }
+#endif
 
 void *memsetw(void *dest, unsigned short val, int count)
 {
@@ -76,6 +78,7 @@ void int_to_string (char *buffer, int i) {
 	}
 }
 
+#if 0
 void print_int (int i) {
 	if (i < 0) {
 		putch ('-');
@@ -87,6 +90,7 @@ void print_int (int i) {
 	}
 	putch ('0' + (i % 10));
 }
+#endif
 
 void print_uint (unsigned int i) {
   if (i / 10 != 0) {
@@ -95,7 +99,12 @@ void print_uint (unsigned int i) {
   putch ('0' + (i % 10));
 }
 
+void print_ulong (unsigned long l) {
+  print_uint (l >> 32);
+  print_uint ((unsigned int)(l & 0x00000000FFFFFFFFL));
+}
 
+#if 0
 char *string_upcase (char *str) {
   char *s = str;
 
@@ -107,6 +116,7 @@ char *string_upcase (char *str) {
   }
   return s;
 }
+#endif
 
 /* We will use this later on for reading from the I/O ports to get data
  *  from devices such as the keyboard. We are using what is called
@@ -127,19 +137,98 @@ void outportb (unsigned short _port, unsigned char _data)
 	__asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
+
+
+ 
+void __stack_chk_guard_setup()
+{
+  unsigned char * p;
+  p = (unsigned char *) &__stack_chk_guard;
+ 
+  /* If you have the ability to generate random numbers in your kernel then use them,
+     otherwise for 32-bit code: */
+  *p =  0x00000aff;
+}
+ 
+void __attribute__((noreturn)) __stack_chk_fail()
+{ 
+  /* put your panic function or similar in here */
+  unsigned char * vid = (unsigned char *)0xB8000;
+  vid[1] = 7;
+  for(;;)
+    vid[0]++;
+}
+
+
+/* find usable memory */
+void get_usable_memory (void **start, size_t *length, multiboot_info_t *mbt) {
+  multiboot_memory_map_t *mmap = mbt->mmap_addr;
+  unsigned int len, type, addr_low;
+
+  while (mmap < mbt->mmap_addr + mbt->mmap_length) {
+    type = mmap->type;
+    addr_low = mmap->addr.base_addr_low >> 32;
+    len = mmap->length.length_low >> 32;
+    
+    /* found the first block of useable memory */
+    if (type == 1 && addr_low > 0) {
+      *start = addr_low;
+      *length = len;
+      return;
+    }
+    
+    mmap = (multiboot_memory_map_t *)((unsigned int)mmap + mmap->size + sizeof(unsigned int));
+  }
+
+  /* no memory found */
+  *start = NULL;
+  *length = 0;
+}
+
+
+void print_memory (multiboot_info_t *mbt) {
+  multiboot_memory_map_t *mmap = mbt->mmap_addr;
+
+  puts ("Type   Address               length    \n");
+  while (mmap < mbt->mmap_addr + mbt->mmap_length) {
+    print_uint (mmap->type);
+
+    puts (" 0x");
+    print_hex (mmap->addr.base_addr_low >> 32);
+
+    puts (" 0x");
+    print_hex (mmap->length.length_low >> 32);
+
+    puts ("\n");
+    
+    mmap = (multiboot_memory_map_t *)((unsigned int)mmap + mmap->size + sizeof(unsigned int));
+  }
+  
+}
+
+#define HEAP_START 0x00000000
+#define HEAP_SIZE  (1024 * 1024)
+#define SYMTAB_START (HEAP_START + HEAP_SIZE)
+#define SYMTAB_SIZE (1024)
+#define MIN_MEMORY (HEAP_SIZE + SYMTAB_SIZE)
+
+/* reserve 1mb for the kernel */
+#define KERNEL_SIZE 0x100000
+
 /* This is a very simple main() function. All it does is sit in an
  *  infinite loop. This will be like our 'idle' loop */
-int main(multiboot_info_t *mbd, unsigned int magic)
+int main(multiboot_info_t *mbt, unsigned int magic)
 {
 	int i;
 	char buffer[71];
-	
+	void *heap, *symt, *memstart;
+	unsigned int heaplength, symtlength, memlength;
+	type_cell *c;
+
 	/* You would add commands after here */
 	init_video ();
 	puts ("Welcome to Frank's OS! Copyright Frank James " __DATE__ "\n");
 
-	puts ("Upper memory: "); print_uint ((mbd->mem_upper) >> 32); putch (' '); print_uint ((mbd->mem_upper << 32) >> 32); putch ('\n');
-	
 	gdt_install ();
 	idt_install ();
 	isrs_install ();
@@ -148,14 +237,84 @@ int main(multiboot_info_t *mbd, unsigned int magic)
 	timer_install ();
 	keyboard_install ();
 
+	/* print the memory */
+	print_memory (mbt);
+	puts ("Press any key to continue\n");
+	getch ();
+
+	/* set the meory */
+	get_usable_memory (&memstart, &memlength, mbt);
+	puts ("Found memory starting at ");
+	print_hex (memstart);
+	puts (" of length ");
+	print_hex (memlength);
+	puts ("\n");
+	
+	getch ();
+
+	if (memlength == 0) {
+	  puts ("No usable memory found, out of luck!\n");
+	  for (;;);
+	} 
+
+	getch ();
+
+	if (memlength < KERNEL_SIZE) {
+	  puts ("Not even enough memory for the kernel?\n");
+	  for (;;);
+	}
+
+	memstart += KERNEL_SIZE;
+	memlength -= KERNEL_SIZE;
+
+	if (memlength < MIN_MEMORY) {
+	  puts ("Insufficient memory available, out of luck!\n");
+	}
+
+	getch ();
+	
+	puts ("Using memory starting at ");
+	print_hex (memstart);
+	puts (" length ");
+	print_hex (memlength);
+	puts ("\n");
+
+	getch ();
+
+	/* set up the heap and symbol table */
+	symt = memstart;
+	symtlength = SYMTAB_SIZE;
+	heap = memstart + symtlength;
+	heaplength = memstart + memlength - heap;
+
+	/* setup the flisp environment */
+	puts ("Setting up heap\n");
+	memset (heap, 0, HEAP_SIZE);
+	gc_init(heap, HEAP_SIZE);
+
+	puts ("Setting up symbol table\n");
+	memset (symt, 0, SYMTAB_SIZE);
+	symbol_init (symt, SYMTAB_SIZE);
+
+#if 1
+	toplevel.special = gc_new_ht (20);
+	toplevel.lexical = NULL;
+
+	proc_heap (NULL);
+#else
+	puts ("Environment init... ");
+	env_init (&toplevel);
+#endif
+
+	puts ("Entering REPL...\n");
+	bufferp = "";
+
+	/* enter the flisp repl */
+	flisp_repl (FALSE);
+
 	/* ...and leave this loop in. There is an endless loop in
 	 *  'start.asm' also, if you accidentally delete this next line */
 	for (;;) {
-	  puts ("> ");
-	  gets (buffer, 70);
-	  string_upcase (buffer);
-	  puts (buffer);
-	  putch ('\n');
 	}
 
 	return 0;

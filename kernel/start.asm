@@ -28,6 +28,7 @@ mboot:
 		;; An endless look
 stublet:
 		extern main
+		push ebx
 		call main
 		jmp $
 

@@ -11,7 +11,8 @@
 #include "ht.h"
 #include "procs.h"
 
-#define ENV_SIZE           20
+/* default initial size of special variable hash table */
+#define ENV_SIZE           100
 
 /* environments store the top level bindings in a hash table
    this makes sense because we are likely to have many bindings here
@@ -23,6 +24,8 @@ typedef struct environment_ {
   type_ht *special;
   type_cell *lexical;
 } environment;
+
+environment toplevel;
 
 void env_init (environment *env);
 bool lookup(void **val, type_symbol *sym, environment *env);

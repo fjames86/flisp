@@ -103,9 +103,9 @@ unsigned char kbdus_shift[128] =
 #define KEYSTAT_NUM     0x8
 #define KEYSTAT_SCROLL  0x10
 #define KEYSTAT_CAPS    0x20
-int keystatus;
+int keystatus = 0;
 
-char kb_key;
+char kb_key = 0;
 
 /* Handles the keyboard interrupt */
 void keyboard_handler(struct regs *r)

@@ -5,8 +5,9 @@
 #include "multiboot.h"
 #include "flisp.h"
 
-
 /* system.c */
+static void * __stack_chk_guard = NULL;
+
 extern void *memcpy(void *dest, void *src, int count);
 extern void *memset(void *dest, unsigned char val, int count);
 extern void *memsetw(void *dest, unsigned short val, int count);
@@ -14,9 +15,14 @@ extern int strlen(char *str);
 extern void int_to_string (char *buffer, int i);
 extern void print_int (int i);
 extern void print_uint (unsigned int i);
+extern void print_hex (unsigned int i);
 extern char *string_upcase (char *str);
 extern unsigned char inportb (unsigned short _port);
 extern void outportb (unsigned short _port, unsigned char _data);
+extern void __stack_chk_guard_setup();
+extern void __attribute__((noreturn)) __stack_chk_fail();
+extern void get_usable_memory (void **start, size_t *length, multiboot_info_t *mbt);
+extern void print_memory (multiboot_info_t *mbt);
 
 /* screen.c */
 extern void scroll();
