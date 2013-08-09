@@ -1,7 +1,6 @@
 
 #include "flisp.h"
 
-
 bool eq (void *val1, void *val2) {
 	gc_type t1, t2;
 	bool ret = FALSE;
@@ -384,16 +383,37 @@ void flisp_repl (bool quit) {
 /* load code from buffer */
 
 void load_core () {	
-	char buf[MAX_LINE+1];
-	char *bp;
+	void (*rbf)();
+	
+	/* need to temporarily rebind refresh_buffer_f to our new function */
+	rbf = refresh_buffer_f;
+	refresh_buffer_f = &rebuffer_core;
 
-	bp = flisp_core_source;
-	while (*reader_bufferp != '\0') {
-		memcpy(reader_bufferp, bp, MAX_LINE);
-		bp += MAX_LINE;
+	rebuffer_corep = flisp_core_source;
+	while (rebuffer_corep != NULL) {
+		eval(next_expr(), &toplevel);
+	}	
 
-	}
-
+	refresh_buffer_f = rbf;
+	(*refresh_buffer_f)();
 }
 
+void rebuffer_core () {
+	int i = 0;
 
+	reader_bufferp = reader_buffer;
+	while (*rebuffer_corep != '\0' && *rebuffer_corep != '\n' && i < MAX_LINE-1) {
+		*reader_bufferp = *rebuffer_corep;
+		rebuffer_corep++;
+		reader_bufferp++;
+		i++;
+	}
+	*reader_bufferp = '\0';
+	
+	reader_bufferp = reader_buffer;
+
+	/* signal the end has been reached */
+	if (*rebuffer_corep == '\0') {
+		rebuffer_corep = NULL;
+	}
+}

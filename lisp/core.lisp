@@ -25,10 +25,5 @@
     (eq? (type-of x) 'symbol))
 
 
-;; load the files
-(load "lisp/lists.lisp")
-(load "lisp/macros.lisp")
-(load "lisp/math.lisp")
-
 
 

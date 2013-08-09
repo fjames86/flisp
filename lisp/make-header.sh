@@ -9,9 +9,9 @@ echo "#define LISP_H" >> ${fname}
 
 echo >> ${fname}
 
-echo "char flisp_core_source[] = \"\\" >> ${fname}
+echo "static char flisp_core_source[] = \"\\" >> ${fname}
 
-awk '{print $0 "\\";}' *.lisp >> ${fname}
+awk '{print $0 "\\n\\";}' *.lisp >> ${fname}
 
 echo "\";" >> ${fname}
 echo >> ${fname}

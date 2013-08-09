@@ -17,6 +17,8 @@
 #include "sys.h"
 #include "flisp-core.h"
 
+static char *rebuffer_corep;
+
 bool eq(void *val1, void *val2);
 bool eql(void *val1, void *val2);
 bool equal(void *val1, void *val2);
@@ -30,6 +32,7 @@ void print_object_nice (void *obj);
 void format (type_string *string, type_cell *args);
 void format_ (char *fstr, type_cell *args);
 void flisp_repl (bool quit);
-
+void load_core ();
+void rebuffer_core ();
 #endif
 

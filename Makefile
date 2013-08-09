@@ -41,5 +41,5 @@ lisp/flisp-core.h:
 .PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(IDIR)/*~ flisp libflisp.a floppy.img
+	rm -f $(ODIR)/*.o *~ core $(IDIR)/*~ flisp libflisp.a floppy.img lisp/flisp-core.h
 	cd kernel; make -f Makefile clean 

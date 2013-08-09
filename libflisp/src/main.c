@@ -51,7 +51,8 @@ int main (int argc, char **argv) {
 	refresh_buffer_f = &rebuffer;
 	
 	printf ("Loading core files...\n");
-	load_file (LISP_CORE_FILE);
+	/*	load_file (LISP_CORE_FILE);*/
+	load_core ();
 
 	flisp_repl (TRUE);
 
