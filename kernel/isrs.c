@@ -136,9 +136,15 @@ void fault_handler(struct regs *r)
 			/* Display the description for the Exception that occurred.
 			 *  In this tutorial, we will simply halt the system using an
 			 *  infinite loop */
+#if 1
 			puts(exception_messages[r->int_no]);
 			puts(" Exception. System Halted!\n");
 			for (;;);
+#else
+			puts(exception_messages[r->int_no]);
+			puts(" Exception!\n");
+			error (exception_messages[r->int_no], "KERNEL");
+#endif
 		}
 }
 

@@ -381,5 +381,19 @@ void flisp_repl (bool quit) {
 }
 
 
-/* saving images ... */
+/* load code from buffer */
+
+void load_core () {	
+	char buf[MAX_LINE+1];
+	char *bp;
+
+	bp = flisp_core_source;
+	while (*reader_bufferp != '\0') {
+		memcpy(reader_bufferp, bp, MAX_LINE);
+		bp += MAX_LINE;
+
+	}
+
+}
+
 

@@ -15,6 +15,7 @@
 #include "lists.h"
 #include "reader.h"
 #include "sys.h"
+#include "flisp-core.h"
 
 bool eq(void *val1, void *val2);
 bool eql(void *val1, void *val2);

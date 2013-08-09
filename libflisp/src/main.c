@@ -9,7 +9,7 @@
 
 void print_heap(size_t topbytes);
 
-void refresh_buffer();
+void rebuffer();
 
 void save_image (char *fname);
 void load_image (char *fname);
@@ -47,6 +47,9 @@ int main (int argc, char **argv) {
 	save_image ("flisp.core.bin");
 	*/
 
+	/* set the refresh buffer function */
+	refresh_buffer_f = &rebuffer;
+	
 	printf ("Loading core files...\n");
 	load_file (LISP_CORE_FILE);
 
@@ -101,7 +104,7 @@ void print_heap (size_t topbytes) {
 	printf ("%08x\n", (unsigned int)free_p);
 }
 
-void refresh_buffer() {
+void rebuffer() {
    	if (feof(readfile) != 0) {
 		/* this is such a hack */
 		strcpy(reader_buffer, "NIL");

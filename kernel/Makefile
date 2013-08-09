@@ -1,5 +1,8 @@
 
-CFLAGS  := -Wall -fno-stack-protector -fno-builtin -nostdinc -g -c -I../libflisp/include
+CC=gcc
+#AS=nasm
+AS=/home/frank/Downloads/nasm-2.10.01/nasm
+CFLAGS  := -Wall -fno-stack-protector -fno-builtin -nostdinc -g -c -I../libflisp/include -I../lisp/
 
 DEPS= system.h
 OBJS= start.o system.o screen.o gdt.o idt.o isrs.o irq.o timer.o kb.o flisp_compat.o
@@ -17,7 +20,7 @@ kernel.bin: $(OBJS)
 	$(CC) -c -o $@ $< $(CFLAGS) 
 
 start.o: 
-	nasm  -f elf -o start.o start.asm
+	$(AS) -f elf -o start.o start.asm
 
 clean:
 	rm -f *.o *.bin floppy.img

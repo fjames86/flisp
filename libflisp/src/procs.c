@@ -229,25 +229,47 @@ void *proc_div (type_cell *args) {
 	args = cell_cdr(args);
 	if (args == NULL) {
 		if (t1 == TYPE_INT) {
-			i2 = 1 / i1;
+			if (i1 == 0) {
+				error ("Division by zero", "PROC_DIV");
+				i2 = 0;
+			} else {
+				i2 = 1 / i1;
+			}
 		} else {
-			d2 = 1.0 / d1;
+			if (d1 == 0.0) {
+				error ("Division by zero", "PROC_DIV");
+				d2 = 0.0;
+			} else {
+				d2 = 1.0 / d1;
+			}
 		}
 	} else {
 		subs = proc_add((type_cell *)args);
 		t2 = get_type(subs);
 		if (t2 == TYPE_INT) {
-			if (t1 == TYPE_INT) {
-				i2 = i1 / CAST(type_int *, subs)->i;
-			} else if (t1 == TYPE_DOUBLE) {
+			if (CAST(type_int *, subs)->i == 0) {
+				error ("Division by zero", "PROC_DIV");
+				i2 = 0;
+				d2 = 0.0;
+			} else {
+				if (t1 == TYPE_INT) {
+					i2 = i1 / CAST(type_int *, subs)->i;
+				} else if (t1 == TYPE_DOUBLE) {
 				d2 = d1 / (double)CAST(type_int *, subs)->i;
-			}      
+				}
+			}
 		} else if (t2 == TYPE_DOUBLE) {
-			if (t1 == TYPE_INT) {
-				d2 = (double)i1 / CAST(type_double *, subs)->d;
-				t1 = TYPE_DOUBLE;
-			} else if (t1 == TYPE_DOUBLE) {
-				d2 = d1 / CAST(type_double *, subs)->d;
+			if (CAST(type_double *, subs)->d == 0.0) {
+				error ("Division by zero", "PROC_DIV");
+				i2 = 0;
+				d2 = 0.0;
+			} else {
+				if (t1 == TYPE_INT) {
+					d2 = (double)i1 / CAST(type_double *, subs)->d;
+					t1 = TYPE_DOUBLE;
+				} else if (t1 == TYPE_DOUBLE) {
+					d2 = d1 / CAST(type_double *, subs)->d;
+				}
 			}
 		} else {
 			error ("Not a number", "/");

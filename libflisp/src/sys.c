@@ -90,6 +90,17 @@ int strncmp(char *str1, char *str2, size_t num) {
 	return ret;
 }
 
+int strlen(char *str)
+{
+	char *p = str;
+	unsigned int counter = 0;
+	while (*p != '\0') {
+		p++;
+		counter++;
+	}
+	return counter;
+}
+
 char *string_upcase(char *string) {
 	char *str = string;
 	while (*str != '\0') {

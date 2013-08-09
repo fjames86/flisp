@@ -2,7 +2,7 @@
 #include "system.h"
 
 
-void refresh_buffer () {
+void rebuffer () {
     memset(reader_buffer, '\0', MAX_LINE);
     gets(reader_buffer, MAX_LINE);
     reader_bufferp = reader_buffer;

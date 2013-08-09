@@ -1,20 +1,24 @@
 #!/bin/bash
 
-echo > lisp-files.h
+fname=flisp-core.h
 
-echo "#ifndef LISP_H" >> lisp-files.h
-echo "#define LISP_H" >> lisp-files.h
+echo > ${fname}
 
-echo >> lisp-files.h
+echo "#ifndef LISP_H" >> ${fname}
+echo "#define LISP_H" >> ${fname}
 
-echo "char lisp_source[] = \"\\" >> lisp-files.h
+echo >> ${fname}
+
+echo "char flisp_core_source[] = \"\\" >> ${fname}
+
+awk '{print $0 "\\";}' *.lisp >> ${fname}
+
+echo "\";" >> ${fname}
+echo >> ${fname}
+
+echo "#endif" >> ${fname}
 
 
-
-
-echo "\"" >> lisp-files.h
-
-echo "#endif" >> lisp-files.h
 
 
 

@@ -48,20 +48,6 @@ void *memsetw(void *dest, unsigned short val, int count)
 	return dest;
 }
 
-int strlen(char *str)
-{
-	/* This loops through character array 'str', returning how
-	 *  many characters it needs to check before it finds a 0.
-	 *  In simple words, it returns the length in bytes of a string */
-	char *p = str;
-	unsigned int counter = 0;
-	while (*p != '\0') {
-		p++;
-		counter++;
-	}
-	return counter;
-}
-
 void int_to_string (char *buffer, int i) {
 	if (i < 0) {
 		*buffer = '-';
@@ -79,20 +65,6 @@ void int_to_string (char *buffer, int i) {
 	}
 }
 
-#if 0
-void print_int (int i) {
-	if (i < 0) {
-		putch ('-');
-		i = -i;
-	}
-
-	if (i / 10 != 0) {
-		print_int (i / 10);
-	}
-	putch ('0' + (i % 10));
-}
-#endif
-
 void print_uint (unsigned int i) {
   if (i / 10 != 0) {
     print_int (i / 10);
@@ -104,20 +76,6 @@ void print_ulong (unsigned long l) {
   print_uint (l >> 32);
   print_uint ((unsigned int)(l & 0x00000000FFFFFFFFL));
 }
-
-#if 0
-char *string_upcase (char *str) {
-  char *s = str;
-
-  while (*str != '\0') {
-    if (*str >= 'a' && *str <= 'z') {
-      *str = 'A' + *str - 'a';
-    }
-    str++;
-  }
-  return s;
-}
-#endif
 
 /* We will use this later on for reading from the I/O ports to get data
  *  from devices such as the keyboard. We are using what is called
@@ -295,6 +253,7 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	puts ("Environment init... \n");
 	env_init (&toplevel);
 
+	refresh_buffer_f = &rebuffer;
 	memset (reader_buffer, '\0', MAX_LINE);
 	reader_bufferp = reader_buffer;
 

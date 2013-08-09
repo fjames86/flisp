@@ -13,6 +13,9 @@ FILE *readfile;
 char reader_buffer[MAX_LINE];
 char *reader_bufferp;
 
+#define refresh_buffer() ((*refresh_buffer_f)())
+void (*refresh_buffer_f)();
+
 
 bool whitespace(char c);
 bool specialcharp(char c);
@@ -21,11 +24,6 @@ bool integerp (char *str);
 bool doublep (char *str);
 int parse_integer (char *str);
 double parse_double (char *str);
-
-/* this must be implemented outside the library, so that implementors may
- * e.g. provide for reading from files from a disk rather than stdin
- * in the kernel we can't read from files so can't use fgets */
-extern void refresh_buffer();
 
 void next_word (char *dest);
 type_cell *read_list ();

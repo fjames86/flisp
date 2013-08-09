@@ -11,7 +11,6 @@ static void * __stack_chk_guard = NULL;
 extern void *memcpy(void *dest, void *src, int count);
 extern void *memset(void *dest, unsigned char val, int count);
 extern void *memsetw(void *dest, unsigned short val, int count);
-extern int strlen(char *str);
 extern void int_to_string (char *buffer, int i);
 extern void print_int (int i);
 extern void print_uint (unsigned int i);
@@ -72,5 +71,9 @@ extern void keyboard_handler(struct regs *r);
 extern void keyboard_install ();
 extern char getch ();
 extern void gets (char *buffer, unsigned int n);
+
+
+/* flisp compat */
+extern void rebuffer ();
 
 #endif
