@@ -63,20 +63,20 @@ unsigned char kbdus_shift[128] =
 		'\t',/* Tab */
 		'Q', 'W', 'E', 'R',/* 19 */
 		'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',/* Enter key */
-		KEY_CONTROL,/* 29   - Control */
+		0,/* 29   - Control */
 		'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',/* 39 */
-		'@', '~',   KEY_SHIFT,/* Left shift */
+		'@', '~',   0,/* Left shift */
 		'~', 'Z', 'X', 'C', 'V', 'B', 'N',/* 49 */
-		'M', '<', '>', '?',   KEY_SHIFT,/* Right shift */
+		'M', '<', '>', '?',   0,/* Right shift */
 		'*',
-		KEY_ALT,/* Alt */
+		0,/* Alt */
 		' ',/* Space bar */
-		KEY_CAPS,/* Caps lock */
+		0,/* Caps lock */
 		0,/* 59 - F1 key ... > */
 		0,   0,   0,   0,   0,   0,   0,   0,
 		0,/* < ... F10 */
-		KEY_NUM,/* 69 - Num lock*/
-		KEY_SCROLL,/* Scroll Lock */
+		0,/* 69 - Num lock*/
+		0,/* Scroll Lock */
 		0,/* Home key */
 		0,/* Up Arrow */
 		0,/* Page Up */
@@ -198,31 +198,40 @@ char getch () {
 	return ret;
 }
 
+/* read a maximum of n-1 characters or until '\n' is encountered */
 void gets (char *buffer, unsigned int n) {
 	char key;
-	unsigned int i = n;
+	char *p;
+	unsigned int counter = 0;
+
+	key = 0;
+	p = buffer;
 	do {
+		/* get an input character */
 		key = getch ();
+
+		/* check for backspace */
 		if (key == '\b') {
-		  if (n < i) {
-		  putch ('\b');
+		  /* only allow backspacing if there is more than 1 char typed */
+		  if (counter > 0) {
+			putch ('\b');
 			putch (' ');
-			putch (key);
-			buffer--;
-			n++;
+			putch ('\b');
+			p--;
+			counter--;
 		  }		  
 		} else if (key == '\n') {
-		  break;
+			*p = '\0';
+			break;
 		} else {
-			if (n > 1) {
+			if (counter < (n - 1)) {
 				putch (key);
-				*buffer = key;
-				buffer++;
-				n--;
+				*p = key;
+				p++;
+				counter++;
 			}
 		}
 	} while (key != '\n');
-	*buffer = '\0';
 	putch ('\n');
 }
 

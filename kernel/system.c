@@ -222,10 +222,11 @@ void print_memory (multiboot_info_t *mbt) {
 int main(multiboot_info_t *mbt, unsigned int magic)
 {
 	int i;
-	char buffer[71];
 	void *heap, *symt, *memstart;
 	unsigned int heaplength, symtlength, memlength;
 	type_cell *c;
+	void *expr;
+	char word[MAX_LINE], *ch;
 
 	/* You would add commands after here */
 	init_video ();
@@ -242,7 +243,6 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	/* print the memory */
 	print_memory (mbt);
 	puts ("Press any key to continue\n");
-	getch ();
 
 	/* set the meory */
 	get_usable_memory (&memstart, &memlength, mbt);
@@ -251,8 +251,6 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	puts (" of length ");
 	print_hex (memlength);
 	puts ("\n");
-	
-	getch ();
 
 	if (memlength == 0) {
 	  puts ("No usable memory found, out of luck!\n");
@@ -277,8 +275,6 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	print_hex (memlength);
 	puts ("\n");
 
-	getch ();
-
 	/* set up the heap and symbol table */
 	symt = memstart;
 	symtlength = SYMTAB_SIZE;
@@ -295,20 +291,33 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	puts (" of length "); print_hex (symtlength); puts ("\n");
 	symbol_init (symt, symtlength);
 	
-	getch ();
-#if 1
-	toplevel.special = gc_new_ht (20);
-	toplevel.lexical = NULL;
-#else
-	puts ("Environment init... ");
+
+	puts ("Environment init... \n");
 	env_init (&toplevel);
-#endif
 
 	puts ("Entering REPL...\n");
-	bufferp = "";
+
+	memset (reader_buffer, '\0', MAX_LINE);
+	reader_bufferp = reader_buffer;
 
 	/* enter the flisp repl */
+#if 0
+	while (TRUE) {
+	    next_word (word);
+	    puts ("word: \""); 
+	    puts (word); 
+	    puts ("\" chars: ");
+	    for (ch = word; *ch != '\0'; ch++) {
+		print_int ((int)*ch);
+		puts (" ");
+	    }
+
+	    puts ("\n");
+
+	}
+#else
 	flisp_repl (FALSE);
+#endif
 
 	/* ...and leave this loop in. There is an endless loop in
 	 *  'start.asm' also, if you accidentally delete this next line */

@@ -351,13 +351,11 @@ void flisp_repl (bool quit) {
 	type_cell *errs;
 	void *expr;
 
+	memset (reader_buffer, '\0', MAX_LINE);
+	reader_bufferp = reader_buffer;
 	while (TRUE) {
 		print_string ("\n> ");
 		expr = next_expr();
-
-		error_clear ();
-		print_string ("-> "); print_object (expr); print_string ("\n");
-		print_errors ();
 
 		/* if a list and car eq to 'QUIT then leave */		
 		if (quit && 

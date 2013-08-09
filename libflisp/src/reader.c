@@ -16,6 +16,23 @@ bool whitespace(char c) {
 	}
 }
 
+bool specialcharp (char c) {
+	switch (c) {
+	case '(':
+	case ')':
+	case '"':
+	case '\'':
+	case ';':
+	case ',':
+	case '@':
+	case '`':
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+
 bool digitp (char c) {
 	if (c >= '0' && c <= '9') {
 		return TRUE;
@@ -144,54 +161,40 @@ bool doublep (char *str) {
 		return FALSE;
 }
 
-#if 0
-void refresh_buffer() {
-	/*gets(buffer);*/
-
-   	if (feof(readfile) != 0) {
-		/* this is such a hack */
-		strcpy(buffer, "NIL");
-	} else {
-		fgets(buffer, MAX_LINE, readfile);
-	}			
-
-	bufferp = buffer;
-}
-#endif
-
 void next_word (char *dest) {
 	bool done;
 	
 	/* refresh the buffer if needed */
-	while (*bufferp == '\0') {
+	while (*reader_bufferp == '\0') {
 		refresh_buffer();
 	}
 
-	while (whitespace(*bufferp)) {
-		bufferp++;
+	while (whitespace(*reader_bufferp)) {
+		reader_bufferp++;
 	}
 
-	if (*bufferp == '\0' || *bufferp == '\n') {
+	/* catch entering empty lines */
+	if (*reader_bufferp == '\0' || *reader_bufferp == '\n') {
 		return next_word(dest);
 	}
 	
 	done = FALSE;
 	while (TRUE) {
-		if (whitespace(*bufferp) || *bufferp == '\0') {
+		if (whitespace(*reader_bufferp) || *reader_bufferp == '\0') {
 			break;
-		} else if (*bufferp == '(' || *bufferp == ')' || *bufferp == '"' || *bufferp == '\'' || *bufferp == ';' || *bufferp == ',' || *bufferp == '@' || *bufferp == '`') {
+		} else if (specialcharp(*reader_bufferp)) {
 			if (!done) {
-				*dest = *bufferp;
+				*dest = *reader_bufferp;
 				dest++;
-				bufferp++;
+				reader_bufferp++;
 			}
 			break;
+		} else {
+			*dest = *reader_bufferp;
+			done = TRUE;
+			dest++;
+			reader_bufferp++;
 		}
-
-		*dest = *bufferp;
-		done = TRUE;
-		dest++;
-		bufferp++;
 	}
 	*dest = '\0';
 }
@@ -344,7 +347,7 @@ type_string *read_string () {
 	escape = FALSE;
 	while (TRUE) {
 		if (escape == TRUE) {
-			switch (*bufferp) {
+			switch (*reader_bufferp) {
 			case '\0':
 				strbuff1[i] = '\n';
 				/* this is the end of line, so refresh */
@@ -352,60 +355,60 @@ type_string *read_string () {
 			    break;
 			case 'n':
 				strbuff1[i] = '\n';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			case 't':
 				strbuff1[i] = '\t';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			case 'f':
 				strbuff1[i] = '\f';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			case 'r':
 				strbuff1[i] = '\r';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			case 'v':
 				strbuff1[i] = '\v';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			case 'b':
 				strbuff1[i] = '\b';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			case '\\':
 				strbuff1[i] = '\\';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			case '"':
 				strbuff1[i] = '"';
-				bufferp++;
+				reader_bufferp++;
 				break;
 			default:
 				/* not an official escape char, so just ignore it */
-				strbuff1[i] = *bufferp;
-				bufferp++;
+				strbuff1[i] = *reader_bufferp;
+				reader_bufferp++;
 			}
 			i++;
 			escape = FALSE;
-		} else if (*bufferp == '\0') {
+		} else if (*reader_bufferp == '\0') {
 			/* end of line without an escape, error */
 			ret = NULL;
 			error ("Unterminated string detected", "READ-STRING");
-			bufferp++;
+			reader_bufferp++;
 			break;
-		} else if (*bufferp == '"') {
+		} else if (*reader_bufferp == '"') {
 			strbuff1[i] = '\0';
-			bufferp++;			
+			reader_bufferp++;			
 			break;
-		} else if (*bufferp == '\\') {
+		} else if (*reader_bufferp == '\\') {
 			escape = TRUE;
-			bufferp++;
+			reader_bufferp++;
 		} else {
 			/* put the char into the buffer */
-			strbuff1[i] = *bufferp;
-			bufferp++;
+			strbuff1[i] = *reader_bufferp;
+			reader_bufferp++;
 			i++;
 
 			escape = FALSE;

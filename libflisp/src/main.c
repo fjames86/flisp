@@ -36,7 +36,7 @@ int main (int argc, char **argv) {
 	gc_init(heap, HEAP_SIZE);
 	
 	readfile = stdin;
-	bufferp = "";
+	reader_bufferp = "";
 
 	symt = calloc (SYMTAB_SIZE, sizeof(char));
 	symbol_init (symt, SYMTAB_SIZE);
@@ -104,12 +104,12 @@ void print_heap (size_t topbytes) {
 void refresh_buffer() {
    	if (feof(readfile) != 0) {
 		/* this is such a hack */
-		strcpy(buffer, "NIL");
+		strcpy(reader_buffer, "NIL");
 	} else {
-		fgets(buffer, MAX_LINE, readfile);
+		fgets(reader_buffer, MAX_LINE, readfile);
 	}			
 
-	bufferp = buffer;
+	reader_bufferp = reader_buffer;
 }
 
 /*
