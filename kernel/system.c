@@ -241,8 +241,10 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	keyboard_install ();
 
 	/* print the memory */
+#if 0
 	print_memory (mbt);
 	puts ("Press any key to continue\n");
+#endif
 
 	/* set the meory */
 	get_usable_memory (&memstart, &memlength, mbt);
@@ -286,38 +288,18 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	puts (" of length "); print_hex (heaplength); puts ("\n");
 	gc_init(heap, heaplength);
 
-
 	puts ("Setting up symbol table at "); print_hex (symt); 
 	puts (" of length "); print_hex (symtlength); puts ("\n");
 	symbol_init (symt, symtlength);
 	
-
 	puts ("Environment init... \n");
 	env_init (&toplevel);
-
-	puts ("Entering REPL...\n");
 
 	memset (reader_buffer, '\0', MAX_LINE);
 	reader_bufferp = reader_buffer;
 
 	/* enter the flisp repl */
-#if 0
-	while (TRUE) {
-	    next_word (word);
-	    puts ("word: \""); 
-	    puts (word); 
-	    puts ("\" chars: ");
-	    for (ch = word; *ch != '\0'; ch++) {
-		print_int ((int)*ch);
-		puts (" ");
-	    }
-
-	    puts ("\n");
-
-	}
-#else
 	flisp_repl (FALSE);
-#endif
 
 	/* ...and leave this loop in. There is an endless loop in
 	 *  'start.asm' also, if you accidentally delete this next line */
