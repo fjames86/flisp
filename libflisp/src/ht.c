@@ -69,10 +69,10 @@ void remhash(type_ht *ht, void *key) {
 	type_cell **c;
 
 	i = sxhash(key) % ht->size;
-	c = ht->buckets + i;
+	c = &(ht->buckets[i]);
 
 	while (*c != NULL) {
-        if (eql((*c)->car, key)) {
+        if (eql(cell_car (*c), key)) {
 			*c = (*c)->cdr;
             ht->fill--;
 			break;

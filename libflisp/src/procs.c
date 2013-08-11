@@ -601,8 +601,23 @@ void *proc_format (type_cell *args) {
 	}
 }
 
+/* print information about the toplevel env */
 void *proc_toplevel (type_cell *args) {
-	return toplevel.special;
+	/* print all the defined procedures */
+	size_t i;
+	type_ht *ht = toplevel.special;
+	type_cell *c;
+	
+	for (i=0; i < ht->size; i++) {
+		c = ht->buckets[i];
+		while (c != NULL) {
+			print_object (cell_car (cell_car (c))); print_string (" ");
+			c = c->cdr;
+		}
+	}
+	print_string ("\n");
+	
+	return ht;
 }
 
 void *proc_gethash (type_cell *args) {
@@ -648,6 +663,23 @@ void *proc_sethash (type_cell *args) {
 	return NULL;
 }
 
+void *proc_remhash (type_cell *args) {
+	type_ht *ht;
+	void *key;
+	
+	ht = cell_car (args);
+	key = cell_cadr (args);
+
+	if (get_type (ht) == TYPE_HT) {
+		remhash (ht, key);
+	} else {
+		error ("Remhash expects a hash table as the first argument", "REMHASH");
+	}
+
+	return NULL;
+}
+
+	
 void *proc_heap (type_cell *args) {
 	int used, tot;
 	used = (int)(free_p - gc_working);
@@ -675,9 +707,17 @@ void *proc_heap (type_cell *args) {
 
 
 void *proc_copy_list (type_cell *args) {
-  return copy_list (cell_car (args));
+	return copy_list (cell_car (args));
 }
 
+void *proc_error (type_cell *args) {
+	type_string *message, *location;
 
+	message = cell_car (args);
+	location = cell_cadr (args);
+
+	error (message->str, location->str);
+	return NULL;
+}
 
 

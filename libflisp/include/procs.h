@@ -52,9 +52,12 @@ void *proc_princ (type_cell *args);
 void *proc_format (type_cell *args);
 void *proc_toplevel (type_cell *args);
 void *proc_gethash (type_cell *args);
+void *proc_sethash (type_cell *args);
+void *proc_remhash (type_cell *args);
 void *proc_heap (type_cell *args);
 
 void *proc_copy_list (type_cell *args);
+void *proc_error (type_cell *args);
 
 #endif 
 
