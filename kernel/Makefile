@@ -1,7 +1,7 @@
 
 CC=gcc
-AS=nasm
-#AS=/home/frank/Downloads/nasm-2.10.01/nasm
+#AS=nasm
+AS=/home/frank/Downloads/nasm-2.10.01/nasm
 CFLAGS  := -Wall -fno-stack-protector -fno-builtin -nostdinc -g -c -I../libflisp/include -I../lisp/
 
 DEPS= system.h

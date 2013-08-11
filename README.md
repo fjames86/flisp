@@ -1,17 +1,17 @@
-=====
 FLISP
+=====
 
 A simple Scheme-like Lisp interpreter that can also be run as a simple self-contained operating system.
 
 Features the following:
 
-* Simple Lisp-1 (Scheme-like) semantics
+* Simple Scheme-like semantics (so it's a Lisp-1)
 
 * Robust move-and-copy garbage collector
 
-* User-space flisp Can load lisp from files (currently not implemented in the OS version)
+* User-space flisp can load lisp from files (currently not implemented in the OS version)
 
-* Common Lisp-like macros
+* Common Lisp like macros, 
 
 * Simple error reporting system
 
@@ -21,15 +21,15 @@ User-defined reader-macros are not currently supported.
 * Standard operators are: define, defmacro, set!, quote, quasiquote, unquote, unquote-splicing,
 begin, if, let, lambda
 
-* A reasonably large set of built-in procedures written in C. These are bundled with library,
-but don't necessarily have to be loaded into the image.
+* A reasonably complete set of built-in procedures written in C. These are bundled with library
+and get loaded into the image.
 
 * First class data types: (signed fixed precision) integer, double, arrays, hash tables, symbols,
 strings, procedures and closures (lambda expressions).
 
-* Unfortunately tail-call optimisation is currently not implemented (and probably won't be either ... you are warned!)
+* Unfortunately tail-call optimisation is currently not implemented (and probably won't be either ... you have been warned!)
 
-* The kernel is subtly broken in several ways...
+* The flisp-os kernel is subtly broken in several ways...
 
 Build instructions
 -------------------
@@ -73,12 +73,12 @@ The build script compiles the kernel and generates a floppy disk image with the 
 
 qemu -fda floppy.img
 
-Feel free to try out using virtualization like VMWare or even running it on the metal directly! 
+Feel free to try out using virtualization like VMWare or even running it directly on hardware!
 
 A word of warning: parts of the kernel are not really complete and really could do with more work. The keyboard driver
 is partially broken as it doesn't handle capslock and other control keys propertly. If any exception fires it goes into a kernel
 panic and a reboot is required. This shouldn't be a major issue because it enters an flisp REPL almost straight away and
-doesn't allow any user binary code to be entered at all so there's no danger of protection or paging faults for instance.
+doesn't allow any user binary code to be executed at all so there's no danger of protection or paging faults occuring for instance.
 
 
 Developer's guide
@@ -94,7 +94,6 @@ All types have a gc_new_<type> to create a new default object. Add a clause to t
 copy an object. If the type references other objects then it will need special treatment during a gc cycle. Write a gc_relocate_<type>
 function for your type. See the examples for lists, arrays and hash tables for inspiration. Finally, add a clause to the
 switch statement in gc_relocate() to dispatch to your custom relocation function for your new type.
-
 The garbage collector now knows about your new type and you can use it wherever you wish! Add some functions to manipulate your
 new type and add them as built-in procedures to flisp (see below).
 

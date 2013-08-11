@@ -188,7 +188,7 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 
 	/* You would add commands after here */
 	init_video ();
-	puts ("Welcome to Frank's OS! Copyright Frank James " __DATE__ "\n");
+	puts ("Welcome to flisp-os, Frank's little operating system! Copyright Frank James " __DATE__ "\n");
 
 	gdt_install ();
 	idt_install ();
