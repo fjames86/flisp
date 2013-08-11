@@ -5,13 +5,14 @@ A simple Scheme-like Lisp interpreter that can also be run as a simple self-cont
 
 Features the following:
 
-* Simple Scheme-like semantics (so it's a Lisp-1)
+* Scheme-like semantics (so it's a Lisp-1)
 
 * Robust move-and-copy garbage collector
 
-* User-space flisp can load lisp from files (currently not implemented in the OS version)
+* User-space flisp can load code from files. This is currently not implemented in the OS version because the flisp kernel lacks
+any code for accessing hardware storage or filesystems in general.
 
-* Common Lisp like macros, 
+* A Common Lisp-like macro system. 
 
 * Simple error reporting system
 
@@ -27,7 +28,8 @@ and get loaded into the image.
 * First class data types: (signed fixed precision) integer, double, arrays, hash tables, symbols,
 strings, procedures and closures (lambda expressions).
 
-* Unfortunately tail-call optimisation is currently not implemented (and probably won't be either ... you have been warned!)
+* Unfortunately tail-call optimisation is currently not implemented (and probably won't be either ... so
+don't try to write deeply recursive functions).
 
 * The flisp-os kernel is subtly broken in several ways...
 
@@ -47,33 +49,34 @@ Usage guide
 ------------
 
 flisp launches into a REPL. Use (quit) to exit.
+
 * Define constants using (define name expr)
 
-* Write procesures using (define (proc args...) body). note that this is equivalent to (define proc (lambda (args...) body))
+* Write procesures using (define (proc args...) body). Note that this is equivalent to (define proc (lambda (args...) body))
 
 * Define macros using (defmacro (mac args...) body)
 Macros are just procedures that return code. They are defined internally as (MACRO <procedure>) so this is really just a shorthand for
 (define macro (list 'MACRO (lambda (args ...) body)))
 
-* A variety of built-in procedures come with the image. Use (toplevel) to inspect currently defined symbols.
+* A variety of built-in procedures come with flisp. Use (toplevel) to inspect currently defined toplevel symbols.
 
 * Memory management is split into the heap, that manages all dynamic objects (cons cells, strings etc) and a seperate,
-non-garbage collected table, for symbols. When this table is exhausted you are out of luck. flisp is unable to request extra
+non-garbage collected, table for symbols. When this table is exhausted you are out of luck. flisp is unable to request extra
 memory and therefore the table cannot be expanded at runtime, meaning no more symbols may be interned. It allocates 1MB of
 memory by default, which should be easily enough for most uses, however.
-To inspect the heap, use the procedure (heap).
+Use the procedure (heap) to inspect memory usage.
 
 
-Flisp on the metal
--------------------
+Flisp as an operating system
+------------------------------
 
-Flisp comes with a simple kernel, inspired and largely taken from Brans's Kernel Tutorial http://www.osdever.net/bkerndev/Docs/gettingstarted.htm
+Flisp comes with a simple kernel, inspired and largely taken from Brans's Kernel Tutorial, http://www.osdever.net/bkerndev/Docs/gettingstarted.htm
 
 The build script compiles the kernel and generates a floppy disk image with the grub bootloader installed. You can test it out using, e.g.,
 
 qemu -fda floppy.img
 
-Feel free to try out using virtualization like VMWare or even running it directly on hardware!
+Feel free to try out using virtualization software like VMWare, or even running it directly on hardware!
 
 A word of warning: parts of the kernel are not really complete and really could do with more work. The keyboard driver
 is partially broken as it doesn't handle capslock and other control keys propertly. If any exception fires it goes into a kernel
@@ -100,7 +103,7 @@ new type and add them as built-in procedures to flisp (see below).
 * Built-in procedures are in the file procs.c. These take a single parameter, a list of arguments given to the procedure.
 They must unpack and check for errors themselves. For instance, if you write a function that MUST take 2 numbers as arguments then
 it is up to you to check this.
-To install a new procedure is pretty simple. Just write is as above, add the definition to procs.h and a line in env_init in env.c
+To install a new procedure is pretty simple. Just write it as above, add the definition to procs.h and a line in env_init in env.c
 (just copy what's already there). 
 
 * Lisp code can be added to the files in lisp/ These are concatenated and bundled into the binary image by the build script
@@ -115,13 +118,13 @@ think of a reason!
 
 
 Some things that might be useful to add:
-Custom data structures, tail call optimisation, math functions (see libflisp/libs/ for code), reader macros, fixing the kernel keyboard driver, ...
+Custom data structures, tail call optimisation, math functions (see libflisp/libs/ for some example code), reader macros, fixing the kernel keyboard driver, ...
 
 Closing notes
 ----------------
 
-This is a hobby project and was written over a couple of weeks for pure enjoyment (and to prove to myself that I am a capable programmer...).
-It is intended more for educational than serious use. I'd be interested if anyone is using it for any reason at all so feel free to email any
+This is a hobby project and was written over a couple of weeks for fun and as a learning exercise.
+It is intended for educational more than serious use. I'd be interested if anyone is using it for any reason at all, so feel free to email any
 questions or queries concerning this little project.
 
 Frank James, (frank.a.james AT gmail.com)
