@@ -70,7 +70,7 @@ Use the procedure (heap) to inspect memory usage.
 Flisp as an operating system
 ------------------------------
 
-Flisp comes with a simple kernel, inspired and largely taken from Brans's Kernel Tutorial, http://www.osdever.net/bkerndev/Docs/gettingstarted.htm
+Flisp comes with a simple kernel, inspired and largely taken from Bran's Kernel Tutorial, http://www.osdever.net/bkerndev/Docs/gettingstarted.htm
 
 The build script compiles the kernel and generates a floppy disk image with the grub bootloader installed. You can test it out using, e.g.,
 
