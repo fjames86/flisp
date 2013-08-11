@@ -116,8 +116,7 @@ think of a reason!
 
 
 Some things that might be useful to add:
-Custom data structures, tail call optimisation, reader macros, fixing the kernel keyboard driver, ...
-
+Custom data structures, tail call optimisation, math functions (see libflisp/libs/ for code), reader macros, fixing the kernel keyboard driver, ...
 
 Closing notes
 ----------------

@@ -20,8 +20,7 @@
 
 #include "flisp.h"
 
-#define __FLISP_VERSION__ "0.2"
-#define LISP_CORE_FILE "lisp/core.lisp"
+#define __FLISP_VERSION__ "0.3"
 
 void print_heap(size_t topbytes);
 
@@ -59,20 +58,19 @@ int main (int argc, char **argv) {
 
     env_init(&toplevel);
 
-	/*
-	save_image ("flisp.core.bin");
-	*/
-
 	/* set the refresh buffer function */
 	refresh_buffer_f = &rebuffer;
 	
-	printf ("Loading core files...\n");
-	/*	load_file (LISP_CORE_FILE);*/
+	printf ("Loading flisp core ...\n");
 	load_core ();
 
+	/* launch the repl */
 	flisp_repl (TRUE);
 
+	/* clean up */
 	free(heap);
+	free (symt);
+	
     return 0;
 }
 
@@ -218,6 +216,7 @@ void load_image (char *fname) {
 	}
 }
 
+/* evaluate contents of a file */
 void load_file(char *fname) {
 	FILE *f, *tmp;
 	void *expr;
@@ -243,6 +242,7 @@ void load_file(char *fname) {
 	}
 }
 
+/* need these for internal printing operations */
 void putch (unsigned char c) {
 	putchar (c);
 }
