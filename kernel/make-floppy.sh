@@ -1,11 +1,13 @@
 #!/bin/bash
 
+imagefile=floppy.img
+
 # make the flat image
 echo "Creating blank floppy image ..."
-dd if=/dev/zero of=floppy.img bs=512 count=2880
+dd if=/dev/zero of=${imagefile} bs=512 count=2880
 
 # set up the loop back device
-losetup /dev/loop0 floppy.img
+losetup /dev/loop0 ${imagefile}
 
 # create the file system
 echo "Creating file system ..."
