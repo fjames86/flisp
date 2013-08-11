@@ -169,7 +169,7 @@ void print_memory (multiboot_info_t *mbt) {
 #define HEAP_START 0x00000000
 #define HEAP_SIZE  (1024 * 1024)
 #define SYMTAB_START (HEAP_START + HEAP_SIZE)
-#define SYMTAB_SIZE (1024)
+#define SYMTAB_SIZE (1024*1024)
 #define MIN_MEMORY (HEAP_SIZE + SYMTAB_SIZE)
 
 /* reserve 1mb for the kernel */
@@ -257,6 +257,9 @@ int main(multiboot_info_t *mbt, unsigned int magic)
 	memset (reader_buffer, '\0', MAX_LINE);
 	reader_bufferp = reader_buffer;
 
+	/* load flisp core */
+	load_core ();
+	
 	/* enter the flisp repl */
 	flisp_repl (FALSE);
 

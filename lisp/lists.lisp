@@ -13,19 +13,16 @@
 (define (cddar x) (cdr (cdar x)))
 (define (cdddr x) (cdr (cddr x)))
 
-
 ;; mapping functions 
 (define (mapcar proc list)
 	(if list
 		(cons (proc (car list))
 			  (mapcar proc (cdr list)))))
 
-
-(define (mapcdr proc list)
+(define (maplist proc list)
 	(if list
             (cons (proc list)
-		   (mapcdr proc (cdr list)))))
-
+		   (maplist proc (cdr list)))))
 
 (define (nth n list)
     (cond 

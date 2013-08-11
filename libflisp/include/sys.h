@@ -38,6 +38,7 @@ void print_int (int i);
 void print_hex (size_t i);
 void print_hexl (unsigned long l);
 void print_double (double x, int p);
+void print_string (char *str);
 
 #endif
 

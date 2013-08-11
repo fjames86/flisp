@@ -384,6 +384,7 @@ void flisp_repl (bool quit) {
 
 void load_core () {	
 	void (*rbf)();
+	void *expr;
 	
 	/* need to temporarily rebind refresh_buffer_f to our new function */
 	rbf = refresh_buffer_f;
@@ -391,29 +392,50 @@ void load_core () {
 
 	rebuffer_corep = flisp_core_source;
 	while (rebuffer_corep != NULL) {
-		eval(next_expr(), &toplevel);
-	}	
+		expr = next_expr();
+#if 0
+		print_string ("> "); print_object (expr); print_string ("\n");
+#endif
+		expr = eval(expr, &toplevel);
+
+#if 0
+		print_object (expr); print_string ("\n");
+#endif
+	}
 
 	refresh_buffer_f = rbf;
+	
+#if 0
+	print_string ("> ");
 	(*refresh_buffer_f)();
+#endif
 }
 
 void rebuffer_core () {
 	int i = 0;
 
-	reader_bufferp = reader_buffer;
-	while (*rebuffer_corep != '\0' && *rebuffer_corep != '\n' && i < MAX_LINE-1) {
-		*reader_bufferp = *rebuffer_corep;
-		rebuffer_corep++;
-		reader_bufferp++;
-		i++;
-	}
-	*reader_bufferp = '\0';
+	if (rebuffer_corep == NULL) {
+		strcpy (reader_buffer, "NIL");
+		reader_bufferp = reader_buffer;
+	} else {
+		reader_bufferp = reader_buffer;
+		while (*rebuffer_corep != '\0' && *rebuffer_corep != '\n' && i < MAX_LINE-1) {
+			*reader_bufferp = *rebuffer_corep;
+			rebuffer_corep++;
+			reader_bufferp++;
+			i++;
+		}
+		*reader_bufferp = '\0';
 	
-	reader_bufferp = reader_buffer;
-
-	/* signal the end has been reached */
-	if (*rebuffer_corep == '\0') {
-		rebuffer_corep = NULL;
+		reader_bufferp = reader_buffer;
+	
+		/* signal the end has been reached */
+		if (*rebuffer_corep == '\0') {
+			/* restore previous rebuffering function */
+		
+			rebuffer_corep = NULL;
+		} else if (*rebuffer_corep == '\n') {
+			rebuffer_corep++;
+		}
 	}
 }
