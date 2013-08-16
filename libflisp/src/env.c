@@ -93,11 +93,13 @@ void env_init(environment *env) {
 	env_define (env, intern ("ERF"), gc_new_proc (&proc_erf));
 	env_define (env, intern ("ERFC"), gc_new_proc (&proc_erfc));
 	env_define (env, intern ("GAMMA"), gc_new_proc (&proc_gamma));
-	env_define (env, intern ("J0"), gc_new_proc (&proc_j0));
-	env_define (env, intern ("J1"), gc_new_proc (&proc_j1));
+	env_define (env, intern ("BESSEL-J0"), gc_new_proc (&proc_j0));
+	env_define (env, intern ("BESSEL-J1"), gc_new_proc (&proc_j1));
+	env_define (env, intern ("BESSEL-J"), gc_new_proc (&proc_jn));
 	env_define (env, intern ("LGAMMA"), gc_new_proc (&proc_lgamma));
-	env_define (env, intern ("Y0"), gc_new_proc (&proc_y0));
-	env_define (env, intern ("Y1"), gc_new_proc (&proc_y1));
+	env_define (env, intern ("BESSEL-Y0"), gc_new_proc (&proc_y0));
+	env_define (env, intern ("BESSEL-Y1"), gc_new_proc (&proc_y1));
+	env_define (env, intern ("BESSEL-Y"), gc_new_proc (&proc_yn));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */

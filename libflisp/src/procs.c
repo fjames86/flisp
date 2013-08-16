@@ -887,6 +887,44 @@ void *proc_j1 (type_cell *args) {
 	return math_helper(args, &j1);
 }
 
+void *proc_jn (type_cell *args) {
+	double x;
+	int n;
+	void *val;
+
+	val = cell_car (args);
+	switch (get_type (val)) {
+	case TYPE_INT:
+		x = (double)CAST(type_int *, val)->i;
+		break;
+	case TYPE_DOUBLE:
+		x = CAST(type_double *, val)->d;
+		break;
+	default:
+		error ("Argument 0 must be a number", "BESSEL");
+		x = 0.0;
+	}
+
+	val = cell_cadr (args);
+	switch (get_type (val)) {
+	case TYPE_INT:
+		n = CAST(type_int *, val)->i;
+		break;
+	default:
+		error ("Argument 1 must be an integer", "BESSEL");
+		n = 0;
+	}
+
+	if (n == 0) {
+		return gc_new_double (j0(x));
+	} else if (n == 1) {
+		return gc_new_double (j1(x));
+	} else {
+		return gc_new_double (jn (n, x));
+	}
+}
+
+	
 void *proc_lgamma (type_cell *args) {
 	return math_helper(args, &lgamma);
 }
@@ -899,3 +937,39 @@ void *proc_y1 (type_cell *args) {
 	return math_helper(args, &y1);
 }
 
+void *proc_yn (type_cell *args) {
+	double x;
+	int n;
+	void *val;
+
+	val = cell_car (args);
+	switch (get_type (val)) {
+	case TYPE_INT:
+		x = (double)CAST(type_int *, val)->i;
+		break;
+	case TYPE_DOUBLE:
+		x = CAST(type_double *, val)->d;
+		break;
+	default:
+		error ("Argument 0 must be a number", "BESSEL");
+		x = 0.0;
+	}
+
+	val = cell_cadr (args);
+	switch (get_type (val)) {
+	case TYPE_INT:
+		n = CAST(type_int *, val)->i;
+		break;
+	default:
+		error ("Argument 1 must be an integer", "BESSEL");
+		n = 0;
+	}
+
+	if (n == 0) {
+		return gc_new_double (y0(x));
+	} else if (n == 1) {
+		return gc_new_double (y1(x));
+	} else {
+		return gc_new_double (yn (n, x));
+	}
+}

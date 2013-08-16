@@ -101,10 +101,11 @@ void *proc_erfc (type_cell *args);
 void *proc_gamma (type_cell *args);
 void *proc_j0 (type_cell *args);
 void *proc_j1 (type_cell *args);
+void *proc_jn (type_cell *args);
 void *proc_lgamma (type_cell *args);
 void *proc_y0 (type_cell *args);
 void *proc_y1 (type_cell *args);
-
+void *proc_yn (type_cell *args);
 
 
 #endif 
