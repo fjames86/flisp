@@ -31,10 +31,11 @@
 #define TYPE_NULL               7
 #define TYPE_PROC               8
 #define TYPE_CLOSURE            9
+#define TYPE_STRUCT             10
 
 #define CAST(type, x)           ((type)(x))
 
-static char *type_names[] = {"INT", "STRING", "CONS", "SYMBOl", "DOUBLE", "HASH-TABLE", "ARRAY", "NULL", "PROC", "CLOSURE"};
+static char *type_names[] = {"INT", "STRING", "CONS", "SYMBOl", "DOUBLE", "HASH-TABLE", "ARRAY", "NULL", "PROC", "CLOSURE", "STRUCT"};
 
 
 typedef unsigned int gc_type;
@@ -105,18 +106,13 @@ typedef struct {
   struct environment_ *env;
 } type_closure;
 
+/* user defined structures are just an array of object pointers */
+typedef struct {
+	gc_tag tag;
+	size_t nslots;
+	void **slots;
+} type_struct;
 
-#if 0
-static size_t type_size[] = {sizeof(type_int),
-							 sizeof(type_string),
-							 sizeof(type_cell),
-							 sizeof(type_symbol),
-							 sizeof(type_double),
-							 sizeof(type_ht),
-							 sizeof(type_array),
-                             sizeof(void *),
-                             sizeof(type_proc) };
-#endif 
 
 gc_type get_type (void *val);
 

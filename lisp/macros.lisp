@@ -34,3 +34,11 @@
 			   ,(cadr clause)
 			   (cond @(cdr clauses))))))
 
+(defmacro (push val place)
+	`(set! ,place (cons ,val ,place)))
+
+(defmacro (pop val place)
+	(let ((gx (gensym)))
+	  `(let ((,gx (car ,place)))
+		 (set! ,place (cdr ,place))
+		 ,gx)))

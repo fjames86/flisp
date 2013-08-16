@@ -41,6 +41,7 @@ void *assoc (void *key, type_cell *alist);
 type_cell *mapcar (void *(*proc)(void *), type_cell *args);
 type_cell *copy_list (type_cell *l);
 type_cell *append (type_cell *lists);
+size_t list_length (type_cell *list);
 
 #endif
 

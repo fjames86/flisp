@@ -51,6 +51,31 @@ void *cell_cdr(type_cell *cell) {
 	}
 }
 
+size_t list_length (type_cell *list) {
+	type_cell *fast, *slow;
+	size_t i = 0;
+
+	fast = list;
+	slow = list;
+	while (TRUE) {
+		if (fast == NULL) {
+			break;
+		} else if (slow == NULL) {
+			i += 1;
+			break;
+		} else if (i > 0 && fast == slow) {
+			i = -1;
+			break;
+		}
+		
+		fast = cell_cddr (fast);
+		slow = cell_cdr (slow);
+		i += 2;
+	}
+	
+	return i;
+}
+
 void *cell_caar(type_cell *cell) {
 	return cell_car(cell_car(cell));
 }

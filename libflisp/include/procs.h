@@ -38,6 +38,7 @@ void *proc_set_cdr (type_cell *args);
 void *proc_cons (type_cell *args);
 void *proc_list (type_cell *args);
 void *proc_reverse (type_cell *args);
+void *proc_length (type_cell *args);
 
 void *proc_add (type_cell *args);
 void *proc_sub (type_cell *args);

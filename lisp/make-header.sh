@@ -11,7 +11,7 @@ echo >> ${fname}
 
 echo "static char flisp_core_source[] = \"\\" >> ${fname}
 
-awk '{print $0 "\\n\\";}' *.lisp >> ${fname}
+awk '{gsub("\"", "\\\""); print $0 "\\n\\";}' *.lisp >> ${fname}
 
 echo "\";" >> ${fname}
 echo >> ${fname}

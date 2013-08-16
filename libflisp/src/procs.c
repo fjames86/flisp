@@ -401,6 +401,26 @@ void *proc_reverse (type_cell *args) {
 	return ret;
 }
 
+void *proc_length (type_cell *args) {
+	void *ret, *list;
+
+	list = cell_car (args);
+	switch (get_type (list)) {
+	case TYPE_CELL:
+	case TYPE_NULL:
+		ret = gc_new_int (list_length (CAST(type_cell *, list)));
+		break;
+	case TYPE_ARRAY:
+		ret = gc_new_int (CAST(type_array *, list)->size);
+		break;
+	default:
+		error ("Length expects a list or array", "LENGTH");
+		ret = NULL;
+	}
+	return ret;
+}
+
+
 /* apply a proc to a list of arguments, e.g. (apply + 1 2 (list 3 4)) -> 10. the final arg MUST be a list or NULL */
 void *proc_apply (type_cell *args) {
 	void *proc;

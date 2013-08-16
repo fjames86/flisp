@@ -175,6 +175,22 @@ type_closure *gc_new_closure (type_cell *params, type_cell *body, environment *e
 	return ret;
 }
 
+type_struct *gc_new_struct (size_t nslots) {
+	size_t i;
+	type_struct *ret = gc_malloc (sizeof(type_struct));
+	ret->tag.type = TYPE_CLOSURE;
+	ret->tag.forw = NULL;
+
+	ret->nslots = nslots;
+	ret->slots = gc_malloc (sizeof(void *)*nslots);
+
+	for (i=0; i < nslots; i++) {
+		ret->slots[i] = NULL;
+	}
+
+	return ret;
+}
+
 /* make a new object based on its type */
 void *gc_new_copy (void *object) {
 	gc_type type;
@@ -213,6 +229,9 @@ void *gc_new_copy (void *object) {
 	case TYPE_CLOSURE:
 		c = CAST(type_closure *, object);		
 		ret = gc_new_closure (c->params, c->body, c->env);
+		break;
+	case TYPE_STRUCT:
+		ret = gc_new_struct (CAST(type_struct *, object)->nslots);
 		break;
 	}
 	return ret;
@@ -277,6 +296,17 @@ void gc_relocate_closure (type_closure **new, type_closure *old) {
 	/* don't need to relocate the env as this doesn't get gc'ed */
 }
 
+/* structures are really just arrays  */
+void gc_relocate_struct (type_struct **new, type_struct *old) {
+	size_t i;
+	void *c;
+
+	for(i=0; i < old->nslots; i++) {
+		c = old->slots[i];
+		gc_relocate((void **)&((*new)->slots[i]), c);
+	}
+}
+
 
 /* --------- top level relocate function -------- */
 
@@ -316,6 +346,9 @@ void gc_relocate (void **new, void *old) {
 		break;
 	case TYPE_CLOSURE:
 		gc_relocate_closure ((type_closure **)new, (type_closure *)old);
+		break;
+	case TYPE_STRUCT:
+		gc_relocate_struct ((type_struct **)new, (type_struct *)old);
 		break;
 	}
 }
