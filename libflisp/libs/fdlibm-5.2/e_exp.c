@@ -110,8 +110,6 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 	int k,xsb;
 	unsigned hx;
 
-    puts("my exp\n");
-
 	hx  = __HI(x);	/* high word of x */
 	xsb = (hx>>31)&1;		/* sign bit of x */
 	hx &= 0x7fffffff;		/* high word of |x| */

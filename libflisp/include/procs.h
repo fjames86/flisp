@@ -24,6 +24,7 @@
 #include "array.h"
 #include "lists.h"
 #include "env.h"
+#include "fdlibm.h"
 
 extern void *apply (void *proc, type_cell *args);
 extern void load_file (char *fname);
@@ -74,6 +75,37 @@ void *proc_heap (type_cell *args);
 
 void *proc_copy_list (type_cell *args);
 void *proc_error (type_cell *args);
+
+void *proc_cos (type_cell *args);
+void *proc_sin (type_cell *args);
+void *proc_tan (type_cell *args);
+void *proc_acos (type_cell *args);
+void *proc_asin (type_cell *args);
+void *proc_atan (type_cell *args);
+void *proc_cosh (type_cell *args);
+void *proc_sinh (type_cell *args);
+void *proc_tanh (type_cell *args);
+void *proc_acosh (type_cell *args);
+void *proc_asinh (type_cell *args);
+void *proc_atanh (type_cell *args);
+
+void *proc_exp (type_cell *args);
+void *proc_log (type_cell *args);
+void *proc_log10 (type_cell *args);
+void *proc_sqrt (type_cell *args);
+void *proc_ceil (type_cell *args);
+void *proc_fabs (type_cell *args);
+void *proc_floor (type_cell *args);
+void *proc_erf (type_cell *args);
+void *proc_erfc (type_cell *args);
+void *proc_gamma (type_cell *args);
+void *proc_j0 (type_cell *args);
+void *proc_j1 (type_cell *args);
+void *proc_lgamma (type_cell *args);
+void *proc_y0 (type_cell *args);
+void *proc_y1 (type_cell *args);
+
+
 
 #endif 
 

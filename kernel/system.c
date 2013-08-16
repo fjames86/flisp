@@ -115,7 +115,7 @@ void __attribute__((noreturn)) __stack_chk_fail()
   unsigned char * vid = (unsigned char *)0xB8000;
   vid[1] = 7;
   for(;;)
-    vid[0]++;
+	  vid[0]++;
 }
 
 

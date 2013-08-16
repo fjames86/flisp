@@ -736,4 +736,166 @@ void *proc_error (type_cell *args) {
 	return NULL;
 }
 
+void *math_helper (type_cell *args, double (*fun)(double)) {
+	double x;
+	void *val;
+
+	val = cell_car (args);
+
+	switch (get_type (val)) {
+	case TYPE_INT:
+		x = (double)CAST(type_int *, val)->i;
+		break;
+	case TYPE_DOUBLE:
+		x = CAST(type_double *, val)->d;
+		break;
+	default:
+		error ("Not a number", "MATH");
+		x = 0.0;
+	}
+
+	return gc_new_double ((*fun)(x));
+}
+
+void *proc_cos (type_cell *args) {
+	return math_helper (args, &cos);
+}
+
+void *proc_sin (type_cell *args) {
+	return math_helper (args, &sin);
+}
+
+void *proc_tan (type_cell *args) {
+	return math_helper (args, &tan);
+}
+
+void *proc_acos (type_cell *args) {
+	return math_helper (args, &acos);
+}
+
+void *proc_asin (type_cell *args) {
+	return math_helper (args, &asin);
+}
+
+/* atan is different as we have atan2 */
+void *proc_atan (type_cell *args) {
+	double x, y;
+	void *val;
+
+	val = cell_car (args);
+
+	switch (get_type (val)) {
+	case TYPE_INT:
+		x = (double)CAST(type_int *, val)->i;
+		break;
+	case TYPE_DOUBLE:
+		x = CAST(type_double *, val)->d;
+		break;
+	default:
+		error ("Not a number", "MATH");
+		x = 0.0;
+	}
+
+	val = cell_cadr (args);
+	if (val) {
+		switch (get_type (val)) {
+		case TYPE_INT:
+			y = (double)CAST(type_int *, val)->i;
+			break;
+		case TYPE_DOUBLE:
+			y = CAST(type_double *, val)->d;
+			break;
+		default:
+			error ("Not a number", "MATH");
+			y = 0.0;
+		}
+		return gc_new_double (atan2(y, x));
+	} else {
+		return gc_new_double (atan (x));
+	}
+}
+
+void *proc_cosh (type_cell *args) {
+	return math_helper (args, &cosh);
+}
+
+void *proc_sinh (type_cell *args) {
+	return math_helper (args, &sinh);
+}
+
+void *proc_tanh (type_cell *args) {
+	return math_helper (args, &tanh);
+}
+
+void *proc_acosh (type_cell *args) {
+	return math_helper (args, &acosh);
+}
+
+void *proc_asinh (type_cell *args) {
+	return math_helper (args, &asinh);
+}
+
+void *proc_atanh (type_cell *args) {
+	return math_helper (args, &atanh);
+}
+
+void *proc_exp (type_cell *args) {
+	return math_helper (args, &exp);
+}
+
+void *proc_log (type_cell *args) {
+	return math_helper (args, &log);
+}
+
+void *proc_log10 (type_cell *args) {
+	return math_helper (args, &log10);
+}
+
+void *proc_sqrt (type_cell *args) {
+	return math_helper (args, &sqrt);
+}
+
+void *proc_ceil (type_cell *args) {
+	return math_helper (args, &ceil);
+}
+
+void *proc_fabs (type_cell *args) {
+	return math_helper(args, &fabs);
+}
+
+void *proc_floor (type_cell *args) {
+	return math_helper(args, &floor);
+}
+
+void *proc_erf (type_cell *args) {
+	return math_helper(args, &erf);
+}
+
+void *proc_erfc (type_cell *args) {
+	return math_helper(args, &erfc);
+}
+
+void *proc_gamma (type_cell *args) {
+	return math_helper(args, &gamma);
+}
+
+void *proc_j0 (type_cell *args) {
+	return math_helper(args, &j0);
+}
+
+void *proc_j1 (type_cell *args) {
+	return math_helper(args, &j1);
+}
+
+void *proc_lgamma (type_cell *args) {
+	return math_helper(args, &lgamma);
+}
+
+void *proc_y0 (type_cell *args) {
+	return math_helper(args, &y0);
+}
+
+void *proc_y1 (type_cell *args) {
+	return math_helper(args, &y1);
+}
 

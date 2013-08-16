@@ -52,22 +52,52 @@ void env_init(environment *env) {
 	env_define (env, intern("<="), gc_new_proc (&proc_lte));
 	env_define (env, intern("="), gc_new_proc (&proc_e));
 
-	env_define (env, intern("MACROEXPAND"), gc_new_proc (&proc_macroexpand));
-	env_define (env, intern("GENSYM"), gc_new_proc (&proc_gensym));
-	env_define (env, intern("TYPE-OF"), gc_new_proc (&proc_typeof));
+	env_define (env, intern ("MACROEXPAND"), gc_new_proc (&proc_macroexpand));
+	env_define (env, intern ("GENSYM"), gc_new_proc (&proc_gensym));
+	env_define (env, intern ("TYPE-OF"), gc_new_proc (&proc_typeof));
 
-	env_define (env, intern("PRINT"), gc_new_proc (&proc_print));
-	env_define (env, intern("PRINC"), gc_new_proc (&proc_princ));
-	env_define (env, intern("FORMAT"), gc_new_proc (&proc_format));
-	env_define (env, intern("TOPLEVEL"), gc_new_proc (&proc_toplevel));
-	env_define (env, intern("GETHASH"), gc_new_proc (&proc_gethash));
-	env_define (env, intern("SETHASH"), gc_new_proc (&proc_sethash));
-	env_define (env, intern("REMHASH"), gc_new_proc (&proc_remhash));
-	env_define (env, intern("HEAP"), gc_new_proc (&proc_heap));
+	env_define (env, intern ("PRINT"), gc_new_proc (&proc_print));
+	env_define (env, intern ("PRINC"), gc_new_proc (&proc_princ));
+	env_define (env, intern ("FORMAT"), gc_new_proc (&proc_format));
+	env_define (env, intern ("TOPLEVEL"), gc_new_proc (&proc_toplevel));
+	env_define (env, intern ("GETHASH"), gc_new_proc (&proc_gethash));
+	env_define (env, intern ("SETHASH"), gc_new_proc (&proc_sethash));
+	env_define (env, intern ("REMHASH"), gc_new_proc (&proc_remhash));
+	env_define (env, intern ("HEAP"), gc_new_proc (&proc_heap));
 
     env_define (env, intern ("APPEND"), gc_new_proc (&proc_append));
-    env_define (env, intern("COPY-LIST"), gc_new_proc (&proc_copy_list));
-	env_define (env, intern("ERROR"), gc_new_proc (&proc_error));
+    env_define (env, intern ("COPY-LIST"), gc_new_proc (&proc_copy_list));
+	env_define (env, intern ("ERROR"), gc_new_proc (&proc_error));
+
+	/* math related stuff */
+	env_define (env, intern ("PI"), gc_new_double (PI));
+	env_define (env, intern ("COS"), gc_new_proc (&proc_cos));
+	env_define (env, intern ("SIN"), gc_new_proc (&proc_sin));
+	env_define (env, intern ("TAN"), gc_new_proc (&proc_tan));
+	env_define (env, intern ("ACOS"), gc_new_proc (&proc_acos));
+	env_define (env, intern ("ASIN"), gc_new_proc (&proc_asin));
+	env_define (env, intern ("ATAN"), gc_new_proc (&proc_atan));
+	env_define (env, intern ("COSH"), gc_new_proc (&proc_cosh));
+	env_define (env, intern ("SINH"), gc_new_proc (&proc_sinh));
+	env_define (env, intern ("TANH"), gc_new_proc (&proc_tanh));
+	env_define (env, intern ("ACOSH"), gc_new_proc (&proc_acosh));
+	env_define (env, intern ("ASINH"), gc_new_proc (&proc_asinh));
+	env_define (env, intern ("ATANH"), gc_new_proc (&proc_atanh));
+	env_define (env, intern ("EXP"), gc_new_proc (&proc_exp));
+	env_define (env, intern ("LOG"), gc_new_proc (&proc_log));
+	env_define (env, intern ("LOG10"), gc_new_proc (&proc_log10));
+	env_define (env, intern ("SQRT"), gc_new_proc (&proc_sqrt));
+	env_define (env, intern ("CEILING"), gc_new_proc (&proc_ceil));
+	env_define (env, intern ("ABS"), gc_new_proc (&proc_fabs));
+	env_define (env, intern ("FLOOR"), gc_new_proc (&proc_floor));
+	env_define (env, intern ("ERF"), gc_new_proc (&proc_erf));
+	env_define (env, intern ("ERFC"), gc_new_proc (&proc_erfc));
+	env_define (env, intern ("GAMMA"), gc_new_proc (&proc_gamma));
+	env_define (env, intern ("J0"), gc_new_proc (&proc_j0));
+	env_define (env, intern ("J1"), gc_new_proc (&proc_j1));
+	env_define (env, intern ("LGAMMA"), gc_new_proc (&proc_lgamma));
+	env_define (env, intern ("Y0"), gc_new_proc (&proc_y0));
+	env_define (env, intern ("Y1"), gc_new_proc (&proc_y1));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */

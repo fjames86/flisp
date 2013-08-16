@@ -29,6 +29,9 @@
 /* default initial size of special variable hash table */
 #define ENV_SIZE           100
 
+
+#define PI                 3.141592653589793
+
 /* environments store the top level bindings in a hash table
    this makes sense because we are likely to have many bindings here
    local/lexical bindings are stored as a list of assoc lists. each assoc list

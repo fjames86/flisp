@@ -51,7 +51,7 @@
 #
 #CFLAGS = -D_IEEE_LIBM 
 CFLAGS = -D_IEEE_LIBM -D__GW32__ -D_LARGEFILE_SOURCE=1 -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 \
-	-Wall -O3 -fms-extensions -mms-bitfields  -fno-exceptions -fomit-frame-pointer -march=i386 -mcpu=i686
+	-Wall -fms-extensions -mms-bitfields  -fno-exceptions -fomit-frame-pointer -march=i386 -mcpu=i686
 CC = gcc
 
 INCFILES = fdlibm.h
@@ -104,7 +104,7 @@ all: libm.a
 libm.a : $(obj) 
 	ar cru libm.a $(obj)
 	ranlib libm.a
-	a2dll libm.a -o libm5.dll
+#	a2dll libm.a -o libm5.dll
 
 source: $(src) README
 
