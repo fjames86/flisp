@@ -993,3 +993,25 @@ void *proc_yn (type_cell *args) {
 		return gc_new_double (yn (n, x));
 	}
 }
+
+void *proc_assoc (type_cell *args) {
+	void *list, *val, *ret;
+
+	val = cell_car (args);
+	list = cell_cadr (args);
+
+	switch (get_type (list)) {
+	case TYPE_NULL:
+	case TYPE_CELL:
+		ret = assoc (val, CAST(type_cell *, list));
+		break;
+	default:
+		error ("Expects a list", "ASSOC");
+		ret = NULL;
+	}
+
+	return ret;
+}
+
+
+	

@@ -2,12 +2,14 @@
 (define *struct-definitions* nil)
 
 (defmacro (defstruct name . slots)
-	`(push (cons ',name ',slots) *struct-definitions*))
+	`(begin
+	  (push (cons ',name ',slots) *struct-definitions*)
+	  ',name))
 
 (define (make-instance struct-type)
 	(let ((s (assoc struct-type *struct-definitions*)))
 	  (if s
-		  (make-array (length (cdr s)))
+		  (list 'struct struct-type (make-array (length (cdr s))))
 		  (error "No such struct" "MAKE-INSTANCE"))))
 
 (define (list-position list val)
@@ -19,14 +21,14 @@
 
 
 (define (struct-slot struct slot)
-	(let ((s (assoc struct *struct-definitions*)))
+	(let ((s (assoc (cadr struct) *struct-definitions*)))
 	   (if s
-		   (aref struct (list-position (cdr s) slot))
+		   (aref (caddr struct) (list-position (cdr s) slot))
 		   (error "Struct does not have that slot" "STRUCT-SLOT"))))
 
 (define (set-struct-slot! struct slot val)
-	(let ((s (assoc struct *struct-definitions*)))
+	(let ((s (assoc (cadr struct) *struct-definitions*)))
 	  (if s
-		  (set-aref! struct (list-position (cdr s) slot))
+		  (set-aref! (caddr struct) (list-position (cdr s) slot) val)
 		  (error "Struct does not have that slot" "SET-STRUCT-SLOT!"))))
 

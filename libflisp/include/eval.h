@@ -35,6 +35,7 @@ void *apply (void *proc, type_cell *args);
 void *apply_proc (flisp_proc_t proc, type_cell *args);
 void *macroexpand (void *expr, struct environment_ *env);
 void *eval_quasiquote (void *expr, struct environment_ *env);
+void *eval_do (type_cell *update_exprs, void *test_expr, void *ret_expr, type_cell *body, struct environment_ *env);
 
 #endif 
 

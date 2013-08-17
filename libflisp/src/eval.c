@@ -69,8 +69,9 @@ void *eval(void *expr, environment *env) {
 
 void *eval_expr(type_cell *expr, environment *env) {
 	void *proc, *ret, *bindings, *params, *body;
-	void *name, *val;
+	void *name, *val, *test;
 	type_cell *args, **c, *orig;
+	type_cell *update_exprs, *syms, *vals, *dbindings, *binding;
 
 	if (expr == NULL) {
 		return NULL;
@@ -152,6 +153,41 @@ void *eval_expr(type_cell *expr, environment *env) {
 	} else if (eq(proc, intern ("UNQUOTE-SPLICING"))) {
 		error ("Unquote-splicing outside a quasiquote", "EVAL-EXPR");
 		ret = NULL;
+	} else if (eq(proc, intern ("DO"))) {
+		/* do macro. written in C and exposed as a special operator though... */
+
+		/* destructure: (do bindings (test return) &body body) */
+		dbindings = (type_cell *)cell_car (expr);
+		test = cell_cadr (expr);
+		body = cell_cddr (expr);
+
+		/* extract the update expressions from the binding list */
+		update_exprs = NULL;
+		c = &update_exprs;
+		syms = NULL;
+		vals = NULL;
+		while (dbindings != NULL) {
+			/* (var init update-expr) */
+			binding = (type_cell *)cell_car (dbindings);
+			
+			syms = cons (cell_car (binding), syms);
+			vals = cons (eval (cell_cadr (binding), env), vals);
+
+			binding = (type_cell *)cell_cddr (binding);
+			*c = cons (cell_car (binding), NULL);
+			c = (type_cell **)&((*c)->cdr);
+			
+			dbindings = dbindings->cdr;
+		}
+		
+		/* add the lexical frame */
+		extend_env (env, syms, vals);
+
+		/* evaluate the do expression */
+		ret = eval_do (update_exprs, cell_car (test), cell_cadr (test), body, env);
+
+		/* remove the frame */
+		remove_frame (env);
 	} else {
 		/* procedure application. could be either a closure or primitive proc */
 		proc = eval(proc, env);
@@ -394,3 +430,44 @@ void *eval_quasiquote (void *expr, environment *env) {
 	}
 	return ret;
 }
+
+/* the environment has already been extended with the local bindings  for the do form */
+void *eval_do (type_cell *update_exprs, void *test_expr, void *ret_expr, type_cell *body, environment *env) {
+	type_cell *frame, *binding, *updates;
+	void *ret = NULL;
+
+	print_string ("update_exprs: "); print_object (update_exprs); print_string ("\n");
+	print_string ("test_expr: "); print_object (test_expr); print_string ("\n");
+	print_string ("ret expr: "); print_object (ret_expr); print_string ("\n");
+	print_string ("body: "); print_object (body); print_string ("\n");
+	
+	while (TRUE) {		
+		/* test the ending expression */
+		if (eval (test_expr, env)) {
+			/* returned true, return the ret expression */
+			if (ret_expr) {
+				ret = eval (ret_expr, env);
+			}
+			break;
+		}
+		
+		/* evaluate the body */
+		if (body) {
+			eval_exprs (body, env);
+		}
+				
+		/* update the locals in the frame */
+		frame = cell_car (env->lexical);
+		updates = update_exprs;
+		while (frame != NULL) {
+			binding = cell_car (frame);
+			binding->cdr = eval (cell_car (updates), env);
+			
+			updates = updates->cdr;
+			frame = frame->cdr;
+		}	   
+	}
+
+	return ret;
+}
+

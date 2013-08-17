@@ -108,6 +108,7 @@ void *proc_y0 (type_cell *args);
 void *proc_y1 (type_cell *args);
 void *proc_yn (type_cell *args);
 
+void *proc_assoc (type_cell *args);
 
 #endif 
 

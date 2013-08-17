@@ -101,6 +101,8 @@ void env_init(environment *env) {
 	env_define (env, intern ("BESSEL-Y0"), gc_new_proc (&proc_y0));
 	env_define (env, intern ("BESSEL-Y1"), gc_new_proc (&proc_y1));
 	env_define (env, intern ("BESSEL-Y"), gc_new_proc (&proc_yn));
+
+	env_define (env, intern ("ASSOC"), gc_new_proc (&proc_assoc));
 }
 
 /* lookup a binding in the environment. search through the lexical frames before trying the toplevel */
