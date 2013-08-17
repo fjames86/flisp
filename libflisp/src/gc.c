@@ -70,35 +70,40 @@ void *gc_malloc (size_t size) {
 
 type_int *gc_new_int (int i) {
 	type_int *ret = (type_int *)gc_malloc(sizeof(type_int));
-	ret->tag.type = TYPE_INT;
-	ret->tag.forw = NULL;
-
-	ret->i = i;
-
+	if (ret) {
+		ret->tag.type = TYPE_INT;
+		ret->tag.forw = NULL;
+		
+		ret->i = i;
+	}
 	return ret;
 }
 
 type_string *gc_new_string (char *str) {
 	size_t len = strlen(str) + 1;
 	type_string *ret = (type_string *)gc_malloc(sizeof(type_string));
-	ret->tag.type = TYPE_STRING;
-	ret->tag.forw = NULL;
+	if (ret) {
+		ret->tag.type = TYPE_STRING;
+		ret->tag.forw = NULL;
 
-	ret->str = (char *)gc_malloc(sizeof(char)*len);
-	strcpy(ret->str, str);
-	ret->len = len;
-
+		ret->str = (char *)gc_malloc(sizeof(char)*len);
+		strcpy(ret->str, str);
+		ret->len = len;
+	}
+	
 	return ret;
 }
 
 type_cell *gc_new_cell () {
 	type_cell *ret = gc_malloc(sizeof(type_cell));
-	ret->tag.type = TYPE_CELL;
-	ret->tag.forw = NULL;
-
-	ret->car = NULL;
-	ret->cdr = NULL;
-
+	if (ret) {
+		ret->tag.type = TYPE_CELL;
+		ret->tag.forw = NULL;
+		
+		ret->car = NULL;
+		ret->cdr = NULL;
+	}
+	
 	return ret;
 }
 
@@ -108,86 +113,102 @@ type_cell *gc_new_cell () {
  */
 type_symbol *gc_new_symbol (char *sym) {
 	type_symbol *ret = gc_malloc(sizeof(type_symbol));
-
-	ret->tag.type = TYPE_SYMBOL;
-	ret->tag.forw = NULL;
-
-	ret->sym = sym;
+	if (ret) {
+		ret->tag.type = TYPE_SYMBOL;
+		ret->tag.forw = NULL;
+		
+		ret->sym = sym;
+	}
+	
 	return ret;
 }
 
 type_double *gc_new_double (double d) {
 	type_double *ret = gc_malloc(sizeof(type_double));
-	ret->tag.type = TYPE_DOUBLE;
-	ret->tag.forw = NULL;
-
-	ret->d = d;
+	if (ret) {
+		ret->tag.type = TYPE_DOUBLE;
+		ret->tag.forw = NULL;
+		
+		ret->d = d;
+	}
+	
 	return ret;
 }
 
 type_ht *gc_new_ht(size_t size) {
 	type_ht *ret = gc_malloc(sizeof(type_ht));
 	size_t i;
-	ret->tag.type = TYPE_HT;
-	ret->tag.forw = NULL;
-
-	ret->buckets = gc_malloc(sizeof(type_cell *)*size);
-	for(i=0; i < size; i++) {
-		ret->buckets[i] = NULL;
+	if (ret) {
+		ret->tag.type = TYPE_HT;
+		ret->tag.forw = NULL;
+		
+		ret->buckets = gc_malloc(sizeof(type_cell *)*size);
+		for(i=0; i < size; i++) {
+			ret->buckets[i] = NULL;
+		}
+	
+		ret->size = size;
+		ret->fill = 0;
 	}
-
-	ret->size = size;
-	ret->fill = 0;
+	
 	return ret;
 }
 
 type_array *gc_new_array (size_t size) {
 	type_array *ret = gc_malloc(sizeof(type_array));
 	size_t i;
-	ret->tag.type = TYPE_ARRAY;
-	ret->tag.forw = NULL;
-
-	ret->data = gc_malloc(sizeof(void *)*size);
-	for(i=0; i < size; i++) {
-		ret->data[i] = NULL;
+	if (ret) {
+		ret->tag.type = TYPE_ARRAY;
+		ret->tag.forw = NULL;
+		
+		ret->data = gc_malloc(sizeof(void *)*size);
+		for(i=0; i < size; i++) {
+			ret->data[i] = NULL;
+		}
+		
+		ret->size = size;
 	}
-
-	ret->size = size;
+	
 	return ret;	
 }
 
 type_proc *gc_new_proc (flisp_proc_t proc) {
 	type_proc *ret = gc_malloc(sizeof(type_proc));
-	ret->tag.type = TYPE_PROC;
-	ret->tag.forw = NULL;
-	ret->proc = proc;
+	if (ret) {
+		ret->tag.type = TYPE_PROC;
+		ret->tag.forw = NULL;
+		ret->proc = proc;
+	}
 	return ret;
 }
 
 type_closure *gc_new_closure (type_cell *params, type_cell *body, environment *env) {
 	type_closure *ret = gc_malloc(sizeof(type_closure));
-	ret->tag.type = TYPE_CLOSURE;
-	ret->tag.forw = NULL;
-	
-	ret->params = params;
-	ret->body = body;
-	ret->env = env;
+	if (ret) {
+		ret->tag.type = TYPE_CLOSURE;
+		ret->tag.forw = NULL;
+		
+		ret->params = params;
+		ret->body = body;
+		ret->env = env;
+	}
 	return ret;
 }
 
 type_struct *gc_new_struct (size_t nslots) {
 	size_t i;
 	type_struct *ret = gc_malloc (sizeof(type_struct));
-	ret->tag.type = TYPE_CLOSURE;
-	ret->tag.forw = NULL;
-
-	ret->nslots = nslots;
-	ret->slots = gc_malloc (sizeof(void *)*nslots);
-
-	for (i=0; i < nslots; i++) {
-		ret->slots[i] = NULL;
+	if (ret) {
+		ret->tag.type = TYPE_CLOSURE;
+		ret->tag.forw = NULL;
+		
+		ret->nslots = nslots;
+		ret->slots = gc_malloc (sizeof(void *)*nslots);
+		
+		for (i=0; i < nslots; i++) {
+			ret->slots[i] = NULL;
+		}
 	}
-
 	return ret;
 }
 

@@ -21,9 +21,11 @@
 type_cell *cons (void *car, void *cdr) {
 	type_cell *c = gc_new_cell();
 
-	c->car = car;
-	c->cdr = cdr;
-
+	if (c) {
+		c->car = car;
+		c->cdr = cdr;
+	}
+	
     return c;
 }
 

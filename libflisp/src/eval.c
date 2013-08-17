@@ -435,11 +435,6 @@ void *eval_quasiquote (void *expr, environment *env) {
 void *eval_do (type_cell *update_exprs, void *test_expr, void *ret_expr, type_cell *body, environment *env) {
 	type_cell *frame, *binding, *updates;
 	void *ret = NULL;
-
-	print_string ("update_exprs: "); print_object (update_exprs); print_string ("\n");
-	print_string ("test_expr: "); print_object (test_expr); print_string ("\n");
-	print_string ("ret expr: "); print_object (ret_expr); print_string ("\n");
-	print_string ("body: "); print_object (body); print_string ("\n");
 	
 	while (TRUE) {		
 		/* test the ending expression */
